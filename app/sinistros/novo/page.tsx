@@ -11,7 +11,13 @@ import TipoEventoStep from "@/components/sinistro/TipoEventoStep"
 import DadosStep from "@/components/sinistro/DadosStep"
 import DocumentosStep from "@/components/sinistro/DocumentosStep"
 import AnaliseStep from "@/components/sinistro/AnaliseStep"
-import { getSession, saveSinistro, generateId } from "@/lib/storage"
+import {
+  getSession,
+  saveSinistro,
+  generateId,
+  getAccessToken,
+  getEmpresaIdFromSession,
+} from "@/lib/storage"
 import type {
   TipoEvento,
   DadosSinistro,
@@ -120,6 +126,21 @@ export default function NovoSinistroPage() {
       }
 
       saveSinistro(sinistro)
+
+      // Persiste no Supabase de forma assíncrona — não bloqueia o fluxo
+      const token = getAccessToken()
+      const empresaId = getEmpresaIdFromSession()
+      if (token && empresaId) {
+        fetch("/api/sinistros/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ sinistro, empresaId }),
+        }).catch(console.error)
+      }
+
       router.push(`/sinistros/${sinistroId}`)
     } catch (error) {
       console.error("Erro na análise:", error)
@@ -133,6 +154,21 @@ export default function NovoSinistroPage() {
         criadoEm: new Date().toISOString(),
       }
       saveSinistro(sinistro)
+
+      // Tenta persistir no Supabase mesmo em caso de falha na análise
+      const token = getAccessToken()
+      const empresaId = getEmpresaIdFromSession()
+      if (token && empresaId) {
+        fetch("/api/sinistros/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ sinistro, empresaId }),
+        }).catch(console.error)
+      }
+
       router.push(`/sinistros/${sinistroId}`)
     }
   }

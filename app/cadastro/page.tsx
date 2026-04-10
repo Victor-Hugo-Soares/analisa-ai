@@ -47,7 +47,29 @@ export default function CadastroPage() {
     }
 
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1000))
+
+    try {
+      // Registra empresa e usuário no Supabase
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: form.empresa,
+          cnpj: form.cnpj,
+          email: form.email,
+          senha: form.password,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error ?? "Erro ao criar conta. Tente novamente.")
+        setLoading(false)
+        return
+      }
+    } catch {
+      // Supabase indisponível — segue com sessão local demo
+    }
 
     setSession({
       id: "emp-" + Date.now(),

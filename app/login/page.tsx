@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { setSession } from "@/lib/storage"
+import { setSession, setAuthTokens } from "@/lib/storage"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -21,22 +21,46 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setError("")
-    setLoading(true)
-
-    await new Promise((r) => setTimeout(r, 800))
 
     if (!email || !password) {
       setError("Preencha todos os campos.")
-      setLoading(false)
       return
     }
 
     if (password.length < 6) {
       setError("Senha inválida. Verifique suas credenciais.")
-      setLoading(false)
       return
     }
 
+    setLoading(true)
+
+    try {
+      // Tenta autenticar via Supabase
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha: password }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        // Salva tokens JWT do Supabase para chamadas autenticadas
+        setAuthTokens(data.session)
+        // Salva sessão da empresa — inclui empresa_id para uso nas APIs
+        setSession({
+          id: data.usuario.empresa_id,
+          nome: data.usuario.empresa_nome,
+          email: data.usuario.email,
+          cnpj: data.usuario.empresa_cnpj,
+        })
+        router.push("/dashboard")
+        return
+      }
+    } catch {
+      // Supabase indisponível — cai para o modo demo
+    }
+
+    // Fallback demo: funciona mesmo sem conta no Supabase
     setSession({
       id: "emp-001",
       nome: "Seguradora Modelo S.A.",

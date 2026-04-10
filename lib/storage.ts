@@ -246,3 +246,36 @@ export function clearSession(): void {
   if (typeof window === "undefined") return
   localStorage.removeItem(SESSION_KEY)
 }
+
+// ─── Helpers para integração com Supabase ─────────────────────────────────
+
+export function getEmpresaIdFromSession(): string | null {
+  if (typeof window === "undefined") return null
+  const stored = localStorage.getItem(SESSION_KEY)
+  if (!stored) return null
+  try {
+    const s = JSON.parse(stored)
+    return s.empresa_id ?? null
+  } catch {
+    return null
+  }
+}
+
+export function getAccessToken(): string | null {
+  if (typeof window === "undefined") return null
+  const stored = localStorage.getItem("analisa_ai_auth")
+  if (!stored) return null
+  try {
+    return JSON.parse(stored).access_token ?? null
+  } catch {
+    return null
+  }
+}
+
+export function setAuthTokens(tokens: {
+  access_token: string
+  refresh_token: string
+}): void {
+  if (typeof window === "undefined") return
+  localStorage.setItem("analisa_ai_auth", JSON.stringify(tokens))
+}

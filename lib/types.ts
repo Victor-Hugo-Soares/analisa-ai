@@ -83,3 +83,49 @@ export interface EmpresaSession {
   email: string
   cnpj: string
 }
+
+// Tipos do banco Supabase
+export interface EmpresaDB {
+  id: string
+  nome: string
+  cnpj: string
+  email: string
+  plano: string
+  ativo: boolean
+  criado_em: string
+}
+
+export interface UsuarioDB {
+  id: string
+  empresa_id: string
+  nome: string
+  email: string
+  criado_em: string
+}
+
+export interface SinistroDB {
+  id: string
+  empresa_id: string
+  usuario_id: string | null
+  tipo_evento: TipoEvento
+  status: StatusSinistro
+  nome_segurado: string
+  cpf: string
+  placa: string
+  data_hora_sinistro: string
+  local: string
+  relato: string
+  analise: AnaliseIA | null
+  criado_em: string
+  atualizado_em: string
+}
+
+export interface ArquivoDB {
+  id: string
+  sinistro_id: string
+  nome: string
+  tipo: 'audio' | 'documento' | 'imagem'
+  tamanho: number
+  storage_path: string | null
+  criado_em: string
+}
