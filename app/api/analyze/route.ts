@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { openai, SYSTEM_PROMPT, AUDIO_TONE_PROMPT } from "@/lib/openai"
 import type { TipoEvento, DadosSinistro } from "@/lib/types"
 
+export const maxDuration = 300
+
 interface ArquivoPayload {
   nome: string
   tipo: "audio" | "documento" | "imagem"

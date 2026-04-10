@@ -50,6 +50,7 @@ export default function NovoSinistroPage() {
   const [dados, setDados] = useState<DadosSinistro>(dadosIniciais)
   const [arquivos, setArquivos] = useState<ArquivoAnexo[]>([])
   const [analisando, setAnalisando] = useState(false)
+  const [erroAnalise, setErroAnalise] = useState<string | null>(null)
   const [sinistroId, setSinistroId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -86,6 +87,7 @@ export default function NovoSinistroPage() {
     if (currentStep === 3) {
       setCurrentStep(4)
       setAnalisando(true)
+      setErroAnalise(null)
       await runAnalise()
     }
   }
@@ -144,32 +146,9 @@ export default function NovoSinistroPage() {
       router.push(`/sinistros/${sinistroId}`)
     } catch (error) {
       console.error("Erro na análise:", error)
-      // Salva sem análise para não perder dados
-      const sinistro: Sinistro = {
-        id: sinistroId!,
-        tipoEvento: tipoEvento!,
-        dados,
-        arquivos: arquivos.map(({ base64: _, ...rest }) => rest),
-        status: "pendente",
-        criadoEm: new Date().toISOString(),
-      }
-      saveSinistro(sinistro)
-
-      // Tenta persistir no Supabase mesmo em caso de falha na análise
-      const token = getAccessToken()
-      const empresaId = getEmpresaIdFromSession()
-      if (token && empresaId) {
-        fetch("/api/sinistros/save", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ sinistro, empresaId }),
-        }).catch(console.error)
-      }
-
-      router.push(`/sinistros/${sinistroId}`)
+      const msg = error instanceof Error ? error.message : "Erro desconhecido na análise"
+      setErroAnalise(msg)
+      setAnalisando(false)
     }
   }
 
@@ -222,6 +201,12 @@ export default function NovoSinistroPage() {
                   temAudio={arquivos.some((a) => a.tipo === "audio")}
                   temImagens={arquivos.some((a) => a.tipo === "imagem")}
                   temDocumentos={arquivos.some((a) => a.tipo === "documento")}
+                  erro={erroAnalise}
+                  onRetry={async () => {
+                    setErroAnalise(null)
+                    setAnalisando(true)
+                    await runAnalise()
+                  }}
                 />
               )}
             </div>

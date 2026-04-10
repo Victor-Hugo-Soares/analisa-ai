@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CheckCircle, Loader2 } from "lucide-react"
+import { CheckCircle, Loader2, AlertTriangle, RefreshCw } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 
@@ -24,12 +24,16 @@ interface AnaliseStepProps {
   temAudio: boolean
   temImagens: boolean
   temDocumentos: boolean
+  erro?: string | null
+  onRetry?: () => void
 }
 
 export default function AnaliseStep({
   temAudio,
   temImagens,
   temDocumentos,
+  erro,
+  onRetry,
 }: AnaliseStepProps) {
   const [etapaAtual, setEtapaAtual] = useState(0)
   const [progresso, setProgresso] = useState(0)
@@ -67,6 +71,32 @@ export default function AnaliseStep({
     avancar()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (erro) {
+    return (
+      <div className="flex flex-col items-center text-center py-10">
+        <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-5">
+          <AlertTriangle className="w-10 h-10 text-red-500" />
+        </div>
+        <h2 className="text-xl font-bold text-[#0f172a] mb-2">Falha na Análise</h2>
+        <p className="text-[#64748b] text-sm mb-2 max-w-md">
+          Ocorreu um erro ao processar a análise. Isso pode acontecer por timeout ou tamanho dos arquivos.
+        </p>
+        <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-6 max-w-md font-mono">
+          {erro}
+        </p>
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="flex items-center gap-2 bg-[#1a2744] hover:bg-[#243459] text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Tentar novamente
+          </button>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col items-center text-center py-8">
       <div className="relative mb-6">
@@ -80,7 +110,7 @@ export default function AnaliseStep({
       </h2>
       <p className="text-[#64748b] text-sm mb-8 max-w-md">
         Nossa IA está processando todos os dados e evidências para gerar uma
-        análise detalhada.
+        análise detalhada. Isso pode levar até 2 minutos.
       </p>
 
       <div className="w-full max-w-md mb-6">

@@ -6,7 +6,7 @@ import { ArrowLeft, AlertCircle } from "lucide-react"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
 import ResultadoAnalise from "@/components/sinistro/ResultadoAnalise"
-import { getSession, getSinistro } from "@/lib/storage"
+import { getSession, getSinistro, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession, Sinistro } from "@/lib/types"
 
 export default function SinistroPage() {
@@ -20,20 +20,48 @@ export default function SinistroPage() {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    const s = getSession()
-    if (!s) {
-      router.push("/login")
-      return
-    }
-    setSession(s)
+    async function load() {
+      const s = getSession()
+      if (!s) {
+        router.push("/login")
+        return
+      }
+      setSession(s)
 
-    const found = getSinistro(id)
-    if (!found) {
-      setNotFound(true)
-    } else {
-      setSinistro(found)
+      // Tenta localStorage primeiro (com análise)
+      const local = getSinistro(id)
+      if (local?.analise) {
+        setSinistro(local)
+        setLoading(false)
+        return
+      }
+
+      // Fallback: busca no Supabase (autenticado)
+      const token = getAccessToken()
+      if (token) {
+        try {
+          const res = await fetch(`/api/sinistros/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          if (res.ok) {
+            const data = await res.json()
+            setSinistro(data.sinistro)
+            setLoading(false)
+            return
+          }
+        } catch {
+          // sem conectividade — usa o que tiver localmente
+        }
+      }
+
+      if (local) {
+        setSinistro(local)
+      } else {
+        setNotFound(true)
+      }
+      setLoading(false)
     }
-    setLoading(false)
+    load()
   }, [id, router])
 
   if (loading) {
