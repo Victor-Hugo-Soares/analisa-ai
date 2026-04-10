@@ -1,4 +1,4 @@
-import type { Sinistro, EmpresaSession } from "./types"
+import type { Sinistro, EmpresaSession, RoleUsuario } from "./types"
 
 const SINISTROS_KEY = "analisa_ai_sinistros"
 const SESSION_KEY = "analisa_ai_session"
@@ -250,15 +250,17 @@ export function clearSession(): void {
 // ─── Helpers para integração com Supabase ─────────────────────────────────
 
 export function getEmpresaIdFromSession(): string | null {
-  if (typeof window === "undefined") return null
-  const stored = localStorage.getItem(SESSION_KEY)
-  if (!stored) return null
-  try {
-    const s = JSON.parse(stored)
-    return s.empresa_id ?? null
-  } catch {
-    return null
-  }
+  const s = getSession()
+  return s?.id ?? null
+}
+
+export function getRole(): RoleUsuario | null {
+  const s = getSession()
+  return s?.role ?? null
+}
+
+export function isMaster(): boolean {
+  return getRole() === "master"
 }
 
 export function getAccessToken(): string | null {

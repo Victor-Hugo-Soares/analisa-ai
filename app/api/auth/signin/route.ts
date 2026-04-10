@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       id: usuario.id,
       nome: usuario.nome,
       email: usuario.email,
+      role: usuario.role ?? 'usuario',
       empresa_id: usuario.empresa_id,
       empresa_nome: usuario.empresas?.nome ?? '',
       empresa_cnpj: usuario.empresas?.cnpj ?? '',

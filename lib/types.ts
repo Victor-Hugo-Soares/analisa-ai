@@ -77,11 +77,17 @@ export interface AnaliseIA {
   proximos_passos: string[]
 }
 
+export type RoleUsuario = "master" | "admin" | "usuario"
+
+export type NivelAcesso = "basico" | "avancado" | "premium"
+
 export interface EmpresaSession {
-  id: string
+  id: string        // empresa_id
+  usuario_id: string
   nome: string
   email: string
   cnpj: string
+  role: RoleUsuario
 }
 
 // Tipos do banco Supabase
@@ -92,6 +98,8 @@ export interface EmpresaDB {
   email: string
   plano: string
   ativo: boolean
+  limite_usuarios: number
+  nivel_acesso: NivelAcesso
   criado_em: string
 }
 
@@ -100,6 +108,7 @@ export interface UsuarioDB {
   empresa_id: string
   nome: string
   email: string
+  role: RoleUsuario
   criado_em: string
 }
 

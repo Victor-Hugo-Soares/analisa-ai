@@ -73,9 +73,11 @@ export default function CadastroPage() {
 
     setSession({
       id: "emp-" + Date.now(),
+      usuario_id: "demo-user",
       nome: form.empresa,
       email: form.email,
       cnpj: form.cnpj,
+      role: "usuario",
     })
 
     router.push("/dashboard")

@@ -44,16 +44,16 @@ export default function LoginPage() {
 
       if (res.ok) {
         const data = await res.json()
-        // Salva tokens JWT do Supabase para chamadas autenticadas
         setAuthTokens(data.session)
-        // Salva sessão da empresa — inclui empresa_id para uso nas APIs
         setSession({
           id: data.usuario.empresa_id,
+          usuario_id: data.usuario.id,
           nome: data.usuario.empresa_nome,
           email: data.usuario.email,
           cnpj: data.usuario.empresa_cnpj,
+          role: data.usuario.role ?? 'usuario',
         })
-        router.push("/dashboard")
+        router.push(data.usuario.role === 'master' ? '/admin' : '/dashboard')
         return
       }
     } catch {
@@ -63,9 +63,11 @@ export default function LoginPage() {
     // Fallback demo: funciona mesmo sem conta no Supabase
     setSession({
       id: "emp-001",
+      usuario_id: "demo-user",
       nome: "Seguradora Modelo S.A.",
       email,
       cnpj: "00.000.000/0001-00",
+      role: "usuario",
     })
 
     router.push("/dashboard")
