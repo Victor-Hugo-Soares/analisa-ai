@@ -99,24 +99,58 @@ export default function NovoSinistroPage() {
 
     const empresaId = getEmpresaIdFromSession()
     const storedAuth = typeof window !== "undefined" ? localStorage.getItem("analisa_ai_auth") : null
-    if (!storedAuth || !empresaId) return arquivos
 
-    const { access_token, refresh_token } = JSON.parse(storedAuth)
-    const supabase = createClient()
-    await supabase.auth.setSession({ access_token, refresh_token })
-
-    const updated = [...arquivos]
-    for (const [nome, file] of rawFiles.entries()) {
-      const path = `${empresaId}/${sinistroId}/${Date.now()}-${nome}`
-      const { data, error } = await supabase.storage
-        .from("sinistros-arquivos")
-        .upload(path, file, { upsert: true, contentType: file.type })
-      if (!error && data) {
-        const idx = updated.findIndex((a) => a.nome === nome)
-        if (idx >= 0) updated[idx] = { ...updated[idx], storagePath: data.path }
+    // Tenta inicializar cliente Supabase com sessão
+    let supabase: ReturnType<typeof createClient> | null = null
+    if (storedAuth && empresaId) {
+      try {
+        const { access_token, refresh_token } = JSON.parse(storedAuth)
+        supabase = createClient()
+        await supabase.auth.setSession({ access_token, refresh_token })
+      } catch {
+        supabase = null
       }
     }
+
+    const updated = [...arquivos]
+
+    for (const [nome, file] of rawFiles.entries()) {
+      const idx = updated.findIndex((a) => a.nome === nome)
+      if (idx < 0) continue
+
+      let uploadedToStorage = false
+
+      // Tenta Storage primeiro
+      if (supabase && empresaId) {
+        const path = `${empresaId}/${sinistroId}/${Date.now()}-${nome}`
+        const { data, error } = await supabase.storage
+          .from("sinistros-arquivos")
+          .upload(path, file, { upsert: true, contentType: file.type })
+        if (!error && data) {
+          updated[idx] = { ...updated[idx], storagePath: data.path }
+          uploadedToStorage = true
+        } else {
+          console.warn(`[Storage] Upload falhou para ${nome}, usando base64:`, error?.message)
+        }
+      }
+
+      // Fallback: base64
+      if (!uploadedToStorage) {
+        const base64 = await fileToBase64(file)
+        updated[idx] = { ...updated[idx], base64 }
+      }
+    }
+
     return updated
+  }
+
+  function fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+    })
   }
 
   async function runAnalise() {
