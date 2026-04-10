@@ -97,21 +97,8 @@ export default function NovoSinistroPage() {
   async function uploadArquivos(): Promise<ArquivoAnexo[]> {
     if (rawFiles.size === 0) return arquivos
 
+    const accessToken = getAccessToken()
     const empresaId = getEmpresaIdFromSession()
-    const storedAuth = typeof window !== "undefined" ? localStorage.getItem("analisa_ai_auth") : null
-
-    // Tenta inicializar cliente Supabase com sessão
-    let supabase: ReturnType<typeof createClient> | null = null
-    if (storedAuth && empresaId) {
-      try {
-        const { access_token, refresh_token } = JSON.parse(storedAuth)
-        supabase = createClient()
-        await supabase.auth.setSession({ access_token, refresh_token })
-      } catch {
-        supabase = null
-      }
-    }
-
     const updated = [...arquivos]
 
     for (const [nome, file] of rawFiles.entries()) {
@@ -120,24 +107,47 @@ export default function NovoSinistroPage() {
 
       let uploadedToStorage = false
 
-      // Tenta Storage primeiro
-      if (supabase && empresaId) {
-        const path = `${empresaId}/${sinistroId}/${Date.now()}-${nome}`
-        const { data, error } = await supabase.storage
-          .from("sinistros-arquivos")
-          .upload(path, file, { upsert: true, contentType: file.type })
-        if (!error && data) {
-          updated[idx] = { ...updated[idx], storagePath: data.path }
-          uploadedToStorage = true
-        } else {
-          console.warn(`[Storage] Upload falhou para ${nome}, usando base64:`, error?.message)
+      if (accessToken && empresaId) {
+        try {
+          // 1. Pede signed upload URL ao nosso servidor (service_role)
+          const urlRes = await fetch("/api/sinistros/upload-url", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ fileName: nome, sinistroId, empresaId }),
+          })
+
+          if (urlRes.ok) {
+            const { signedUrl, token: uploadToken, path } = await urlRes.json()
+
+            // 2. Upload direto: browser → Supabase Storage (não passa pela Vercel)
+            const supabase = createClient()
+            const { error: uploadError } = await supabase.storage
+              .from("sinistros-arquivos")
+              .uploadToSignedUrl(path, uploadToken, file, { contentType: file.type })
+
+            if (!uploadError) {
+              updated[idx] = { ...updated[idx], storagePath: path }
+              uploadedToStorage = true
+            } else {
+              console.warn(`[Storage] uploadToSignedUrl falhou para ${nome}:`, uploadError.message)
+            }
+          }
+        } catch (e) {
+          console.warn("[Storage] Erro ao obter signed URL:", e)
         }
       }
 
-      // Fallback: base64
+      // Fallback: base64 (apenas para arquivos pequenos < 2MB)
       if (!uploadedToStorage) {
-        const base64 = await fileToBase64(file)
-        updated[idx] = { ...updated[idx], base64 }
+        if (file.size < 2 * 1024 * 1024) {
+          const base64 = await fileToBase64(file)
+          updated[idx] = { ...updated[idx], base64 }
+        } else {
+          console.warn(`[Storage] Arquivo ${nome} é grande demais para fallback base64 (${(file.size / 1024 / 1024).toFixed(1)}MB)`)
+        }
       }
     }
 
