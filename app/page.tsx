@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useRef } from "react"
 import Link from "next/link"
@@ -10,7 +10,7 @@ import {
   FileText, Car, Flame, Wind, GlassWater
 } from "lucide-react"
 
-// â”€â”€â”€ tipos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── tipos ────────────────────────────────────────────────────────────────────
 type Step = 1 | 2 | 3 | 4
 type TipoEvento = "colisao" | "roubo" | "furto" | "natureza" | "vidros"
 
@@ -30,15 +30,15 @@ interface UploadedFile {
   tipo: "imagem" | "documento"
 }
 
-// â”€â”€â”€ constantes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── constantes ───────────────────────────────────────────────────────────────
 const WA_NUMBER = "5511926712965"
 const WA_MSG = encodeURIComponent(
-  "OlÃ¡! Acabei de testar o IAnalista e quero saber mais sobre os planos para minha proteÃ§Ã£o veicular."
+  "Olá! Acabei de testar o IAnalista e quero saber mais sobre os planos para minha proteção veicular."
 )
 const WA_URL = `https://wa.me/${WA_NUMBER}?text=${WA_MSG}`
 
 const TIPO_EVENTO_OPTIONS: { value: TipoEvento; label: string; icon: React.ReactNode }[] = [
-  { value: "colisao", label: "ColisÃ£o", icon: <Car className="w-4 h-4" /> },
+  { value: "colisao", label: "Colisão", icon: <Car className="w-4 h-4" /> },
   { value: "roubo", label: "Roubo/Furto", icon: <AlertTriangle className="w-4 h-4" /> },
   { value: "furto", label: "Furto", icon: <AlertTriangle className="w-4 h-4" /> },
   { value: "natureza", label: "Eventos da Natureza", icon: <Wind className="w-4 h-4" /> },
@@ -47,7 +47,7 @@ const TIPO_EVENTO_OPTIONS: { value: TipoEvento; label: string; icon: React.React
 
 const STEP_LABELS = ["Dados do Associado", "Relato do Sinistro", "Documentos", "Resultado"]
 
-// â”€â”€â”€ Componente principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Componente principal ─────────────────────────────────────────────────────
 interface AnaliseResult {
   recomendacao: string
   score_confiabilidade: number
@@ -134,7 +134,7 @@ export default function LandingPage() {
 
       if (!res.ok) {
         const d = await res.json()
-        throw new Error(d.error ?? "Erro ao processar anÃ¡lise")
+        throw new Error(d.error ?? "Erro ao processar análise")
       }
 
       const data = await res.json()
@@ -172,7 +172,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] font-sans" style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
 
-      {/* â”€â”€ NAV â”€â”€ */}
+      {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1a2744]/95 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
@@ -186,7 +186,7 @@ export default function LandingPage() {
               onClick={scrollToTrial}
               className="hidden sm:block text-slate-400 hover:text-white text-sm transition-colors"
             >
-              Teste grÃ¡tis
+              Teste grátis
             </button>
             <Link
               href="/login"
@@ -198,7 +198,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* â”€â”€ HERO â”€â”€ */}
+      {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center bg-[#1a2744] overflow-hidden pt-16">
         {/* Glow de fundo */}
         <div className="absolute inset-0 pointer-events-none">
@@ -225,14 +225,14 @@ export default function LandingPage() {
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white tracking-tight leading-[1.05] mb-6">
             Otimize os eventos<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-300">
-              da sua proteÃ§Ã£o
+              da sua proteção
             </span>{" "}
             <span className="text-white">veicular</span>
           </h1>
 
           <p className="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            AnÃ¡lise de sinistros com IA em segundos. Detecte fraudes, elimine filas e tome decisÃµes
-            com relatÃ³rios completos e inteligentes.
+            Análise de sinistros com IA em segundos. Detecte fraudes, elimine filas e tome decisões
+            com relatórios completos e inteligentes.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
@@ -240,7 +240,7 @@ export default function LandingPage() {
               onClick={scrollToTrial}
               className="group flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white font-bold text-base px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40"
             >
-              Analisar grÃ¡tis agora
+              Analisar grátis agora
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <a
@@ -257,8 +257,8 @@ export default function LandingPage() {
           {/* Metrics row */}
           <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
             {[
-              { value: "98%", label: "PrecisÃ£o" },
-              { value: "<60s", label: "Por anÃ¡lise" },
+              { value: "98%", label: "Precisão" },
+              { value: "<60s", label: "Por análise" },
               { value: "3x", label: "Mais produtivo" },
             ].map(m => (
               <div key={m.label} className="bg-white/5 border border-white/10 rounded-xl p-4">
@@ -275,13 +275,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SEÃ‡ÃƒO DORES â”€â”€ */}
+      {/* ── SEÀ‡ÀƒO DORES ── */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
-            <p className="text-amber-600 font-semibold text-sm uppercase tracking-widest mb-3">VocÃª ainda sofre com isso?</p>
+            <p className="text-amber-600 font-semibold text-sm uppercase tracking-widest mb-3">Você ainda sofre com isso?</p>
             <h2 className="text-3xl sm:text-4xl font-black text-[#1a2744] leading-tight">
-              Os maiores problemas das<br />proteÃ§Ãµes veiculares hoje
+              Os maiores problemas das<br />proteções veiculares hoje
             </h2>
           </div>
 
@@ -290,38 +290,38 @@ export default function LandingPage() {
               {
                 icon: <Clock className="w-6 h-6 text-red-500" />,
                 bg: "bg-red-50",
-                title: "AnÃ¡lise lenta e manual",
+                title: "Análise lenta e manual",
                 desc: "Cada sinistro exige horas de trabalho. Perito analisa documentos um a um, criando fila e estresse operacional.",
               },
               {
                 icon: <TrendingDown className="w-6 h-6 text-orange-500" />,
                 bg: "bg-orange-50",
                 title: "Sinistros acumulados",
-                desc: "Processos represados, associados insatisfeitos e equipe sobrecarregada sem visibilidade do que estÃ¡ pendente.",
+                desc: "Processos represados, associados insatisfeitos e equipe sobrecarregada sem visibilidade do que está pendente.",
               },
               {
                 icon: <Eye className="w-6 h-6 text-purple-500" />,
                 bg: "bg-purple-50",
                 title: "Fraudes passando pelo crivo",
-                desc: "Sem anÃ¡lise vocal e forense de imagens, inconsistÃªncias passam despercebidas e o prejuÃ­zo sÃ³ cresce.",
+                desc: "Sem análise vocal e forense de imagens, inconsistências passam despercebidas e o prejuízo só cresce.",
               },
               {
                 icon: <BarChart3 className="w-6 h-6 text-blue-500" />,
                 bg: "bg-blue-50",
-                title: "Falta de controle e mÃ©tricas",
-                desc: "Sem dados sobre tipos de evento, taxas de suspeiÃ§Ã£o e tendÃªncias, decisÃµes estratÃ©gicas ficam no escuro.",
+                title: "Falta de controle e métricas",
+                desc: "Sem dados sobre tipos de evento, taxas de suspeição e tendências, decisões estratégicas ficam no escuro.",
               },
               {
                 icon: <Target className="w-6 h-6 text-teal-500" />,
                 bg: "bg-teal-50",
                 title: "Baixa assertividade",
-                desc: "DecisÃµes baseadas em experiÃªncia subjetiva, sem padronizaÃ§Ã£o. Cada perito decide de um jeito diferente.",
+                desc: "Decisões baseadas em experiência subjetiva, sem padronização. Cada perito decide de um jeito diferente.",
               },
               {
                 icon: <Users className="w-6 h-6 text-indigo-500" />,
                 bg: "bg-indigo-50",
                 title: "Associados insatisfeitos",
-                desc: "Demora na resposta gera reclamaÃ§Ãµes, churn e dano Ã  reputaÃ§Ã£o da sua associaÃ§Ã£o.",
+                desc: "Demora na resposta gera reclamações, churn e dano À  reputação da sua associação.",
               },
             ].map(item => (
               <div key={item.title} className="border border-[#e2e8f0] rounded-2xl p-6 hover:shadow-md transition-shadow">
@@ -336,12 +336,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SEÃ‡ÃƒO SOLUÃ‡ÃƒO â”€â”€ */}
+      {/* ── SEÀ‡ÀƒO SOLUÀ‡ÀƒO ── */}
       <section className="py-24 bg-[#1a2744] overflow-hidden relative">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
           <div className="text-center mb-16">
-            <p className="text-teal-400 font-semibold text-sm uppercase tracking-widest mb-3">A soluÃ§Ã£o</p>
+            <p className="text-teal-400 font-semibold text-sm uppercase tracking-widest mb-3">A solução</p>
             <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">
               IAnalista faz em segundos o que<br />
               <span className="text-amber-400">levaria horas para um perito</span>
@@ -353,22 +353,22 @@ export default function LandingPage() {
               {
                 icon: <Brain className="w-6 h-6 text-amber-400" />,
                 title: "IA Forense",
-                desc: "GPT-4o Vision analisa fotos comparando os danos com o relato. Detecta oxidaÃ§Ã£o, Ã¢ngulos suspeitos e inconsistÃªncias.",
+                desc: "GPT-4o Vision analisa fotos comparando os danos com o relato. Detecta oxidação, ângulos suspeitos e inconsistências.",
               },
               {
                 icon: <FileSearch className="w-6 h-6 text-teal-400" />,
-                title: "AnÃ¡lise Completa",
-                desc: "Cruzamento automÃ¡tico entre relato, documentos e imagens. Score de confiabilidade de 0 a 100.",
+                title: "Análise Completa",
+                desc: "Cruzamento automático entre relato, documentos e imagens. Score de confiabilidade de 0 a 100.",
               },
               {
                 icon: <Zap className="w-6 h-6 text-violet-400" />,
                 title: "Resultado em <60s",
-                desc: "AnÃ¡lise completa com linha do tempo, pontos de atenÃ§Ã£o, indicadores de fraude e prÃ³ximos passos.",
+                desc: "Análise completa com linha do tempo, pontos de atenção, indicadores de fraude e próximos passos.",
               },
               {
                 icon: <CheckCircle className="w-6 h-6 text-emerald-400" />,
-                title: "DecisÃ£o clara",
-                desc: "RecomendaÃ§Ã£o de aprovaÃ§Ã£o, investigaÃ§Ã£o ou recusa com justificativa tÃ©cnica detalhada para o time.",
+                title: "Decisão clara",
+                desc: "Recomendação de aprovação, investigação ou recusa com justificativa técnica detalhada para o time.",
               },
             ].map(item => (
               <div key={item.title} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-colors">
@@ -387,34 +387,34 @@ export default function LandingPage() {
               ))}
             </div>
             <p className="text-white text-lg font-medium italic leading-relaxed mb-4">
-              "Reduzimos o tempo mÃ©dio de anÃ¡lise de 3 horas para menos de 2 minutos.
-              A detecÃ§Ã£o de fraudes melhorou completamente e o time ficou muito mais focado."
+              "Reduzimos o tempo médio de análise de 3 horas para menos de 2 minutos.
+              A detecção de fraudes melhorou completamente e o time ficou muito mais focado."
             </p>
-            <p className="text-slate-400 text-sm">â€” Diretor de OperaÃ§Ãµes, ProteÃ§Ã£o Veicular SP</p>
+            <p className="text-slate-400 text-sm">â€” Diretor de Operações, Proteção Veicular SP</p>
           </div>
         </div>
       </section>
 
-      {/* â”€â”€ SEÃ‡ÃƒO PRO FEATURES â”€â”€ */}
+      {/* ── SEÀ‡ÀƒO PRO FEATURES ── */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
               <Star className="w-3.5 h-3.5 fill-amber-500" />
-              VersÃ£o Pro â€” tudo que o trial nÃ£o mostra
+              Versão Pro â€” tudo que o trial não mostra
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-[#1a2744] leading-tight mb-4">
               Uma plataforma completa.<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1a2744] to-[#0f766e]">
-                Do primeiro relato ao relatÃ³rio final.
+                Do primeiro relato ao relatório final.
               </span>
             </h2>
             <p className="text-[#64748b] max-w-xl mx-auto">
-              O teste gratuito mostra apenas uma prÃ©via. Na versÃ£o Pro vocÃª tem acesso a todo o arsenal de anÃ¡lise â€” incluindo Ã¡udio, relatÃ³rios completos e gestÃ£o centralizada.
+              O teste gratuito mostra apenas uma prévia. Na versão Pro você tem acesso a todo o arsenal de análise â€” incluindo áudio, relatórios completos e gestão centralizada.
             </p>
           </div>
 
-          {/* Feature principal â€” AnÃ¡lise de Ãudio */}
+          {/* Feature principal â€” Análise de Àudio */}
           <div className="bg-[#1a2744] rounded-3xl overflow-hidden mb-6">
             <div className="grid lg:grid-cols-2 gap-0">
               <div className="p-8 sm:p-12 flex flex-col justify-center">
@@ -423,17 +423,17 @@ export default function LandingPage() {
                   Exclusivo Pro
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-white mb-4">
-                  AnÃ¡lise de Ã¡udio com Whisper + GPT-4o
+                  Análise de áudio com Whisper + GPT-4o
                 </h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  Transcreva automaticamente ligaÃ§Ãµes do segurado com <strong className="text-white">timestamps precisos</strong>. A IA detecta hesitaÃ§Ãµes, autocorreÃ§Ãµes, calma atÃ­pica e padrÃµes linguÃ­sticos suspeitos â€” o que nenhum perito consegue captar ouvindo manualmente.
+                  Transcreva automaticamente ligações do segurado com <strong className="text-white">timestamps precisos</strong>. A IA detecta hesitações, autocorreções, calma atípica e padrões linguísticos suspeitos â€” o que nenhum perito consegue captar ouvindo manualmente.
                 </p>
                 <ul className="space-y-3">
                   {[
-                    "TranscriÃ§Ã£o completa com timestamps [MM:SS â†’ MM:SS]",
-                    "Arco emocional mapeado do inÃ­cio ao fim da ligaÃ§Ã£o",
-                    "DetecÃ§Ã£o de hesitaÃ§Ã£o, autocorreÃ§Ã£o e calma atÃ­pica",
-                    "ComparaÃ§Ã£o automÃ¡tica com o relato escrito",
+                    "Transcrição completa com timestamps [MM:SS â†’ MM:SS]",
+                    "Arco emocional mapeado do início ao fim da ligação",
+                    "Detecção de hesitação, autocorreção e calma atípica",
+                    "Comparação automática com o relato escrito",
                   ].map(f => (
                     <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
                       <CheckCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
@@ -444,11 +444,11 @@ export default function LandingPage() {
               </div>
               <div className="bg-[#243459] p-8 sm:p-10 flex items-center justify-center">
                 <div className="w-full max-w-sm space-y-3">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-4">PrÃ©via de anÃ¡lise vocal</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-4">Prévia de análise vocal</p>
                   {[
-                    { time: "[00:45 â†’ 00:52]", text: "\"Foi... foi por volta das... dez e meia\"", tag: "HesitaÃ§Ã£o", color: "text-amber-400 border-amber-500/30 bg-amber-500/10" },
-                    { time: "[01:30 â†’ 01:38]", text: "\"Dois caras... Ã©... foram dois\"", tag: "AutocorreÃ§Ã£o", color: "text-red-400 border-red-500/30 bg-red-500/10" },
-                    { time: "[02:10 â†’ 02:25]", text: "Tom consistentemente calmo apÃ³s relato traumÃ¡tico", tag: "Calma atÃ­pica", color: "text-violet-400 border-violet-500/30 bg-violet-500/10" },
+                    { time: "[00:45 â†’ 00:52]", text: "\"Foi... foi por volta das... dez e meia\"", tag: "Hesitação", color: "text-amber-400 border-amber-500/30 bg-amber-500/10" },
+                    { time: "[01:30 â†’ 01:38]", text: "\"Dois caras... é... foram dois\"", tag: "Autocorreção", color: "text-red-400 border-red-500/30 bg-red-500/10" },
+                    { time: "[02:10 â†’ 02:25]", text: "Tom consistentemente calmo após relato traumático", tag: "Calma atípica", color: "text-violet-400 border-violet-500/30 bg-violet-500/10" },
                   ].map(item => (
                     <div key={item.time} className="bg-[#1a2744] border border-white/10 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
@@ -463,19 +463,19 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Grid de features secundÃ¡rias */}
+          {/* Grid de features secundárias */}
           <div className="grid md:grid-cols-3 gap-5 mb-6">
-            {/* RelatÃ³rios completos */}
+            {/* Relatórios completos */}
             <div className="bg-gradient-to-br from-[#1a2744] to-[#1a2744] rounded-2xl p-6 text-white">
               <div className="bg-teal-500/20 w-11 h-11 rounded-xl flex items-center justify-center mb-4">
                 <FileText className="w-5 h-5 text-teal-400" />
               </div>
-              <h3 className="font-bold text-lg mb-2">RelatÃ³rios Completos</h3>
+              <h3 className="font-bold text-lg mb-2">Relatórios Completos</h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                Linha do tempo reconstruÃ­da, pontos verdadeiros, contradiÃ§Ãµes cruzadas e prÃ³ximos passos concretos â€” tudo em um relatÃ³rio exportÃ¡vel por sinistro.
+                Linha do tempo reconstruída, pontos verdadeiros, contradições cruzadas e próximos passos concretos â€” tudo em um relatório exportável por sinistro.
               </p>
               <ul className="space-y-1.5">
-                {["Linha do tempo detalhada", "Score de 0 a 100", "PrÃ³ximos passos", "ExportaÃ§Ã£o PDF (em breve)"].map(f => (
+                {["Linha do tempo detalhada", "Score de 0 a 100", "Próximos passos", "Exportação PDF (em breve)"].map(f => (
                   <li key={f} className="flex items-center gap-2 text-xs text-slate-300">
                     <div className="w-1.5 h-1.5 bg-teal-400 rounded-full flex-shrink-0" />
                     {f}
@@ -484,17 +484,17 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* GestÃ£o de sinistros */}
+            {/* Gestão de sinistros */}
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-6">
               <div className="bg-amber-500/15 w-11 h-11 rounded-xl flex items-center justify-center mb-4">
                 <BarChart3 className="w-5 h-5 text-amber-600" />
               </div>
-              <h3 className="font-bold text-lg text-[#1a2744] mb-2">GestÃ£o de Sinistros</h3>
+              <h3 className="font-bold text-lg text-[#1a2744] mb-2">Gestão de Sinistros</h3>
               <p className="text-[#64748b] text-sm leading-relaxed mb-4">
-                Painel centralizado com todos os sinistros da sua empresa. Filtre por status, tipo de evento, score e perÃ­odo. Nunca mais perca um caso no meio da fila.
+                Painel centralizado com todos os sinistros da sua empresa. Filtre por status, tipo de evento, score e período. Nunca mais perca um caso no meio da fila.
               </p>
               <ul className="space-y-1.5">
-                {["Painel de controle completo", "Filtros por status e tipo", "HistÃ³rico por associado", "Multi-usuÃ¡rios por empresa"].map(f => (
+                {["Painel de controle completo", "Filtros por status e tipo", "Histórico por associado", "Multi-usuários por empresa"].map(f => (
                   <li key={f} className="flex items-center gap-2 text-xs text-[#64748b]">
                     <div className="w-1.5 h-1.5 bg-amber-500 rounded-full flex-shrink-0" />
                     {f}
@@ -503,17 +503,17 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* AnÃ¡lise forense de imagens */}
+            {/* Análise forense de imagens */}
             <div className="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-100 rounded-2xl p-6">
               <div className="bg-violet-500/15 w-11 h-11 rounded-xl flex items-center justify-center mb-4">
                 <Eye className="w-5 h-5 text-violet-600" />
               </div>
-              <h3 className="font-bold text-lg text-[#1a2744] mb-2">AnÃ¡lise Forense de Imagens</h3>
+              <h3 className="font-bold text-lg text-[#1a2744] mb-2">Análise Forense de Imagens</h3>
               <p className="text-[#64748b] text-sm leading-relaxed mb-4">
-                GPT-4o Vision examina cada foto do sinistro detectando oxidaÃ§Ã£o, Ã¢ngulos suspeitos e inconsistÃªncias entre os danos visÃ­veis e o relato do segurado.
+                GPT-4o Vision examina cada foto do sinistro detectando oxidação, ângulos suspeitos e inconsistências entre os danos visíveis e o relato do segurado.
               </p>
               <ul className="space-y-1.5">
-                {["DetecÃ§Ã£o de danos antigos (ferrugem)", "VerificaÃ§Ã£o de autenticidade", "ConsistÃªncia com relato", "MÃºltiplas imagens por sinistro"].map(f => (
+                {["Detecção de danos antigos (ferrugem)", "Verificação de autenticidade", "Consistência com relato", "Múltiplas imagens por sinistro"].map(f => (
                   <li key={f} className="flex items-center gap-2 text-xs text-[#64748b]">
                     <div className="w-1.5 h-1.5 bg-violet-500 rounded-full flex-shrink-0" />
                     {f}
@@ -526,9 +526,9 @@ export default function LandingPage() {
           {/* Linha de features adicionais */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { icon: <Users className="w-5 h-5 text-blue-500" />, bg: "bg-blue-50", title: "Multi-usuÃ¡rios", desc: "VÃ¡rios analistas na mesma conta com controle de acesso por nÃ­vel.", badge: "" },
-              { icon: <Brain className="w-5 h-5 text-pink-500" />, bg: "bg-pink-50", title: "IA Atualizada", desc: "GPT-4o sempre atualizado com os padrÃµes mais recentes de fraude no Brasil.", badge: "" },
-              { icon: <Target className="w-5 h-5 text-emerald-500" />, bg: "bg-emerald-50", title: "Score Padronizado", desc: "CritÃ©rio Ãºnico para toda a equipe. Score de 0-100 com justificativa tÃ©cnica.", badge: "" },
+              { icon: <Users className="w-5 h-5 text-blue-500" />, bg: "bg-blue-50", title: "Multi-usuários", desc: "Vários analistas na mesma conta com controle de acesso por nível.", badge: "" },
+              { icon: <Brain className="w-5 h-5 text-pink-500" />, bg: "bg-pink-50", title: "IA Atualizada", desc: "GPT-4o sempre atualizado com os padrões mais recentes de fraude no Brasil.", badge: "" },
+              { icon: <Target className="w-5 h-5 text-emerald-500" />, bg: "bg-emerald-50", title: "Score Padronizado", desc: "Critério único para toda a equipe. Score de 0-100 com justificativa técnica.", badge: "" },
               { icon: <PhoneCall className="w-5 h-5 text-amber-500" />, bg: "bg-amber-50", title: "Suporte dedicado", desc: "Time de suporte exclusivo para clientes Pro com SLA garantido.", badge: "" },
             ].map(item => (
               <div key={item.title} className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-5">
@@ -548,11 +548,11 @@ export default function LandingPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-bold text-[#1a2744] text-base">API para conexÃ£o com sistemas de gestÃ£o</h4>
+                <h4 className="font-bold text-[#1a2744] text-base">API para conexão com sistemas de gestão</h4>
                 <span className="bg-violet-100 text-violet-700 text-xs font-bold px-2 py-0.5 rounded-full border border-violet-200">Em breve</span>
               </div>
               <p className="text-[#64748b] text-sm">
-                Integre o IAnalista diretamente ao seu sistema de gestÃ£o via API REST. Dispare anÃ¡lises automaticamente ao receber um novo sinistro, sem intervenÃ§Ã£o manual â€” prÃ©-cadastre interesse e seja o primeiro a testar.
+                Integre o IAnalista diretamente ao seu sistema de gestão via API REST. Dispare análises automaticamente ao receber um novo sinistro, sem intervenção manual â€” pré-cadastre interesse e seja o primeiro a testar.
               </p>
             </div>
             <a
@@ -566,7 +566,7 @@ export default function LandingPage() {
             </a>
           </div>
 
-          {/* CTA da seÃ§Ã£o */}
+          {/* CTA da seção */}
           <div className="mt-12 text-center">
             <a
               href={WA_URL}
@@ -582,19 +582,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SEÃ‡ÃƒO TRIAL â”€â”€ */}
+      {/* ── SEÀ‡ÀƒO TRIAL ── */}
       <section ref={trialRef} className="py-24 bg-[#f8fafc]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
               <Zap className="w-3.5 h-3.5" />
-              AnÃ¡lise completa e gratuita â€” sem cadastro
+              Análise completa e gratuita â€” sem cadastro
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-[#1a2744] leading-tight mb-3">
               Veja o IAnalista funcionando
             </h2>
             <p className="text-[#64748b]">
-              Preencha os dados de um sinistro real. VocÃª receberÃ¡ a anÃ¡lise <strong>100% completa</strong> â€” score, pontos de atenÃ§Ã£o, indicadores de fraude e prÃ³ximos passos. GrÃ¡tis, sem cadastro.
+              Preencha os dados de um sinistro real. Você receberá a análise <strong>100% completa</strong> â€” score, pontos de atenção, indicadores de fraude e próximos passos. Grátis, sem cadastro.
             </p>
           </div>
 
@@ -629,17 +629,17 @@ export default function LandingPage() {
           {/* Card do trial */}
           <div className="bg-white border border-[#e2e8f0] rounded-2xl shadow-sm overflow-hidden">
 
-            {/* â”€â”€ STEP 1: Dados do Associado â”€â”€ */}
+            {/* ── STEP 1: Dados do Associado ── */}
             {step === 1 && (
               <div className="p-6 sm:p-8">
                 <h3 className="font-bold text-[#1a2744] text-lg mb-6">Dados do Associado</h3>
                 <div className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <Field label="Nome completo" name="nomeSegurado" value={form.nomeSegurado} onChange={handleFormChange} placeholder="JoÃ£o da Silva" />
+                    <Field label="Nome completo" name="nomeSegurado" value={form.nomeSegurado} onChange={handleFormChange} placeholder="João da Silva" />
                     <Field label="CPF" name="cpf" value={form.cpf} onChange={handleFormChange} placeholder="000.000.000-00" />
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <Field label="Placa do veÃ­culo" name="placa" value={form.placa} onChange={handleFormChange} placeholder="ABC-1234" />
+                    <Field label="Placa do veículo" name="placa" value={form.placa} onChange={handleFormChange} placeholder="ABC-1234" />
                     <div>
                       <label className="block text-sm font-medium text-[#1a2744] mb-1.5">Tipo de evento</label>
                       <select
@@ -666,7 +666,7 @@ export default function LandingPage() {
                         className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2.5 text-sm text-[#1a2744] focus:outline-none focus:border-[#1a2744]"
                       />
                     </div>
-                    <Field label="Local do evento" name="local" value={form.local} onChange={handleFormChange} placeholder="Av. Paulista, SÃ£o Paulo" />
+                    <Field label="Local do evento" name="local" value={form.local} onChange={handleFormChange} placeholder="Av. Paulista, São Paulo" />
                   </div>
                 </div>
                 <div className="mt-6 flex justify-end">
@@ -674,29 +674,29 @@ export default function LandingPage() {
                     onClick={handleStep1Next}
                     className="flex items-center gap-2 bg-[#1a2744] hover:bg-[#243459] text-white font-semibold px-6 py-2.5 rounded-xl transition-all"
                   >
-                    PrÃ³ximo <ChevronRight className="w-4 h-4" />
+                    Próximo <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* â”€â”€ STEP 2: Relato â”€â”€ */}
+            {/* ── STEP 2: Relato ── */}
             {step === 2 && (
               <div className="p-6 sm:p-8">
                 <h3 className="font-bold text-[#1a2744] text-lg mb-2">Relato do Sinistro</h3>
-                <p className="text-[#64748b] text-sm mb-6">Descreva o que aconteceu com o mÃ¡ximo de detalhes possÃ­vel.</p>
+                <p className="text-[#64748b] text-sm mb-6">Descreva o que aconteceu com o máximo de detalhes possível.</p>
                 <textarea
                   name="relato"
                   value={form.relato}
                   onChange={handleFormChange}
                   rows={8}
-                  placeholder="Ex: Estava na Av. Paulista quando outro veÃ­culo avanÃ§ou o sinal vermelho e me atingiu na lateral dianteira. O impacto foi forte..."
+                  placeholder="Ex: Estava na Av. Paulista quando outro veículo avançou o sinal vermelho e me atingiu na lateral dianteira. O impacto foi forte..."
                   className="w-full border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm text-[#1a2744] focus:outline-none focus:border-[#1a2744] focus:ring-1 focus:ring-[#1a2744] resize-none leading-relaxed"
                 />
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-xs text-[#94a3b8]">{form.relato.length} caracteres</span>
                   {form.relato.length > 0 && form.relato.length < 20 && (
-                    <span className="text-xs text-red-500">MÃ­nimo 20 caracteres</span>
+                    <span className="text-xs text-red-500">Mínimo 20 caracteres</span>
                   )}
                 </div>
                 <div className="mt-6 flex justify-between">
@@ -707,20 +707,20 @@ export default function LandingPage() {
                     onClick={handleStep2Next}
                     className="flex items-center gap-2 bg-[#1a2744] hover:bg-[#243459] text-white font-semibold px-6 py-2.5 rounded-xl transition-all"
                   >
-                    PrÃ³ximo <ChevronRight className="w-4 h-4" />
+                    Próximo <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* â”€â”€ STEP 3: Documentos â”€â”€ */}
+            {/* ── STEP 3: Documentos ── */}
             {step === 3 && (
               <div className="p-6 sm:p-8">
                 <h3 className="font-bold text-[#1a2744] text-lg mb-2">Documentos e Fotos</h3>
                 <p className="text-[#64748b] text-sm mb-1">
-                  Adicione fotos do veÃ­culo e documentos (BO, laudos). Opcional â€” mas melhora muito a anÃ¡lise.
+                  Adicione fotos do veículo e documentos (BO, laudos). Opcional â€” mas melhora muito a análise.
                 </p>
-                <p className="text-xs text-[#94a3b8] mb-6">Formatos: JPG, PNG, PDF â€” mÃ¡x. 5 arquivos</p>
+                <p className="text-xs text-[#94a3b8] mb-6">Formatos: JPG, PNG, PDF â€” máx. 5 arquivos</p>
 
                 {/* Drop area */}
                 <button
@@ -732,7 +732,7 @@ export default function LandingPage() {
                   <p className="text-sm font-medium text-[#64748b] group-hover:text-[#1a2744] transition-colors">
                     Clique para adicionar arquivos
                   </p>
-                  <p className="text-xs text-[#94a3b8] mt-1">JPG, PNG, PDF atÃ© 4MB cada</p>
+                  <p className="text-xs text-[#94a3b8] mt-1">JPG, PNG, PDF até 4MB cada</p>
                 </button>
                 <input
                   ref={fileInputRef}
@@ -806,7 +806,7 @@ export default function LandingPage() {
               </div>
             )}
 
-            {/* â”€â”€ STEP 4: Resultado â”€â”€ */}
+            {/* ── STEP 4: Resultado ── */}
             {step === 4 && result && (
               <div className="p-6 sm:p-8">
                 {/* Header resultado */}
@@ -825,14 +825,14 @@ export default function LandingPage() {
                     )}
                   </div>
                   <div>
-                    <p className="text-xs text-[#64748b] font-medium uppercase tracking-wider">RecomendaÃ§Ã£o</p>
+                    <p className="text-xs text-[#64748b] font-medium uppercase tracking-wider">Recomendação</p>
                     <p className={`font-bold text-lg ${
                       result.recomendacao === "APROVACAO_RECOMENDADA" ? "text-emerald-700" :
                       result.recomendacao === "INVESTIGACAO_NECESSARIA" ? "text-amber-700" :
                       "text-red-700"
                     }`}>
-                      {result.recomendacao === "APROVACAO_RECOMENDADA" ? "AprovaÃ§Ã£o Recomendada" :
-                       result.recomendacao === "INVESTIGACAO_NECESSARIA" ? "InvestigaÃ§Ã£o NecessÃ¡ria" :
+                      {result.recomendacao === "APROVACAO_RECOMENDADA" ? "Aprovação Recomendada" :
+                       result.recomendacao === "INVESTIGACAO_NECESSARIA" ? "Investigação Necessária" :
                        "Recusa Recomendada"}
                     </p>
                   </div>
@@ -855,10 +855,10 @@ export default function LandingPage() {
                   </div>
                 )}
 
-                {/* Pontos de atenÃ§Ã£o */}
+                {/* Pontos de atenção */}
                 {Array.isArray(result.pontos_atencao) && (result.pontos_atencao as string[]).length > 0 && (
                   <div className="mb-5">
-                    <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Pontos de atenÃ§Ã£o</p>
+                    <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Pontos de atenção</p>
                     <ul className="space-y-1.5">
                       {(result.pontos_atencao as string[]).map((p, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-[#1a2744]">
@@ -884,27 +884,27 @@ export default function LandingPage() {
                   </div>
                 )}
 
-                {/* Linha do tempo / prÃ³ximos passos */}
+                {/* Linha do tempo / próximos passos */}
                 {result.linha_do_tempo && (
                   <div className="mb-5">
-                    <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Linha do tempo reconstruÃ­da</p>
+                    <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Linha do tempo reconstruída</p>
                     <p className="text-sm text-[#1a2744] leading-relaxed">{(Array.isArray(result.linha_do_tempo) ? result.linha_do_tempo.join(", ") : result.linha_do_tempo ?? "")}</p>
                   </div>
                 )}
 
                 {result.proximos_passos && (
                   <div className="mb-5 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4">
-                    <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">PrÃ³ximos passos</p>
+                    <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Próximos passos</p>
                     <p className="text-sm text-[#1a2744] leading-relaxed">{result.proximos_passos ?? ""}</p>
                   </div>
                 )}
 
-                {/* CTA pÃ³s anÃ¡lise â€” versÃ£o completa */}
+                {/* CTA pós análise â€” versão completa */}
                 <div className="mt-6 bg-gradient-to-r from-[#1a2744] to-[#1a2744] rounded-2xl p-5 text-center">
-                  <p className="text-white font-bold text-base mb-1">Gostou da anÃ¡lise? ðŸŽ¯</p>
+                  <p className="text-white font-bold text-base mb-1">Gostou da análise? ðŸŽ¯</p>
                   <p className="text-slate-400 text-sm mb-4">
-                    Na versÃ£o Pro vocÃª tambÃ©m analisa <strong className="text-amber-400">gravaÃ§Ãµes de Ã¡udio</strong>, 
-                    exporta relatÃ³rios e tem painel completo de gestÃ£o. FaÃ§a uma cotaÃ§Ã£o agora.
+                    Na versão Pro você também analisa <strong className="text-amber-400">gravações de áudio</strong>, 
+                    exporta relatórios e tem painel completo de gestão. Faça uma cotação agora.
                   </p>
                   <a
                     href={WA_URL}
@@ -923,7 +923,7 @@ export default function LandingPage() {
                     onClick={() => { setStep(1); setResult(null); setFiles([]); setForm({ nomeSegurado: "", cpf: "", placa: "", tipoEvento: "", dataHora: "", local: "", relato: "" }) }}
                     className="text-sm text-[#64748b] hover:text-[#1a2744] transition-colors"
                   >
-                    â†© Fazer outra anÃ¡lise
+                    â†© Fazer outra análise
                   </button>
                 </div>
               </div>
@@ -931,21 +931,21 @@ export default function LandingPage() {
 
           </div>
 
-          {/* Nota de rodapÃ© do trial */}
+          {/* Nota de rodapé do trial */}
           <p className="text-center text-xs text-[#94a3b8] mt-4">
-            ðŸ”’ AnÃ¡lise completa e gratuita. Seus dados sÃ£o usados apenas para gerar o resultado e nÃ£o sÃ£o armazenados.
+            ðŸ”’ Análise completa e gratuita. Seus dados são usados apenas para gerar o resultado e não são armazenados.
           </p>
         </div>
       </section>
 
-      {/* â”€â”€ CTA FINAL â”€â”€ */}
+      {/* ── CTA FINAL ── */}
       <section className="py-20 bg-[#1a2744]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
-            Pronto para otimizar<br />sua operaÃ§Ã£o?
+            Pronto para otimizar<br />sua operação?
           </h2>
           <p className="text-slate-400 mb-8">
-            Fale com nosso time e saiba como o IAnalista se encaixa na sua proteÃ§Ã£o veicular.
+            Fale com nosso time e saiba como o IAnalista se encaixa na sua proteção veicular.
           </p>
           <a
             href={WA_URL}
@@ -960,7 +960,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* â”€â”€ FOOTER â”€â”€ */}
+      {/* ── FOOTER ── */}
       <footer className="bg-[#020617] border-t border-[#243459] py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -970,11 +970,11 @@ export default function LandingPage() {
             <span className="text-slate-400 text-sm font-medium">IAnalista Â· ianalista.com</span>
           </div>
           <p className="text-slate-600 text-xs">
-            Â© {new Date().getFullYear()} IAnalista. AnÃ¡lise inteligente de sinistros veiculares.
+            Â© {new Date().getFullYear()} IAnalista. Análise inteligente de sinistros veiculares.
           </p>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-slate-500 hover:text-slate-300 text-xs transition-colors">
-              Ãrea do cliente
+              Àrea do cliente
             </Link>
           </div>
         </div>
@@ -984,7 +984,7 @@ export default function LandingPage() {
   )
 }
 
-// â”€â”€â”€ Campo genÃ©rico â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Campo genérico ────────────────────────────────────────────────────────────
 function Field({
   label, name, value, onChange, placeholder,
 }: {
@@ -1008,7 +1008,7 @@ function Field({
   )
 }
 
-// â”€â”€â”€ UtilitÃ¡rio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Utilitário ───────────────────────────────────────────────────────────────
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
