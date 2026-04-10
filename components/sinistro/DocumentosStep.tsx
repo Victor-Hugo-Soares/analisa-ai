@@ -9,6 +9,8 @@ import type { ArquivoAnexo } from "@/lib/types"
 interface DocumentosStepProps {
   arquivos: ArquivoAnexo[]
   onChange: (arquivos: ArquivoAnexo[]) => void
+  onRawFile: (nome: string, file: File) => void
+  onRemoveRawFile: (nome: string) => void
 }
 
 interface DropzoneZoneProps {
@@ -118,37 +120,27 @@ function DropzoneZone({
 export default function DocumentosStep({
   arquivos,
   onChange,
+  onRawFile,
+  onRemoveRawFile,
 }: DocumentosStepProps) {
-  async function handleDrop(
-    files: File[],
-    tipo: "audio" | "documento" | "imagem"
-  ) {
-    const novosArquivos: ArquivoAnexo[] = []
+  function handleDrop(files: File[], tipo: "audio" | "documento" | "imagem") {
+    const novosArquivos: ArquivoAnexo[] = files.map((file) => ({
+      nome: file.name,
+      tipo,
+      tamanho: file.size,
+      // Sem base64 — arquivos serão enviados via Supabase Storage
+    }))
 
     for (const file of files) {
-      const base64 = await fileToBase64(file)
-      novosArquivos.push({
-        nome: file.name,
-        tipo,
-        tamanho: file.size,
-        base64,
-      })
+      onRawFile(file.name, file)
     }
 
     onChange([...arquivos, ...novosArquivos])
   }
 
   function handleRemove(nome: string) {
+    onRemoveRawFile(nome)
     onChange(arquivos.filter((a) => a.nome !== nome))
-  }
-
-  function fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = reject
-    })
   }
 
   return (

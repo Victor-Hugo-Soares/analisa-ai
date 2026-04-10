@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { openai, SYSTEM_PROMPT, AUDIO_TONE_PROMPT } from "@/lib/openai"
+import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro } from "@/lib/types"
 
 export const maxDuration = 300
@@ -9,6 +10,7 @@ interface ArquivoPayload {
   tipo: "audio" | "documento" | "imagem"
   tamanho: number
   base64?: string
+  storagePath?: string
 }
 
 interface AnalyzePayload {
@@ -42,10 +44,11 @@ export async function POST(req: NextRequest) {
     }> = []
 
     for (const audio of arquivosAudio) {
-      if (!audio.base64) continue
+      const base64 = await resolveArquivoBase64(audio)
+      if (!base64) continue
       try {
         console.log(`[Audio] Transcrevendo: ${audio.nome}`)
-        const transcricao = await transcribeAudio(audio.base64, audio.nome)
+        const transcricao = await transcribeAudio(base64, audio.nome)
         console.log(`[Audio] Transcrição concluída (${transcricao.length} chars)`)
 
         // Segunda etapa: análise de tom e comportamento vocal via GPT-4o
@@ -73,10 +76,11 @@ export async function POST(req: NextRequest) {
     const descricoesImagens: Array<{ arquivo: string; descricao: string }> = []
 
     for (const imagem of arquivosImagem) {
-      if (!imagem.base64) continue
+      const base64 = await resolveArquivoBase64(imagem)
+      if (!base64) continue
       try {
         console.log(`[Imagem] Analisando: ${imagem.nome}`)
-        const descricao = await analyzeImage(imagem.base64, imagem.nome, tipoEventoLabel[tipoEvento])
+        const descricao = await analyzeImage(base64, imagem.nome, tipoEventoLabel[tipoEvento])
         descricoesImagens.push({ arquivo: imagem.nome, descricao })
         console.log(`[Imagem] Análise concluída`)
       } catch (e) {
@@ -130,6 +134,38 @@ export async function POST(req: NextRequest) {
       error instanceof Error ? error.message : "Erro interno do servidor"
     return NextResponse.json({ error: message }, { status: 500 })
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Resolve arquivo: storagePath → signed URL → buffer  |  base64 → buffer
+// ─────────────────────────────────────────────────────────────────────────────
+async function resolveArquivoBase64(arquivo: ArquivoPayload): Promise<string | null> {
+  if (arquivo.storagePath) {
+    const supabase = createServerClient()
+    const { data, error } = await supabase.storage
+      .from("sinistros-arquivos")
+      .createSignedUrl(arquivo.storagePath, 300)
+    if (error || !data?.signedUrl) {
+      console.error("[Storage] Erro ao gerar signed URL:", error)
+      return null
+    }
+    const res = await fetch(data.signedUrl)
+    if (!res.ok) return null
+    const arrayBuffer = await res.arrayBuffer()
+    const mimeType = getMimeType(arquivo.nome)
+    return `data:${mimeType};base64,${Buffer.from(arrayBuffer).toString("base64")}`
+  }
+  return arquivo.base64 ?? null
+}
+
+function getMimeType(nome: string): string {
+  const ext = nome.split(".").pop()?.toLowerCase() ?? ""
+  const map: Record<string, string> = {
+    mp3: "audio/mpeg", wav: "audio/wav", m4a: "audio/mp4",
+    jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
+    pdf: "application/pdf",
+  }
+  return map[ext] ?? "application/octet-stream"
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

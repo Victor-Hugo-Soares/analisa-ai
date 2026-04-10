@@ -18,6 +18,7 @@ import {
   getAccessToken,
   getEmpresaIdFromSession,
 } from "@/lib/storage"
+import { createClient } from "@/lib/supabase"
 import type {
   TipoEvento,
   DadosSinistro,
@@ -52,6 +53,7 @@ export default function NovoSinistroPage() {
   const [analisando, setAnalisando] = useState(false)
   const [erroAnalise, setErroAnalise] = useState<string | null>(null)
   const [sinistroId, setSinistroId] = useState<string | null>(null)
+  const [rawFiles, setRawFiles] = useState<Map<string, File>>(new Map())
 
   useEffect(() => {
     const s = getSession()
@@ -92,16 +94,44 @@ export default function NovoSinistroPage() {
     }
   }
 
+  async function uploadArquivos(): Promise<ArquivoAnexo[]> {
+    if (rawFiles.size === 0) return arquivos
+
+    const empresaId = getEmpresaIdFromSession()
+    const storedAuth = typeof window !== "undefined" ? localStorage.getItem("analisa_ai_auth") : null
+    if (!storedAuth || !empresaId) return arquivos
+
+    const { access_token, refresh_token } = JSON.parse(storedAuth)
+    const supabase = createClient()
+    await supabase.auth.setSession({ access_token, refresh_token })
+
+    const updated = [...arquivos]
+    for (const [nome, file] of rawFiles.entries()) {
+      const path = `${empresaId}/${sinistroId}/${Date.now()}-${nome}`
+      const { data, error } = await supabase.storage
+        .from("sinistros-arquivos")
+        .upload(path, file, { upsert: true, contentType: file.type })
+      if (!error && data) {
+        const idx = updated.findIndex((a) => a.nome === nome)
+        if (idx >= 0) updated[idx] = { ...updated[idx], storagePath: data.path }
+      }
+    }
+    return updated
+  }
+
   async function runAnalise() {
     try {
+      const arquivosComPath = await uploadArquivos()
+
       const payload = {
         tipoEvento,
         dados,
-        arquivos: arquivos.map((a) => ({
+        arquivos: arquivosComPath.map((a) => ({
           nome: a.nome,
           tipo: a.tipo,
           tamanho: a.tamanho,
-          base64: a.base64,
+          storagePath: a.storagePath,
+          base64: a.base64, // fallback para arquivos sem storagePath
         })),
       }
 
@@ -121,7 +151,7 @@ export default function NovoSinistroPage() {
         id: sinistroId!,
         tipoEvento: tipoEvento!,
         dados,
-        arquivos: arquivos.map(({ base64: _, ...rest }) => rest),
+        arquivos: arquivosComPath.map(({ base64: _, ...rest }) => rest),
         status: "concluido",
         criadoEm: new Date().toISOString(),
         analise: result.analise,
@@ -194,7 +224,20 @@ export default function NovoSinistroPage() {
                 <DadosStep dados={dados} onChange={setDados} />
               )}
               {currentStep === 3 && (
-                <DocumentosStep arquivos={arquivos} onChange={setArquivos} />
+                <DocumentosStep
+                  arquivos={arquivos}
+                  onChange={setArquivos}
+                  onRawFile={(nome, file) =>
+                    setRawFiles((prev) => new Map(prev).set(nome, file))
+                  }
+                  onRemoveRawFile={(nome) =>
+                    setRawFiles((prev) => {
+                      const next = new Map(prev)
+                      next.delete(nome)
+                      return next
+                    })
+                  }
+                />
               )}
               {currentStep === 4 && (
                 <AnaliseStep

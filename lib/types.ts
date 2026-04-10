@@ -22,7 +22,8 @@ export interface ArquivoAnexo {
   nome: string
   tipo: "audio" | "documento" | "imagem"
   tamanho: number
-  base64?: string
+  base64?: string       // usado apenas para arquivos pequenos inline
+  storagePath?: string  // path no Supabase Storage (preferido para arquivos grandes)
 }
 
 export interface DadosSinistro {
