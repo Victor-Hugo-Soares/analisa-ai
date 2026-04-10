@@ -15,26 +15,10 @@ import { cn } from "@/lib/utils"
 import { isMaster } from "@/lib/storage"
 
 const navItems = [
-  {
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Sinistros",
-    href: "/sinistros",
-    icon: FileText,
-  },
-  {
-    label: "Relatórios",
-    href: "/relatorios",
-    icon: BarChart3,
-  },
-  {
-    label: "Configurações",
-    href: "/configuracoes",
-    icon: Settings,
-  },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Sinistros", href: "/sinistros", icon: FileText },
+  { label: "Relatórios", href: "/relatorios", icon: BarChart3 },
+  { label: "Configurações", href: "/configuracoes", icon: Settings },
 ]
 
 export default function Sidebar() {
@@ -46,18 +30,18 @@ export default function Sidebar() {
   }, [])
 
   return (
-    <aside className="w-64 bg-white border-r border-[#e2e8f0] min-h-[calc(100vh-4rem)] hidden md:block">
+    <aside className="w-64 bg-white border-r border-[#e2e8f0] min-h-[calc(100vh-4rem)] hidden md:flex flex-col">
       <div className="p-4">
         <Link
           href="/sinistros/novo"
-          className="flex items-center justify-center gap-2 w-full bg-[#1a2744] hover:bg-[#243459] text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm"
+          className="flex items-center justify-center gap-2 w-full bg-[#1a2744] hover:bg-[#243459] text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm"
         >
           <Plus className="w-4 h-4" />
           Novo Sinistro
         </Link>
       </div>
 
-      <nav className="px-3 pb-4">
+      <nav className="px-3 pb-4 flex-1">
         <p className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider px-3 mb-2">
           Navegação
         </p>
@@ -105,7 +89,7 @@ export default function Sidebar() {
         </nav>
       )}
 
-      <div className="mx-3 p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg mt-4">
+      <div className="mx-3 mb-4 p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg">
         <p className="text-xs font-semibold text-[#15803d] mb-1">Plano Profissional</p>
         <p className="text-xs text-[#166534]">
           Análises ilimitadas ativas

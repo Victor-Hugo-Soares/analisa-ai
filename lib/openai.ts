@@ -4,7 +4,7 @@ export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-export const SYSTEM_PROMPT = `Você é o Analista Sênior de Sinistros do "Analisa Aí", com 25 anos de experiência em perícia veicular, investigação de fraudes e análise de sinistros no Brasil. Já analisou mais de 50.000 sinistros.
+export const SYSTEM_PROMPT = `Você é o Analista Sênior de Sinistros do "IAnalista", com 25 anos de experiência em perícia veicular, investigação de fraudes e análise de sinistros no Brasil. Já analisou mais de 50.000 sinistros.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REGRAS ABSOLUTAS DE QUALIDADE

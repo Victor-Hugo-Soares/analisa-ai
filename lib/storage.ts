@@ -1,7 +1,7 @@
 import type { Sinistro, EmpresaSession, RoleUsuario } from "./types"
 
-const SINISTROS_KEY = "analisa_ai_sinistros"
-const SESSION_KEY = "analisa_ai_session"
+const SINISTROS_KEY = "ianalista_sinistros"
+const SESSION_KEY = "ianalista_session"
 
 export const mockSinistros: Sinistro[] = [
   {
@@ -265,7 +265,7 @@ export function isMaster(): boolean {
 
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null
-  const stored = localStorage.getItem("analisa_ai_auth")
+  const stored = localStorage.getItem("ianalista_auth")
   if (!stored) return null
   try {
     return JSON.parse(stored).access_token ?? null
@@ -279,5 +279,5 @@ export function setAuthTokens(tokens: {
   refresh_token: string
 }): void {
   if (typeof window === "undefined") return
-  localStorage.setItem("analisa_ai_auth", JSON.stringify(tokens))
+  localStorage.setItem("ianalista_auth", JSON.stringify(tokens))
 }

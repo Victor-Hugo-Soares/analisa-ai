@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   Shield, Building2, Users, FileText, AlertTriangle,
-  CheckCircle, XCircle, ChevronDown, Save, LogOut, Settings
+  CheckCircle, XCircle, ChevronDown, Save, LogOut, Settings,
+  Plus, X, Eye, EyeOff, Loader2,
 } from "lucide-react"
 import { getSession, isMaster, getAccessToken, clearSession } from "@/lib/storage"
 import type { NivelAcesso } from "@/lib/types"
@@ -36,6 +37,32 @@ const NIVEL_COLOR: Record<NivelAcesso, string> = {
   premium: "bg-amber-50 text-amber-700 border-amber-200",
 }
 
+const NIVEL_LIMITES: Record<NivelAcesso, number> = {
+  basico: 3,
+  avancado: 10,
+  premium: 50,
+}
+
+interface NovaEmpresaForm {
+  nome: string
+  cnpj: string
+  email: string
+  senha: string
+  limite_usuarios: number
+  nivel_acesso: NivelAcesso
+  plano: string
+}
+
+const FORM_INICIAL: NovaEmpresaForm = {
+  nome: "",
+  cnpj: "",
+  email: "",
+  senha: "",
+  limite_usuarios: 3,
+  nivel_acesso: "basico",
+  plano: "Básico",
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [empresas, setEmpresas] = useState<EmpresaAdmin[]>([])
@@ -44,6 +71,14 @@ export default function AdminPage() {
   const [form, setForm] = useState<Partial<EmpresaAdmin>>({})
   const [salvando, setSalvando] = useState(false)
   const [feedback, setFeedback] = useState<{ id: string; ok: boolean } | null>(null)
+
+  // Modal Nova Empresa
+  const [showModal, setShowModal] = useState(false)
+  const [novaForm, setNovaForm] = useState<NovaEmpresaForm>(FORM_INICIAL)
+  const [showSenha, setShowSenha] = useState(false)
+  const [criando, setCriando] = useState(false)
+  const [criarErro, setCriarErro] = useState("")
+  const [criarOk, setCriarOk] = useState(false)
 
   useEffect(() => {
     const session = getSession()
@@ -99,9 +134,59 @@ export default function AdminPage() {
     }
   }
 
+  async function criarEmpresa(e: React.FormEvent) {
+    e.preventDefault()
+    setCriarErro("")
+    setCriarOk(false)
+
+    if (!novaForm.nome || !novaForm.email || !novaForm.senha) {
+      setCriarErro("Preencha nome, e-mail e senha.")
+      return
+    }
+    if (novaForm.senha.length < 6) {
+      setCriarErro("A senha deve ter pelo menos 6 caracteres.")
+      return
+    }
+
+    setCriando(true)
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novaForm),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setCriarErro(data.error ?? "Erro ao criar empresa.")
+        setCriando(false)
+        return
+      }
+      setCriarOk(true)
+      setNovaForm(FORM_INICIAL)
+      setTimeout(() => {
+        setShowModal(false)
+        setCriarOk(false)
+        carregarEmpresas()
+      }, 1500)
+    } catch {
+      setCriarErro("Erro de conexão. Tente novamente.")
+    }
+    setCriando(false)
+  }
+
   function handleLogout() {
     clearSession()
     router.push("/login")
+  }
+
+  // Ajusta limite ao mudar nível
+  function handleNivelChange(nivel: NivelAcesso) {
+    setNovaForm(f => ({
+      ...f,
+      nivel_acesso: nivel,
+      limite_usuarios: NIVEL_LIMITES[nivel],
+      plano: NIVEL_LABEL[nivel],
+    }))
   }
 
   const totalEmpresas = empresas.length
@@ -119,7 +204,7 @@ export default function AdminPage() {
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-white font-bold tracking-tight">Analisa Aí</span>
+              <span className="text-white font-bold tracking-tight">IAnalista</span>
               <span className="ml-2 text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">
                 MASTER
               </span>
@@ -139,11 +224,20 @@ export default function AdminPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white">Painel Master</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Gerencie todas as empresas, acessos e limites da plataforma
-          </p>
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Painel Master</h1>
+            <p className="text-slate-400 text-sm mt-1">
+              Gerencie todas as empresas, acessos e limites da plataforma
+            </p>
+          </div>
+          <button
+            onClick={() => { setShowModal(true); setCriarErro(""); setCriarOk(false) }}
+            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors shadow-lg shadow-amber-500/20"
+          >
+            <Plus className="w-4 h-4" />
+            Nova Empresa
+          </button>
         </div>
 
         {/* Stats gerais */}
@@ -205,9 +299,11 @@ export default function AdminPage() {
                       <p className="text-slate-500 text-xs mt-0.5">CNPJ: {empresa.cnpj}</p>
 
                       <div className="flex items-center gap-4 mt-3">
-                        <span className="flex items-center gap-1 text-slate-400 text-xs">
-                          <Users className="w-3.5 h-3.5" />
-                          {empresa.total_usuarios}/{empresa.limite_usuarios} usuários
+                        <span className="flex items-center gap-1 text-xs">
+                          <Users className="w-3.5 h-3.5 text-slate-400" />
+                          <span className={empresa.total_usuarios >= empresa.limite_usuarios ? "text-red-400 font-semibold" : "text-slate-400"}>
+                            {empresa.total_usuarios}/{empresa.limite_usuarios} usuários
+                          </span>
                         </span>
                         <span className="flex items-center gap-1 text-slate-400 text-xs">
                           <FileText className="w-3.5 h-3.5" />
@@ -244,7 +340,6 @@ export default function AdminPage() {
                   {editando === empresa.id && (
                     <div className="mt-4 pt-4 border-t border-[#334155]">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Limite de usuários */}
                         <div>
                           <label className="block text-xs text-slate-400 font-medium mb-1.5">
                             Limite de Usuários
@@ -258,7 +353,6 @@ export default function AdminPage() {
                           />
                         </div>
 
-                        {/* Nível de acesso */}
                         <div>
                           <label className="block text-xs text-slate-400 font-medium mb-1.5">
                             Nível de Acesso
@@ -274,7 +368,6 @@ export default function AdminPage() {
                           </select>
                         </div>
 
-                        {/* Plano */}
                         <div>
                           <label className="block text-xs text-slate-400 font-medium mb-1.5">
                             Plano
@@ -288,7 +381,6 @@ export default function AdminPage() {
                           />
                         </div>
 
-                        {/* Status ativo */}
                         <div>
                           <label className="block text-xs text-slate-400 font-medium mb-1.5">
                             Status
@@ -344,6 +436,174 @@ export default function AdminPage() {
           )}
         </div>
       </main>
+
+      {/* ── Modal Nova Empresa ── */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1e293b] border border-[#334155] rounded-2xl w-full max-w-lg shadow-2xl">
+            {/* Header modal */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#334155]">
+              <div>
+                <h2 className="text-white font-bold text-lg">Nova Empresa</h2>
+                <p className="text-slate-400 text-sm">Cadastre uma nova empresa na plataforma</p>
+              </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-slate-500 hover:text-white transition-colors p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <form onSubmit={criarEmpresa} className="px-6 py-5 space-y-4">
+              {/* Nome */}
+              <div>
+                <label className="block text-xs text-slate-400 font-medium mb-1.5">Nome da empresa *</label>
+                <input
+                  type="text"
+                  placeholder="Seguradora Exemplo S.A."
+                  value={novaForm.nome}
+                  onChange={e => setNovaForm(f => ({ ...f, nome: e.target.value }))}
+                  className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                  required
+                />
+              </div>
+
+              {/* CNPJ e E-mail */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-400 font-medium mb-1.5">CNPJ</label>
+                  <input
+                    type="text"
+                    placeholder="00.000.000/0001-00"
+                    value={novaForm.cnpj}
+                    onChange={e => setNovaForm(f => ({ ...f, cnpj: e.target.value }))}
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 font-medium mb-1.5">E-mail admin *</label>
+                  <input
+                    type="email"
+                    placeholder="admin@empresa.com"
+                    value={novaForm.email}
+                    onChange={e => setNovaForm(f => ({ ...f, email: e.target.value }))}
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Senha */}
+              <div>
+                <label className="block text-xs text-slate-400 font-medium mb-1.5">Senha de acesso *</label>
+                <div className="relative">
+                  <input
+                    type={showSenha ? "text" : "password"}
+                    placeholder="Mínimo 6 caracteres"
+                    value={novaForm.senha}
+                    onChange={e => setNovaForm(f => ({ ...f, senha: e.target.value }))}
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 pr-10 text-sm focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSenha(s => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                  >
+                    {showSenha ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Nível + Limite */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-400 font-medium mb-1.5">Nível de acesso</label>
+                  <select
+                    value={novaForm.nivel_acesso}
+                    onChange={e => handleNivelChange(e.target.value as NivelAcesso)}
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="basico">Básico</option>
+                    <option value="avancado">Avançado</option>
+                    <option value="premium">Premium</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 font-medium mb-1.5">
+                    Limite de usuários
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={500}
+                    value={novaForm.limite_usuarios}
+                    onChange={e => setNovaForm(f => ({ ...f, limite_usuarios: Number(e.target.value) }))}
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              {/* Plano */}
+              <div>
+                <label className="block text-xs text-slate-400 font-medium mb-1.5">Nome do plano</label>
+                <input
+                  type="text"
+                  placeholder="ex: Pro Mensal, Enterprise..."
+                  value={novaForm.plano}
+                  onChange={e => setNovaForm(f => ({ ...f, plano: e.target.value }))}
+                  className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              {/* Preview */}
+              <div className="bg-[#0f172a] border border-[#334155] rounded-xl px-4 py-3 flex items-center justify-between">
+                <span className="text-slate-400 text-xs">Resumo</span>
+                <span className="text-white text-sm font-semibold">
+                  {NIVEL_LABEL[novaForm.nivel_acesso]} · {novaForm.limite_usuarios} usuário{novaForm.limite_usuarios !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              {criarErro && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">
+                  {criarErro}
+                </div>
+              )}
+
+              {criarOk && (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Empresa criada com sucesso!
+                </div>
+              )}
+
+              {/* Ações */}
+              <div className="flex items-center gap-3 pt-1">
+                <button
+                  type="submit"
+                  disabled={criando || criarOk}
+                  className="flex-1 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-white font-bold py-2.5 rounded-xl transition-colors"
+                >
+                  {criando ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Criando...</>
+                  ) : (
+                    <><Building2 className="w-4 h-4" /> Criar empresa</>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-5 py-2.5 text-slate-400 hover:text-white text-sm transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

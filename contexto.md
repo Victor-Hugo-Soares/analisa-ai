@@ -1,10 +1,10 @@
-# Analisa Aí — Contexto do Projeto
+# IAnalista — Contexto do Projeto
 
 ## Identidade
 - **Produto**: SaaS B2B de análise de sinistros veiculares com IA
 - **Público-alvo**: Seguradoras e proteções veiculares
 - **Repo**: `https://github.com/VictorHugo-7/analisa-ai`
-- **Deploy**: `https://analisa-ai.vercel.app`
+- **Deploy**: `https://ianalista.com`
 - **Diretório**: `C:/Users/Victor Hugo/OneDrive/Documentos/Victor/analisa-ai`
 
 ---
@@ -77,8 +77,8 @@ analisa-ai/
 
 ### Fluxo de Auth
 1. `POST /api/auth/signin` → retorna `{ session, usuario: { role, empresa_id, ... } }`
-2. Tokens salvos em `localStorage("analisa_ai_auth")`
-3. Sessão salva em `localStorage("analisa_ai_session")` — inclui `role` e `usuario_id`
+2. Tokens salvos em `localStorage("ianalista_auth")`
+3. Sessão salva em `localStorage("ianalista_session")` — inclui `role` e `usuario_id`
 4. Rotas autenticadas: `Authorization: Bearer <access_token>`
 
 ### Helpers (`lib/storage.ts`)

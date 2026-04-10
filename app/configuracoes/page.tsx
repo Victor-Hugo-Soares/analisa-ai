@@ -80,7 +80,7 @@ export default function ConfiguracoesPage() {
                     <p className="text-xs text-[#94a3b8]">Em breve</p>
                   </div>
                 </div>
-                <p className="text-sm text-[#64748b]">Conecte o Analisa Aí com seu sistema de gestão.</p>
+                <p className="text-sm text-[#64748b]">Conecte o IAnalista com seu sistema de gestão.</p>
               </div>
             </div>
           </div>
