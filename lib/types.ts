@@ -1,0 +1,85 @@
+export type TipoEvento =
+  | "colisao"
+  | "roubo"
+  | "furto"
+  | "natureza"
+  | "vidros"
+
+export type StatusSinistro =
+  | "pendente"
+  | "em_analise"
+  | "concluido"
+  | "suspeito"
+
+export type NivelRisco = "BAIXO" | "MEDIO" | "ALTO"
+
+export type Recomendacao =
+  | "APROVACAO_RECOMENDADA"
+  | "INVESTIGACAO_NECESSARIA"
+  | "RECUSA_RECOMENDADA"
+
+export interface ArquivoAnexo {
+  nome: string
+  tipo: "audio" | "documento" | "imagem"
+  tamanho: number
+  base64?: string
+}
+
+export interface DadosSinistro {
+  nomeSegurado: string
+  cpf: string
+  placa: string
+  dataHora: string
+  local: string
+  relato: string
+}
+
+export interface Sinistro {
+  id: string
+  tipoEvento: TipoEvento
+  dados: DadosSinistro
+  arquivos: ArquivoAnexo[]
+  status: StatusSinistro
+  criadoEm: string
+  analise?: AnaliseIA
+}
+
+export interface AnaliseAudio {
+  transcricao_completa: string
+  transcricao_resumo: string
+  tom_voz: string
+  perfil_emocional: string
+  momentos_alterados: string[]
+  padroes_suspeitos: string[]
+  contradicoes_com_relato: string[]
+}
+
+export interface AnaliseImagens {
+  descricao: string
+  consistencia_relato: string
+  observacoes: string[]
+  indicadores_autenticidade: string
+}
+
+export interface AnaliseIA {
+  resumo: string
+  linha_do_tempo: string[]
+  pontos_verdadeiros: string[]
+  pontos_atencao: string[]
+  contradicoes: string[]
+  indicadores_fraude: string[]
+  analise_audio?: AnaliseAudio
+  analise_imagens?: AnaliseImagens
+  nivel_risco: NivelRisco
+  score_confiabilidade: number
+  recomendacao: Recomendacao
+  justificativa_recomendacao: string
+  proximos_passos: string[]
+}
+
+export interface EmpresaSession {
+  id: string
+  nome: string
+  email: string
+  cnpj: string
+}
