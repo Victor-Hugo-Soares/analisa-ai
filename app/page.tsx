@@ -48,6 +48,19 @@ const TIPO_EVENTO_OPTIONS: { value: TipoEvento; label: string; icon: React.React
 const STEP_LABELS = ["Dados do Associado", "Relato do Sinistro", "Documentos", "Resultado"]
 
 // â”€â”€â”€ Componente principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+interface AnaliseResult {
+  recomendacao: string
+  score_confiabilidade: number
+  resumo?: string
+  pontos_atencao?: string[]
+  pontos_verdadeiros?: string[]
+  contradicoes?: string[]
+  indicadores_fraude?: string[]
+  linha_do_tempo?: string | string[]
+  proximos_passos?: string
+  analise_imagens?: { descricao?: string; consistencia_relato?: string }
+}
+
 export default function LandingPage() {
   const trialRef = useRef<HTMLDivElement>(null)
   const [step, setStep] = useState<Step>(1)
@@ -57,7 +70,7 @@ export default function LandingPage() {
   })
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [analyzing, setAnalyzing] = useState(false)
-  const [result, setResult] = useState<Record<string, unknown> | null>(null)
+  const [result, setResult] = useState<AnaliseResult | null>(null)
   const [error, setError] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -799,13 +812,13 @@ export default function LandingPage() {
                 {/* Header resultado */}
                 <div className="flex items-center gap-3 mb-6 pb-6 border-b border-[#e2e8f0]">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    (result.recomendacao as string) === "APROVACAO_RECOMENDADA" ? "bg-emerald-100" :
-                    (result.recomendacao as string) === "INVESTIGACAO_NECESSARIA" ? "bg-amber-100" :
+                    result.recomendacao === "APROVACAO_RECOMENDADA" ? "bg-emerald-100" :
+                    result.recomendacao === "INVESTIGACAO_NECESSARIA" ? "bg-amber-100" :
                     "bg-red-100"
                   }`}>
-                    {(result.recomendacao as string) === "APROVACAO_RECOMENDADA" ? (
+                    {result.recomendacao === "APROVACAO_RECOMENDADA" ? (
                       <CheckCircle className="w-6 h-6 text-emerald-600" />
-                    ) : (result.recomendacao as string) === "INVESTIGACAO_NECESSARIA" ? (
+                    ) : result.recomendacao === "INVESTIGACAO_NECESSARIA" ? (
                       <AlertTriangle className="w-6 h-6 text-amber-600" />
                     ) : (
                       <X className="w-6 h-6 text-red-600" />
@@ -814,12 +827,12 @@ export default function LandingPage() {
                   <div>
                     <p className="text-xs text-[#64748b] font-medium uppercase tracking-wider">RecomendaÃ§Ã£o</p>
                     <p className={`font-bold text-lg ${
-                      (result.recomendacao as string) === "APROVACAO_RECOMENDADA" ? "text-emerald-700" :
-                      (result.recomendacao as string) === "INVESTIGACAO_NECESSARIA" ? "text-amber-700" :
+                      result.recomendacao === "APROVACAO_RECOMENDADA" ? "text-emerald-700" :
+                      result.recomendacao === "INVESTIGACAO_NECESSARIA" ? "text-amber-700" :
                       "text-red-700"
                     }`}>
-                      {(result.recomendacao as string) === "APROVACAO_RECOMENDADA" ? "AprovaÃ§Ã£o Recomendada" :
-                       (result.recomendacao as string) === "INVESTIGACAO_NECESSARIA" ? "InvestigaÃ§Ã£o NecessÃ¡ria" :
+                      {result.recomendacao === "APROVACAO_RECOMENDADA" ? "AprovaÃ§Ã£o Recomendada" :
+                       result.recomendacao === "INVESTIGACAO_NECESSARIA" ? "InvestigaÃ§Ã£o NecessÃ¡ria" :
                        "Recusa Recomendada"}
                     </p>
                   </div>
@@ -838,7 +851,7 @@ export default function LandingPage() {
                 {result.resumo && (
                   <div className="mb-5">
                     <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Resumo executivo</p>
-                    <p className="text-sm text-[#1a2744] leading-relaxed">{result.resumo as string}</p>
+                    <p className="text-sm text-[#1a2744] leading-relaxed">{result.resumo ?? ""}</p>
                   </div>
                 )}
 
@@ -875,14 +888,14 @@ export default function LandingPage() {
                 {result.linha_do_tempo && (
                   <div className="mb-5">
                     <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Linha do tempo reconstruÃ­da</p>
-                    <p className="text-sm text-[#1a2744] leading-relaxed">{result.linha_do_tempo as string}</p>
+                    <p className="text-sm text-[#1a2744] leading-relaxed">{(Array.isArray(result.linha_do_tempo) ? result.linha_do_tempo.join(", ") : result.linha_do_tempo ?? "")}</p>
                   </div>
                 )}
 
                 {result.proximos_passos && (
                   <div className="mb-5 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4">
                     <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">PrÃ³ximos passos</p>
-                    <p className="text-sm text-[#1a2744] leading-relaxed">{result.proximos_passos as string}</p>
+                    <p className="text-sm text-[#1a2744] leading-relaxed">{result.proximos_passos ?? ""}</p>
                   </div>
                 )}
 
