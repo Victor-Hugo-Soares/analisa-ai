@@ -390,7 +390,7 @@ export default function LandingPage() {
               "Reduzimos o tempo médio de análise de 3 horas para menos de 2 minutos.
               A detecção de fraudes melhorou completamente e o time ficou muito mais focado."
             </p>
-            <p className="text-slate-400 text-sm">â€” Diretor de Operações, Proteção Veicular SP</p>
+            <p className="text-slate-400 text-sm">— Diretor de Operações, Proteção Veicular SP</p>
           </div>
         </div>
       </section>
@@ -401,7 +401,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
               <Star className="w-3.5 h-3.5 fill-amber-500" />
-              Versão Pro â€” tudo que o trial não mostra
+              Versão Pro — tudo que o trial não mostra
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-[#1a2744] leading-tight mb-4">
               Uma plataforma completa.<br />
@@ -410,11 +410,11 @@ export default function LandingPage() {
               </span>
             </h2>
             <p className="text-[#64748b] max-w-xl mx-auto">
-              O teste gratuito mostra apenas uma prévia. Na versão Pro você tem acesso a todo o arsenal de análise â€” incluindo áudio, relatórios completos e gestão centralizada.
+              O teste gratuito mostra apenas uma prévia. Na versão Pro você tem acesso a todo o arsenal de análise — incluindo áudio, relatórios completos e gestão centralizada.
             </p>
           </div>
 
-          {/* Feature principal â€” Análise de Àudio */}
+          {/* Feature principal — Análise de Àudio */}
           <div className="bg-[#1a2744] rounded-3xl overflow-hidden mb-6">
             <div className="grid lg:grid-cols-2 gap-0">
               <div className="p-8 sm:p-12 flex flex-col justify-center">
@@ -426,7 +426,7 @@ export default function LandingPage() {
                   Análise de áudio com Whisper + GPT-4o
                 </h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  Transcreva automaticamente ligações do segurado com <strong className="text-white">timestamps precisos</strong>. A IA detecta hesitações, autocorreções, calma atípica e padrões linguísticos suspeitos â€” o que nenhum perito consegue captar ouvindo manualmente.
+                  Transcreva automaticamente ligações do segurado com <strong className="text-white">timestamps precisos</strong>. A IA detecta hesitações, autocorreções, calma atípica e padrões linguísticos suspeitos — o que nenhum perito consegue captar ouvindo manualmente.
                 </p>
                 <ul className="space-y-3">
                   {[
@@ -472,7 +472,7 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Relatórios Completos</h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                Linha do tempo reconstruída, pontos verdadeiros, contradições cruzadas e próximos passos concretos â€” tudo em um relatório exportável por sinistro.
+                Linha do tempo reconstruída, pontos verdadeiros, contradições cruzadas e próximos passos concretos — tudo em um relatório exportável por sinistro.
               </p>
               <ul className="space-y-1.5">
                 {["Linha do tempo detalhada", "Score de 0 a 100", "Próximos passos", "Exportação PDF (em breve)"].map(f => (
@@ -552,7 +552,7 @@ export default function LandingPage() {
                 <span className="bg-violet-100 text-violet-700 text-xs font-bold px-2 py-0.5 rounded-full border border-violet-200">Em breve</span>
               </div>
               <p className="text-[#64748b] text-sm">
-                Integre o IAnalista diretamente ao seu sistema de gestão via API REST. Dispare análises automaticamente ao receber um novo sinistro, sem intervenção manual â€” pré-cadastre interesse e seja o primeiro a testar.
+                Integre o IAnalista diretamente ao seu sistema de gestão via API REST. Dispare análises automaticamente ao receber um novo sinistro, sem intervenção manual — pré-cadastre interesse e seja o primeiro a testar.
               </p>
             </div>
             <a
@@ -588,13 +588,13 @@ export default function LandingPage() {
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
               <Zap className="w-3.5 h-3.5" />
-              Análise completa e gratuita â€” sem cadastro
+              Análise completa e gratuita — sem cadastro
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-[#1a2744] leading-tight mb-3">
               Veja o IAnalista funcionando
             </h2>
             <p className="text-[#64748b]">
-              Preencha os dados de um sinistro real. Você receberá a análise <strong>100% completa</strong> â€” score, pontos de atenção, indicadores de fraude e próximos passos. Grátis, sem cadastro.
+              Preencha os dados de um sinistro real. Você receberá a análise <strong>100% completa</strong> — score, pontos de atenção, indicadores de fraude e próximos passos. Grátis, sem cadastro.
             </p>
           </div>
 
@@ -718,9 +718,9 @@ export default function LandingPage() {
               <div className="p-6 sm:p-8">
                 <h3 className="font-bold text-[#1a2744] text-lg mb-2">Documentos e Fotos</h3>
                 <p className="text-[#64748b] text-sm mb-1">
-                  Adicione fotos do veículo e documentos (BO, laudos). Opcional â€” mas melhora muito a análise.
+                  Adicione fotos do veículo e documentos (BO, laudos). Opcional — mas melhora muito a análise.
                 </p>
-                <p className="text-xs text-[#94a3b8] mb-6">Formatos: JPG, PNG, PDF â€” máx. 5 arquivos</p>
+                <p className="text-xs text-[#94a3b8] mb-6">Formatos: JPG, PNG, PDF — máx. 5 arquivos</p>
 
                 {/* Drop area */}
                 <button
@@ -899,7 +899,7 @@ export default function LandingPage() {
                   </div>
                 )}
 
-                {/* CTA pós análise â€” versão completa */}
+                {/* CTA pós análise — versão completa */}
                 <div className="mt-6 bg-gradient-to-r from-[#1a2744] to-[#1a2744] rounded-2xl p-5 text-center">
                   <p className="text-white font-bold text-base mb-1">Gostou da análise? ðŸŽ¯</p>
                   <p className="text-slate-400 text-sm mb-4">
@@ -913,7 +913,7 @@ export default function LandingPage() {
                     className="inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold px-6 py-3 rounded-xl transition-colors"
                   >
                     <MessageCircle className="w-5 h-5" />
-                    Quero o Plano Pro â€” WhatsApp
+                    Quero o Plano Pro — WhatsApp
                   </a>
                   <p className="text-slate-600 text-xs mt-2">Resposta imediata Â· Sem compromisso</p>
                 </div>
