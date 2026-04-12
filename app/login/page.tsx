@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import Link from "next/link"
-import { Shield, Eye, EyeOff, LogIn } from "lucide-react"
+import { Eye, EyeOff, LogIn } from "lucide-react"
 import { setSession, setAuthTokens } from "@/lib/storage"
 
 export default function LoginPage() {
@@ -69,96 +70,99 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
+
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <Link href="/" className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
-            <div className="bg-[#1a2744] p-2.5 rounded-xl">
-              <Shield className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-2xl font-black text-[#0f172a] tracking-tight">IAnalista</span>
+            <Image src="/logo.png" alt="IAnalista" width={180} height={50} priority />
           </Link>
           <p className="text-[#64748b] text-sm">Análise Inteligente de Sinistros</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-[#e2e8f0] rounded-2xl p-8 shadow-sm">
-          <h1 className="text-xl font-bold text-[#0f172a] mb-1">Acesse sua conta</h1>
-          <p className="text-[#64748b] text-sm mb-6">Entre com as credenciais da sua empresa</p>
+        <div className="bg-white border border-[#e2e8f0] rounded-2xl shadow-sm overflow-hidden">
+          {/* faixa laranja topo */}
+          <div className="h-1 bg-amber-500" />
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-[#0f172a] mb-1.5">E-mail</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="empresa@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#0f172a] placeholder:text-[#94a3b8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a2744] focus:ring-1 focus:ring-[#1a2744]/20 transition-all"
-                required
-              />
-            </div>
+          <div className="p-8">
+            <h1 className="text-xl font-bold text-[#0f172a] mb-1">Acesse sua conta</h1>
+            <p className="text-[#64748b] text-sm mb-6">Entre com as credenciais da sua empresa</p>
 
-            <div>
-              <label className="block text-sm font-medium text-[#0f172a] mb-1.5">Senha</label>
-              <div className="relative">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#0f172a] mb-1.5">E-mail</label>
                 <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Mínimo 6 caracteres"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#0f172a] placeholder:text-[#94a3b8] rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-[#1a2744] focus:ring-1 focus:ring-[#1a2744]/20 transition-all"
+                  id="email"
+                  type="email"
+                  placeholder="empresa@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#0f172a] placeholder:text-[#94a3b8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#64748b] transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
               </div>
-            </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
-                {error}
+              <div>
+                <label className="block text-sm font-medium text-[#0f172a] mb-1.5">Senha</label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Mínimo 6 caracteres"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#0f172a] placeholder:text-[#94a3b8] rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-amber-500 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#1a2744] hover:bg-[#243459] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Entrando...
-                </>
-              ) : (
-                <>
-                  <LogIn className="w-4 h-4" />
-                  Entrar
-                </>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+                  {error}
+                </div>
               )}
-            </button>
-          </form>
 
-          <div className="mt-6 pt-5 border-t border-[#f1f5f9] text-center">
-            <p className="text-sm text-[#94a3b8]">
-              Acesso restrito. Para suporte entre em contato via{" "}
-              <a
-                href="https://wa.me/5511926712965"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#1a2744] font-semibold hover:underline"
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm"
               >
-                WhatsApp
-              </a>
-              .
-            </p>
+                {loading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4 h-4" />
+                    Entrar
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-6 pt-5 border-t border-[#f1f5f9] text-center">
+              <p className="text-sm text-[#94a3b8]">
+                Acesso restrito. Para suporte entre em contato via{" "}
+                <a
+                  href="https://wa.me/5511926712965"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-500 font-semibold hover:underline"
+                >
+                  WhatsApp
+                </a>
+                .
+              </p>
+            </div>
           </div>
         </div>
 
