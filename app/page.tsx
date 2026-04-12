@@ -321,7 +321,7 @@ export default function LandingPage() {
                 icon: <Users className="w-6 h-6 text-indigo-500" />,
                 bg: "bg-indigo-50",
                 title: "Associados insatisfeitos",
-                desc: "Demora na resposta gera reclamações, churn e dano À  reputação da sua associação.",
+                desc: "Demora na resposta gera reclamações, churn e dano à reputação da sua associação.",
               },
             ].map(item => (
               <div key={item.title} className="border border-[#e2e8f0] rounded-2xl p-6 hover:shadow-md transition-shadow">
@@ -430,7 +430,7 @@ export default function LandingPage() {
                 </p>
                 <ul className="space-y-3">
                   {[
-                    "Transcrição completa com timestamps [MM:SS â†’ MM:SS]",
+                    "Transcrição completa com timestamps [MM:SS → MM:SS]",
                     "Arco emocional mapeado do início ao fim da ligação",
                     "Detecção de hesitação, autocorreção e calma atípica",
                     "Comparação automática com o relato escrito",
@@ -446,9 +446,9 @@ export default function LandingPage() {
                 <div className="w-full max-w-sm space-y-3">
                   <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-4">Prévia de análise vocal</p>
                   {[
-                    { time: "[00:45 â†’ 00:52]", text: "\"Foi... foi por volta das... dez e meia\"", tag: "Hesitação", color: "text-amber-400 border-amber-500/30 bg-amber-500/10" },
-                    { time: "[01:30 â†’ 01:38]", text: "\"Dois caras... é... foram dois\"", tag: "Autocorreção", color: "text-red-400 border-red-500/30 bg-red-500/10" },
-                    { time: "[02:10 â†’ 02:25]", text: "Tom consistentemente calmo após relato traumático", tag: "Calma atípica", color: "text-violet-400 border-violet-500/30 bg-violet-500/10" },
+                    { time: "[00:45 → 00:52]", text: "\"Foi... foi por volta das... dez e meia\"", tag: "Hesitação", color: "text-amber-400 border-amber-500/30 bg-amber-500/10" },
+                    { time: "[01:30 → 01:38]", text: "\"Dois caras... é... foram dois\"", tag: "Autocorreção", color: "text-red-400 border-red-500/30 bg-red-500/10" },
+                    { time: "[02:10 → 02:25]", text: "Tom consistentemente calmo após relato traumático", tag: "Calma atípica", color: "text-violet-400 border-violet-500/30 bg-violet-500/10" },
                   ].map(item => (
                     <div key={item.time} className="bg-[#1a2744] border border-white/10 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
@@ -577,7 +577,7 @@ export default function LandingPage() {
               <MessageCircle className="w-5 h-5" />
               Quero contratar o Pro
             </a>
-            <p className="text-[#94a3b8] text-sm mt-3">Fale no WhatsApp Â· Resposta imediata Â· Sem burocracia</p>
+            <p className="text-[#94a3b8] text-sm mt-3">Fale no WhatsApp · Resposta imediata · Sem burocracia</p>
           </div>
         </div>
       </section>
@@ -701,7 +701,7 @@ export default function LandingPage() {
                 </div>
                 <div className="mt-6 flex justify-between">
                   <button onClick={() => setStep(1)} className="text-[#64748b] hover:text-[#1a2744] text-sm font-medium transition-colors">
-                    â† Voltar
+                    ← Voltar
                   </button>
                   <button
                     onClick={handleStep2Next}
@@ -757,7 +757,7 @@ export default function LandingPage() {
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-[#1a2744] truncate">{uf.file.name}</p>
-                          <p className="text-xs text-[#94a3b8]">{(uf.file.size / 1024).toFixed(0)} KB Â· {uf.tipo}</p>
+                          <p className="text-xs text-[#94a3b8]">{(uf.file.size / 1024).toFixed(0)} KB · {uf.tipo}</p>
                         </div>
                         <button onClick={() => removeFile(idx)} className="text-[#94a3b8] hover:text-red-500 transition-colors">
                           <X className="w-4 h-4" />
@@ -775,7 +775,7 @@ export default function LandingPage() {
 
                 <div className="mt-6 flex justify-between items-center">
                   <button onClick={() => setStep(2)} className="text-[#64748b] hover:text-[#1a2744] text-sm font-medium transition-colors">
-                    â† Voltar
+                    ← Voltar
                   </button>
                   <button
                     onClick={handleAnalyze}
@@ -799,7 +799,7 @@ export default function LandingPage() {
                 {analyzing && (
                   <div className="mt-6 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4">
                     <p className="text-xs text-[#64748b] text-center animate-pulse">
-                      ðŸ” Processando documentos e imagens com GPT-4o Vision...
+                      🔍 Processando documentos e imagens com GPT-4o Vision...
                     </p>
                   </div>
                 )}
@@ -901,7 +901,7 @@ export default function LandingPage() {
 
                 {/* CTA pós análise — versão completa */}
                 <div className="mt-6 bg-gradient-to-r from-[#1a2744] to-[#1a2744] rounded-2xl p-5 text-center">
-                  <p className="text-white font-bold text-base mb-1">Gostou da análise? ðŸŽ¯</p>
+                  <p className="text-white font-bold text-base mb-1">Gostou da análise? 🎯</p>
                   <p className="text-slate-400 text-sm mb-4">
                     Na versão Pro você também analisa <strong className="text-amber-400">gravações de áudio</strong>, 
                     exporta relatórios e tem painel completo de gestão. Faça uma cotação agora.
@@ -915,7 +915,7 @@ export default function LandingPage() {
                     <MessageCircle className="w-5 h-5" />
                     Quero o Plano Pro — WhatsApp
                   </a>
-                  <p className="text-slate-600 text-xs mt-2">Resposta imediata Â· Sem compromisso</p>
+                  <p className="text-slate-600 text-xs mt-2">Resposta imediata · Sem compromisso</p>
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-[#e2e8f0] text-center">
@@ -923,7 +923,7 @@ export default function LandingPage() {
                     onClick={() => { setStep(1); setResult(null); setFiles([]); setForm({ nomeSegurado: "", cpf: "", placa: "", tipoEvento: "", dataHora: "", local: "", relato: "" }) }}
                     className="text-sm text-[#64748b] hover:text-[#1a2744] transition-colors"
                   >
-                    â†© Fazer outra análise
+                    ↩ Fazer outra análise
                   </button>
                 </div>
               </div>
@@ -933,7 +933,7 @@ export default function LandingPage() {
 
           {/* Nota de rodapé do trial */}
           <p className="text-center text-xs text-[#94a3b8] mt-4">
-            ðŸ”’ Análise completa e gratuita. Seus dados são usados apenas para gerar o resultado e não são armazenados.
+            🔒 Análise completa e gratuita. Seus dados são usados apenas para gerar o resultado e não são armazenados.
           </p>
         </div>
       </section>
@@ -956,7 +956,7 @@ export default function LandingPage() {
             <MessageCircle className="w-6 h-6" />
             Falar no WhatsApp
           </a>
-          <p className="text-slate-600 text-sm mt-4">(11) 92671-2965 Â· Resposta imediata</p>
+          <p className="text-slate-600 text-sm mt-4">(11) 92671-2965 · Resposta imediata</p>
         </div>
       </section>
 
@@ -967,7 +967,7 @@ export default function LandingPage() {
             <div className="bg-amber-500 p-1 rounded-md">
               <Shield className="w-4 h-4 text-white" />
             </div>
-            <span className="text-slate-400 text-sm font-medium">IAnalista Â· ianalista.com</span>
+            <span className="text-slate-400 text-sm font-medium">IAnalista · ianalista.com</span>
           </div>
           <p className="text-slate-600 text-xs">
             Â© {new Date().getFullYear()} IAnalista. Análise inteligente de sinistros veiculares.
