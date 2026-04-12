@@ -176,8 +176,9 @@ export default function LandingPage() {
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1a2744]/95 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
-            <Image src="/logo.png" alt="IAnalista" width={130} height={36} priority />
+          <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+            <Image src="/favicon.png" alt="" width={28} height={28} priority />
+            <span className="text-white font-bold text-lg tracking-tight">IAnalista</span>
           </Link>
           <div className="flex items-center gap-3">
             <button
@@ -961,8 +962,9 @@ export default function LandingPage() {
       {/* ── FOOTER ── */}
       <footer className="bg-[#020617] border-t border-[#243459] py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center">
-            <Image src="/logo.png" alt="IAnalista" width={100} height={28} className="opacity-70" />
+          <div className="flex items-center gap-2">
+            <Image src="/favicon.png" alt="" width={20} height={20} className="opacity-70" />
+            <span className="text-slate-400 text-sm font-medium opacity-70">IAnalista</span>
           </div>
           <p className="text-slate-600 text-xs">
             © {new Date().getFullYear()} IAnalista. Análise inteligente de sinistros veiculares.

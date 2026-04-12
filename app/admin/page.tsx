@@ -201,7 +201,10 @@ export default function AdminPage() {
       <header className="border-b border-[#1e293b] bg-[#0f172a] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="IAnalista" width={120} height={34} priority />
+            <div className="flex items-center gap-2.5">
+              <Image src="/favicon.png" alt="" width={26} height={26} priority />
+              <span className="text-white font-bold tracking-tight">IAnalista</span>
+            </div>
             <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">
               MASTER
             </span>

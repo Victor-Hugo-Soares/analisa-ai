@@ -21,8 +21,9 @@ export default function Header({ session }: HeaderProps) {
 
   return (
     <header className="bg-[#1a2744] h-16 flex items-center px-6 gap-4 sticky top-0 z-50">
-      <Link href="/dashboard" className="flex items-center hover:opacity-80 transition-opacity">
-        <Image src="/logo.png" alt="IAnalista" width={130} height={36} priority />
+      <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+        <Image src="/favicon.png" alt="" width={26} height={26} priority />
+        <span className="text-white font-bold text-lg tracking-tight">IAnalista</span>
       </Link>
 
       <div className="flex-1" />
