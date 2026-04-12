@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useRef } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import {
-  Shield, CheckCircle, Clock, AlertTriangle, TrendingDown,
+  CheckCircle, Clock, AlertTriangle, TrendingDown,
   FileSearch, Brain, ChevronRight, Star, ArrowRight,
   Upload, X, Loader2, MessageCircle, BarChart3,
   Users, Zap, Target, Eye, PhoneCall, ChevronDown,
@@ -175,11 +176,8 @@ export default function LandingPage() {
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1a2744]/95 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-            <div className="bg-amber-500 p-1.5 rounded-lg">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-white font-bold text-lg tracking-tight">IAnalista</span>
+          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
+            <Image src="/logo.png" alt="IAnalista" width={130} height={36} className="brightness-0 invert" priority />
           </Link>
           <div className="flex items-center gap-3">
             <button
@@ -963,14 +961,11 @@ export default function LandingPage() {
       {/* ── FOOTER ── */}
       <footer className="bg-[#020617] border-t border-[#243459] py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="bg-amber-500 p-1 rounded-md">
-              <Shield className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-slate-400 text-sm font-medium">IAnalista · ianalista.com</span>
+          <div className="flex items-center">
+            <Image src="/logo.png" alt="IAnalista" width={100} height={28} className="brightness-0 invert opacity-60" />
           </div>
           <p className="text-slate-600 text-xs">
-            Â© {new Date().getFullYear()} IAnalista. Análise inteligente de sinistros veiculares.
+            © {new Date().getFullYear()} IAnalista. Análise inteligente de sinistros veiculares.
           </p>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-slate-500 hover:text-slate-300 text-xs transition-colors">
