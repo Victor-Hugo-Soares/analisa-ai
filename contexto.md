@@ -196,7 +196,7 @@ new File([buffer], fileName, { type: mimeType })
 ## Próximas Features (backlog)
 - [ ] Dashboard com métricas (sinistros por tipo, score médio, taxa suspeito)
 - [ ] Exportação de relatório PDF por sinistro
-- [ ] Integração webhook para notificação de status
+  - [ ] Integração webhook para notificação de status
 - [ ] Onboarding multi-step para nova empresa
 - [ ] Planos (Free/Pro) com controle de uso via Supabase
 - [ ] Paginação na lista de sinistros
@@ -204,3 +204,14 @@ new File([buffer], fileName, { type: mimeType })
 - [ ] Gráficos na página de relatórios
 - [ ] Dark mode
 - [ ] Notificações em tempo real
+
+### Sessão 3 — Rebranding, Conversão e Padronização (10/04/2026)
+- [x] Remoção de cadastro público (`/cadastro` não acessível pela interface).
+- [x] Login atualizado: mostra texto de contato do WhatsApp em vez de cadastro.
+- [x] Painel `/admin` — Modal "Nova Empresa" completo (CNPJ, Limite Usuários, Nível e Senha).
+- [x] Landing Page — conversão completa pós-teste com botão direto para WhatsApp.
+- [x] Refatoração de cores: sistema na cor azul navy (`#1a2744`) no Header/Sidebar/Dashboard, substituindo o antigo `#0f172a`.
+- [x] Correção de bugs de codificação UTF-8 (`fix-encoding.js`) causados no deploy.
+
+## Próximas Features (backlog imediato)
+- [ ] **Ajuste Visual:** Alterar a página inicial para remover os botões laranjas (amber) e mudar para o azul do sistema (`#1a2744`).
