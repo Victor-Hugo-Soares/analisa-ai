@@ -69,10 +69,10 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
           <Link
             key={sinistro.id}
             href={`/sinistros/${sinistro.id}`}
-            className="flex items-center gap-4 p-4 hover:bg-[#f8fafc] transition-colors group"
+            className="flex items-center gap-4 p-4 hover:bg-amber-50 transition-colors group"
           >
-            <div className="w-10 h-10 bg-[#f1f5f9] rounded-full flex items-center justify-center flex-shrink-0">
-              <Car className="w-5 h-5 text-[#64748b]" />
+            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Car className="w-5 h-5 text-amber-600" />
             </div>
 
             <div className="flex-1 min-w-0">
@@ -113,7 +113,7 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
               >
                 {status.label}
               </Badge>
-              <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#64748b] transition-colors" />
+              <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-amber-500 transition-colors" />
             </div>
           </Link>
         )

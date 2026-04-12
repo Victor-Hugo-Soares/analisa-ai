@@ -15,11 +15,11 @@ interface StatsCardProps {
 
 const colorMap = {
   navy: {
-    bg: "bg-[#1a2744]",
-    iconBg: "bg-[#243459]",
+    bg: "bg-amber-500",
+    iconBg: "bg-amber-400",
     text: "text-white",
-    subtext: "text-blue-200",
-    trendText: "text-blue-200",
+    subtext: "text-amber-100",
+    trendText: "text-amber-100",
   },
   teal: {
     bg: "bg-white",

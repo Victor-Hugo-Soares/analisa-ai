@@ -34,7 +34,7 @@ export default function Sidebar() {
       <div className="p-4">
         <Link
           href="/sinistros/novo"
-          className="flex items-center justify-center gap-2 w-full bg-[#1a2744] hover:bg-[#243459] text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm"
+          className="flex items-center justify-center gap-2 w-full bg-amber-500 hover:bg-amber-400 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm"
         >
           <Plus className="w-4 h-4" />
           Novo Sinistro
@@ -58,8 +58,8 @@ export default function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-0.5",
                 isActive
-                  ? "bg-[#1a2744] text-white"
-                  : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a]"
+                  ? "bg-[#1a2744] text-white border-l-2 border-amber-500"
+                  : "text-[#64748b] hover:bg-amber-50 hover:text-amber-700"
               )}
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
@@ -89,11 +89,9 @@ export default function Sidebar() {
         </nav>
       )}
 
-      <div className="mx-3 mb-4 p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg">
-        <p className="text-xs font-semibold text-[#15803d] mb-1">Plano Profissional</p>
-        <p className="text-xs text-[#166534]">
-          Análises ilimitadas ativas
-        </p>
+      <div className="mx-3 mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+        <p className="text-xs font-semibold text-amber-700 mb-1">Plano Profissional</p>
+        <p className="text-xs text-amber-600">Análises ilimitadas ativas</p>
       </div>
     </aside>
   )

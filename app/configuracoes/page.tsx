@@ -36,8 +36,8 @@ export default function ConfiguracoesPage() {
             <div className="space-y-4">
               <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-[#1a2744]/10 p-2 rounded-lg">
-                    <Building2 className="w-5 h-5 text-[#1a2744]" />
+                  <div className="bg-amber-100 p-2 rounded-lg">
+                    <Building2 className="w-5 h-5 text-amber-600" />
                   </div>
                   <h2 className="font-semibold text-[#0f172a]">Dados da Empresa</h2>
                 </div>

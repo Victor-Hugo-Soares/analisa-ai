@@ -27,7 +27,7 @@ export default function RelatoriosPage() {
   const pendentes = sinistros.filter((s) => s.status === "pendente" || s.status === "em_analise").length
 
   const metrics = [
-    { label: "Total de Sinistros", value: total, icon: BarChart3, color: "text-[#1a2744]", bg: "bg-[#1a2744]/10" },
+    { label: "Total de Sinistros", value: total, icon: BarChart3, color: "text-amber-600", bg: "bg-amber-100" },
     { label: "Aprovados", value: aprovados, icon: TrendingUp, color: "text-green-700", bg: "bg-green-100" },
     { label: "Suspeitos / Recusados", value: suspeitos, icon: TrendingUp, color: "text-red-700", bg: "bg-red-100" },
     { label: "Pendentes", value: pendentes, icon: TrendingUp, color: "text-amber-700", bg: "bg-amber-100" },
