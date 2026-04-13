@@ -67,9 +67,8 @@ export const metadata: Metadata = {
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },
-  // Google Search Console — preencher após verificação
   verification: {
-    google: process.env.NEXT_PUBLIC_GSC_VERIFICATION ?? "",
+    google: "4VaQd0811aNAgt6TC8Fvx2KSwHQSZeCX6zj2BdcniCU",
   },
 }
 
