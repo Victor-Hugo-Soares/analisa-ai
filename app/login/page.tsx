@@ -38,8 +38,9 @@ export default function LoginPage() {
         body: JSON.stringify({ email, senha: password }),
       })
 
+      const data = await res.json()
+
       if (res.ok) {
-        const data = await res.json()
         setAuthTokens(data.session)
         setSession({
           id: data.usuario.empresa_id,
@@ -52,19 +53,13 @@ export default function LoginPage() {
         router.push(data.usuario.role === "master" ? "/admin" : "/dashboard")
         return
       }
+
+      setError(data.error ?? "E-mail ou senha incorretos.")
     } catch {
-      // fallback demo
+      setError("Erro de conexão. Tente novamente.")
     }
 
-    setSession({
-      id: "emp-001",
-      usuario_id: "demo-user",
-      nome: "Seguradora Modelo S.A.",
-      email,
-      cnpj: "00.000.000/0001-00",
-      role: "usuario",
-    })
-    router.push("/dashboard")
+    setLoading(false)
   }
 
   return (
