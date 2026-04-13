@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import Link from "next/link"
 import { LogOut, Bell } from "lucide-react"
 import { clearSession } from "@/lib/storage"
@@ -20,9 +21,8 @@ export default function Header({ session }: HeaderProps) {
 
   return (
     <header className="bg-white border-b border-[#e2e8f0] h-16 flex items-center px-6 gap-4 sticky top-0 z-50">
-      <Link href="/dashboard" className="flex items-center gap-1 hover:opacity-80 transition-opacity">
-        <span className="text-lg font-bold leading-none" style={{ color: "#00bcb6" }}>Loma</span>
-        <span className="text-sm font-medium text-[#64748b] leading-none hidden sm:inline">Proteção Veicular</span>
+      <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+        <Image src="/logo.png" alt="IAnalista" width={120} height={34} priority />
       </Link>
 
       <div className="flex-1" />

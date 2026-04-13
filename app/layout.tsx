@@ -6,8 +6,8 @@ const BASE_URL = "https://ianalista.com"
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Loma Proteção Veicular — Análise de Eventos com IA",
-    template: "%s | Loma Proteção Veicular",
+    default: "IAnalista — Análise de Eventos Veiculares com IA",
+    template: "%s | IAnalista",
   },
   description:
     "Plataforma SaaS com IA para análise de eventos veiculares. Detecte fraudes, transcreva áudios automaticamente e tome decisões assertivas em segundos. Para proteções veiculares.",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: BASE_URL,
     siteName: "Loma Proteção Veicular",
-    title: "Loma Proteção Veicular — Análise de Eventos com IA",
+    title: "IAnalista — Análise de Eventos Veiculares com IA",
     description:
       "Detecte fraudes, transcreva áudios e analise eventos em segundos com IA. Plataforma SaaS para proteções veiculares.",
     images: [
@@ -47,13 +47,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Loma Proteção Veicular — Análise de Eventos com IA",
+        alt: "IAnalista — Análise de Eventos Veiculares com IA",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Loma Proteção Veicular — Análise de Eventos com IA",
+    title: "IAnalista — Análise de Eventos Veiculares com IA",
     description:
       "Detecte fraudes, transcreva áudios e analise eventos em segundos com IA.",
     images: ["/og-image.png"],

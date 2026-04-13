@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Eye, EyeOff, LogIn } from "lucide-react"
 import { setSession, setAuthTokens } from "@/lib/storage"
 
@@ -67,9 +68,8 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <Link href="/" className="flex flex-col items-center gap-1 mb-3 hover:opacity-80 transition-opacity">
-            <span className="text-2xl font-bold" style={{ color: "#00bcb6" }}>Loma</span>
-            <span className="text-sm font-medium text-[#64748b] tracking-wide">Proteção Veicular</span>
+          <Link href="/" className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
+            <Image src="/logo.png" alt="IAnalista" width={180} height={50} priority />
           </Link>
           <p className="text-[#64748b] text-sm">Análise Inteligente de Eventos</p>
         </div>
