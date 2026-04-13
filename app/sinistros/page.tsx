@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
 import SinistrosList from "@/components/dashboard/SinistrosList"
-import { getSession, getSinistros } from "@/lib/storage"
+import { getSession, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession, Sinistro, StatusSinistro } from "@/lib/types"
 
 const statusOptions: { value: string; label: string }[] = [
@@ -35,8 +35,15 @@ export default function SinistrosPage() {
       return
     }
     setSession(s)
-    setSinistros(getSinistros())
-    setLoading(false)
+    const token = getAccessToken()
+    if (token) {
+      fetch("/api/sinistros", { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => r.json())
+        .then((d) => { if (d.sinistros) setSinistros(d.sinistros) })
+        .finally(() => setLoading(false))
+    } else {
+      setLoading(false)
+    }
   }, [router])
 
   const filtered = sinistros.filter((s) => {

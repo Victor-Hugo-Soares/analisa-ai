@@ -245,6 +245,8 @@ export function setSession(session: EmpresaSession): void {
 export function clearSession(): void {
   if (typeof window === "undefined") return
   localStorage.removeItem(SESSION_KEY)
+  localStorage.removeItem(SINISTROS_KEY)
+  localStorage.removeItem("ianalista_auth")
 }
 
 // ─── Helpers para integração com Supabase ─────────────────────────────────

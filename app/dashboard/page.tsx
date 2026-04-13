@@ -9,7 +9,7 @@ import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
 import StatsCard from "@/components/dashboard/StatsCard"
 import SinistrosList from "@/components/dashboard/SinistrosList"
-import { getSession, getSinistros } from "@/lib/storage"
+import { getSession, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession, Sinistro } from "@/lib/types"
 
 export default function DashboardPage() {
@@ -25,8 +25,15 @@ export default function DashboardPage() {
       return
     }
     setSession(s)
-    setSinistros(getSinistros())
-    setLoading(false)
+    const token = getAccessToken()
+    if (token) {
+      fetch("/api/sinistros", { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => r.json())
+        .then((d) => { if (d.sinistros) setSinistros(d.sinistros) })
+        .finally(() => setLoading(false))
+    } else {
+      setLoading(false)
+    }
   }, [router])
 
   if (loading) {
