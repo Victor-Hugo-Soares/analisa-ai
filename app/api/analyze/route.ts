@@ -92,23 +92,58 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ─── 3. Montar contexto completo para análise final ──────────────────────
+    // ─── 3. Resolver base64 dos documentos (PDFs, etc.) ─────────────────────
+    const docsResolvidos: Array<{ nome: string; base64: string | null }> = []
+    for (const doc of arquivosDoc) {
+      const base64 = await resolveArquivoBase64(doc)
+      docsResolvidos.push({ nome: doc.nome, base64 })
+      if (base64) {
+        console.log(`[Doc] Resolvido: ${doc.nome} (${Math.round(base64.length / 1024)}KB base64)`)
+      } else {
+        console.warn(`[Doc] Falha ao resolver: ${doc.nome}`)
+      }
+    }
+
+    // ─── 4. Montar contexto completo para análise final ──────────────────────
     const contexto = buildContexto({
       tipoEvento,
       dados,
       transcricoesComAnalise,
       descricoesImagens,
-      arquivosDoc,
+      docsResolvidos,
     })
 
-    console.log(`[Análise] Enviando contexto ao GPT-4o (${contexto.length} chars)`)
+    console.log(`[Análise] Enviando contexto ao GPT-4o (${contexto.length} chars, ${docsResolvidos.filter(d => d.base64).length} docs anexados)`)
 
-    // ─── 4. Análise final com GPT-4o ─────────────────────────────────────────
+    // ─── 5. Montar content array: texto + PDFs como file_data ────────────────
+    type ContentPart =
+      | { type: "text"; text: string }
+      | { type: "file"; file: { filename: string; file_data: string } }
+
+    const userContent: ContentPart[] = [{ type: "text", text: contexto }]
+
+    for (const doc of docsResolvidos) {
+      if (!doc.base64) continue
+      const isPdf = doc.nome.toLowerCase().endsWith(".pdf")
+      if (!isPdf) continue
+      const raw = doc.base64.includes(",") ? doc.base64.split(",")[1] : doc.base64
+      userContent.push({
+        type: "file",
+        file: {
+          filename: doc.nome,
+          file_data: `data:application/pdf;base64,${raw}`,
+        },
+      })
+      console.log(`[Doc] Anexando PDF ao contexto: ${doc.nome}`)
+    }
+
+    // ─── 6. Análise final com GPT-4o ─────────────────────────────────────────
     const analiseResponse = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: contexto },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        { role: "user", content: userContent as any },
       ],
       temperature: 0.15,
       max_tokens: 5000,
@@ -370,7 +405,7 @@ interface ContextoParams {
   dados: DadosSinistro
   transcricoesComAnalise: TranscricaoComAnalise[]
   descricoesImagens: Array<{ arquivo: string; descricao: string }>
-  arquivosDoc: ArquivoPayload[]
+  docsResolvidos: Array<{ nome: string; base64: string | null }>
 }
 
 function buildContexto({
@@ -378,7 +413,7 @@ function buildContexto({
   dados,
   transcricoesComAnalise,
   descricoesImagens,
-  arquivosDoc,
+  docsResolvidos,
 }: ContextoParams): string {
   const partes: string[] = []
 
@@ -457,13 +492,31 @@ function buildContexto({
   }
 
   // ── Documentos ────────────────────────────────────────────────────────────
-  if (arquivosDoc.length > 0) {
+  if (docsResolvidos.length > 0) {
     partes.push(``)
     partes.push(`════════════════════════════════════════`)
-    partes.push(`DOCUMENTOS APRESENTADOS`)
+    partes.push(`DOCUMENTOS ANEXADOS PARA LEITURA`)
     partes.push(`════════════════════════════════════════`)
-    partes.push(`Arquivos: ${arquivosDoc.map((d) => d.nome).join(", ")}`)
-    partes.push(`Avalie se os documentos são coerentes com o tipo de sinistro e se os nomes/tipos fazem sentido.`)
+
+    const docsLidos = docsResolvidos.filter((d) => d.base64)
+    const docsFalhos = docsResolvidos.filter((d) => !d.base64)
+
+    if (docsLidos.length > 0) {
+      partes.push(`Os seguintes documentos foram anexados INTEGRALMENTE a esta mensagem e você DEVE LER seu conteúdo completo:`)
+      for (const doc of docsLidos) {
+        partes.push(`• ${doc.nome} — LEIA ESTE ARQUIVO COMPLETAMENTE e extraia: número/data do documento, narrativa dos fatos, dados do veículo, condutor, local, horário e qualquer informação relevante para a análise.`)
+      }
+    }
+    if (docsFalhos.length > 0) {
+      partes.push(``)
+      partes.push(`Os seguintes arquivos não puderam ser lidos (registre como pendência):`)
+      for (const doc of docsFalhos) {
+        partes.push(`• ${doc.nome}`)
+      }
+    }
+    partes.push(``)
+    partes.push(`INSTRUÇÃO CRÍTICA: Para cada documento lido, preencha o campo "documentos_recebidos" com as informações extraídas do conteúdo real do arquivo — não apenas o nome do arquivo.`)
+    partes.push(`Em "analise_bo": extraia TODOS os dados do BO (número, delegacia, data/hora do evento declarado, data/hora do registro, narrativa completa dos fatos, dados do condutor/terceiros).`)
   }
 
   // ── Instrução final ───────────────────────────────────────────────────────
