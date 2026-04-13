@@ -203,18 +203,22 @@ export default function NovoEventoPage() {
 
       saveSinistro(sinistro)
 
-      // Persiste no Supabase de forma assíncrona — não bloqueia o fluxo
+      // Persiste no Supabase de forma síncrona antes de redirecionar
       const token = getAccessToken()
       const empresaId = getEmpresaIdFromSession()
       if (token && empresaId) {
-        fetch("/api/sinistros/save", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ sinistro, empresaId }),
-        }).catch(console.error)
+        try {
+          await fetch("/api/sinistros/save", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ sinistro, empresaId }),
+          })
+        } catch (e) {
+          console.error("Erro ao salvar no banco:", e)
+        }
       }
 
       router.push(`/sinistros/${sinistroId}`)

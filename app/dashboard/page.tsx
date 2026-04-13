@@ -100,7 +100,7 @@ export default function DashboardPage() {
               <StatsCard
                 title="Taxa de Suspeita"
                 value={`${taxaSuspeita}%`}
-                subtitle={`${suspeitos} sinistros suspeitos`}
+                subtitle={`${suspeitos} eventos suspeitos`}
                 icon={AlertTriangle}
                 color="red"
               />
