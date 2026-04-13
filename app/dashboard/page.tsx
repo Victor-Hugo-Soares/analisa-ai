@@ -82,7 +82,6 @@ export default function DashboardPage() {
                 subtitle="Todos os registros"
                 icon={FileText}
                 color="navy"
-                trend={{ value: "12%", positive: true }}
               />
               <StatsCard
                 title="Pendentes"
