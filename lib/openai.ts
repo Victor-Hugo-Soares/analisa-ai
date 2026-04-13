@@ -177,13 +177,26 @@ PADRÕES DE FRAUDE RECORRENTES NO SETOR:
 - "Sinistro de recuperação financeira": associado com dívidas usa sinistro como saída financeira
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONSCIÊNCIA TEMPORAL — CRÍTICO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Antes de avaliar o estado emocional do associado na ligação, calcule o INTERVALO entre a data/hora do sinistro e a data/hora da ligação. Esse intervalo muda radicalmente o que é considerado "normal":
+
+- Ligação no mesmo dia (0–6h após): espera-se agitação, choque, confusão, voz trêmula. Calma é atípica.
+- Ligação no mesmo dia (6–24h após): alguma estabilização é normal. Ainda se espera tensão residual.
+- Ligação no dia seguinte (24–48h após): calma é completamente NORMAL. O choque agudo já passou. A pessoa já dormiu, processou o evento, e entra em modo de resolução prática. Avaliar calma como suspeita neste contexto é ERRO de análise.
+- Ligação após 48h: estado emocional neutro ou resolutivo é o ESPERADO. Agitação neste ponto seria mais suspeita do que calma.
+
+REGRA: Só classifique "calma atípica" se o intervalo for curto (menos de 12h) E o tipo de sinistro for traumático (roubo com violência, colisão grave). Para sinistros de baixo trauma (furto simples, vidros, eventos da natureza) a calma é o padrão mesmo em ligações imediatas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REGRAS ABSOLUTAS DE QUALIDADE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. ZERO REPETIÇÃO: Cada campo do JSON deve conter informação EXCLUSIVA. Se um ponto já apareceu em "pontos_atencao", ele NÃO pode aparecer em "indicadores_fraude".
+1. ZERO REPETIÇÃO — REGRA MAIS IMPORTANTE: Um ponto que já apareceu em QUALQUER campo anterior NÃO pode aparecer em nenhum campo seguinte. Antes de escrever cada item, pergunte: "isso já foi mencionado antes?" Se sim, descarte. Os campos têm hierarquia: contradicoes > indicadores_fraude > pontos_atencao > pontos_verdadeiros. Um item pertence apenas ao campo mais grave em que se encaixa.
 2. TIMESTAMPS REAIS APENAS: Use APENAS timestamps que existem literalmente na transcrição. Nunca invente.
 3. ESPECIFICIDADE OBRIGATÓRIA: Toda observação deve citar o que especificamente foi dito, mostrado ou documentado. Proibido: "o relato parece suspeito". Obrigatório: "o associado declarou horário 22h no relato, mas o BO registra 23h45 — diferença de 1h45min sem justificativa".
-4. PROPORCIONALIDADE: Não trate como fraude o que pode ser erro, esquecimento ou imprecisão natural. Diferencie: (a) contradição que pode ser fraude, (b) inconsistência que merece verificação, (c) detalhe irrelevante.
+4. PROPORCIONALIDADE E CONTEXTO TEMPORAL: Não trate como fraude o que tem explicação natural pelo tempo decorrido, pelo tipo de sinistro ou pela personalidade. Antes de classificar algo como suspeito, considere a explicação mais simples e mais provável.
 5. PROFUNDIDADE: Cada item dos arrays deve explicar o "por quê" — não apenas o "o quê".
 6. AUSÊNCIA DE DOCUMENTOS: Se um documento importante não foi fornecido (ex: BO não anexado), registre como "pendência crítica" nos próximos passos.
 
@@ -329,7 +342,9 @@ Receberá uma transcrição de ligação com timestamps no formato [MM:SS → MM
    - Distanciamento psicológico: "o carro" em vez de "meu carro"
    - Qualificadores de veracidade: "honestamente", "juro", "te falo a verdade"
 
-7. COMPATIBILIDADE EMOCIONAL: Compare o estado emocional observado com o esperado para o tipo de sinistro declarado. Uma pessoa que teve seu carro roubado com violência na véspera deveria apresentar resíduos de estresse, não neutralidade clínica.
+7. COMPATIBILIDADE EMOCIONAL COM CONTEXTO TEMPORAL: Antes de avaliar o tom, considere o INTERVALO entre o sinistro e a ligação. Calma numa ligação feita no dia seguinte ao sinistro é NORMAL e ESPERADA — a pessoa já processou o evento, dormiu, e está em modo de resolução prática. Só classifique "calma atípica" se a ligação ocorreu em até 12h de um sinistro traumático (roubo com violência, acidente grave). Para ligações feitas 24h+ após o evento, calma não é indicador de nada. Se não souber o intervalo, não presuma suspeita — mencione a incerteza.
+
+8. NÃO REPITA: Se identificou "calma atípica" como o principal achado, mencione UMA VEZ com análise completa. Não repita o mesmo ponto em momentos_alterados, padroes_suspeitos E contradicoes_internas. Escolha o campo mais adequado e coloque apenas lá.
 
 Retorne APENAS este JSON:
 {
