@@ -36,8 +36,8 @@ export default function ConfiguracoesPage() {
             <div className="space-y-4">
               <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-amber-100 p-2 rounded-lg">
-                    <Building2 className="w-5 h-5 text-amber-600" />
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: "#ccf7f5" }}>
+                    <Building2 className="w-5 h-5" style={{ color: "#00a89e" }} />
                   </div>
                   <h2 className="font-semibold text-[#0f172a]">Dados da Empresa</h2>
                 </div>
@@ -72,15 +72,15 @@ export default function ConfiguracoesPage() {
 
               <div className="bg-white border border-[#e2e8f0] rounded-xl p-5 opacity-60">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="bg-amber-100 p-2 rounded-lg">
-                    <Key className="w-5 h-5 text-amber-600" />
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: "#ccf7f5" }}>
+                    <Key className="w-5 h-5" style={{ color: "#00a89e" }} />
                   </div>
                   <div>
                     <h2 className="font-semibold text-[#0f172a]">Integrações e API</h2>
                     <p className="text-xs text-[#94a3b8]">Em breve</p>
                   </div>
                 </div>
-                <p className="text-sm text-[#64748b]">Conecte o IAnalista com seu sistema de gestão.</p>
+                <p className="text-sm text-[#64748b]">Conecte a Loma com seu sistema de gestão.</p>
               </div>
             </div>
           </div>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
 import { LogOut, Bell } from "lucide-react"
 import { clearSession } from "@/lib/storage"
@@ -21,8 +20,9 @@ export default function Header({ session }: HeaderProps) {
 
   return (
     <header className="bg-white border-b border-[#e2e8f0] h-16 flex items-center px-6 gap-4 sticky top-0 z-50">
-      <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-        <Image src="/logo.png" alt="IAnalista" width={120} height={34} priority />
+      <Link href="/dashboard" className="flex items-center gap-1 hover:opacity-80 transition-opacity">
+        <span className="text-lg font-bold leading-none" style={{ color: "#00bcb6" }}>Loma</span>
+        <span className="text-sm font-medium text-[#64748b] leading-none hidden sm:inline">Proteção Veicular</span>
       </Link>
 
       <div className="flex-1" />
@@ -30,11 +30,11 @@ export default function Header({ session }: HeaderProps) {
       <div className="flex items-center gap-3">
         <button className="relative p-2 text-[#94a3b8] hover:text-[#1a2744] hover:bg-[#f1f5f9] rounded-lg transition-colors">
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ backgroundColor: "#00bcb6" }} />
         </button>
 
         <div className="flex items-center gap-2 pl-3 border-l border-[#e2e8f0]">
-          <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: "#00bcb6" }}>
             <span className="text-xs font-bold text-white">
               {session?.nome?.charAt(0)?.toUpperCase() ?? "E"}
             </span>

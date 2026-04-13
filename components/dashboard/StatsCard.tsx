@@ -15,28 +15,30 @@ interface StatsCardProps {
 
 const colorMap = {
   navy: {
-    bg: "bg-amber-500",
-    iconBg: "bg-amber-400",
+    bg: "",
+    iconBg: "",
     text: "text-white",
-    subtext: "text-amber-100",
-    trendText: "text-amber-100",
+    subtext: "text-white/80",
+    trendText: "text-white/80",
+    inlineBg: "#00bcb6",
+    inlineIconBg: "#2e9c8f",
   },
   teal: {
     bg: "bg-white",
-    iconBg: "bg-[#f0fdfa]",
+    iconBg: "bg-[#f0fdfc]",
     text: "text-[#0f172a]",
     subtext: "text-[#64748b]",
-    trendText: "text-[#0f766e]",
-    iconColor: "text-[#0f766e]",
+    trendText: "text-[#00a89e]",
+    iconColor: "text-[#00bcb6]",
     border: "border border-[#e2e8f0]",
   },
   amber: {
     bg: "bg-white",
-    iconBg: "bg-amber-50",
+    iconBg: "bg-[#f0fdfc]",
     text: "text-[#0f172a]",
     subtext: "text-[#64748b]",
-    trendText: "text-amber-600",
-    iconColor: "text-amber-600",
+    trendText: "text-[#00a89e]",
+    iconColor: "text-[#00bcb6]",
     border: "border border-[#e2e8f0]",
   },
   red: {
@@ -60,6 +62,9 @@ export default function StatsCard({
 }: StatsCardProps) {
   const colors = colorMap[color]
 
+  const inlineBg = (colors as { inlineBg?: string }).inlineBg
+  const inlineIconBg = (colors as { inlineIconBg?: string }).inlineIconBg
+
   return (
     <div
       className={cn(
@@ -67,6 +72,7 @@ export default function StatsCard({
         colors.bg,
         (colors as { border?: string }).border
       )}
+      style={inlineBg ? { backgroundColor: inlineBg } : undefined}
     >
       <div className="flex items-start justify-between mb-4">
         <div
@@ -74,6 +80,7 @@ export default function StatsCard({
             "p-2.5 rounded-lg",
             colors.iconBg
           )}
+          style={inlineIconBg ? { backgroundColor: inlineIconBg } : undefined}
         >
           <Icon
             className={cn(

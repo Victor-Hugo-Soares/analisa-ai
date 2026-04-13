@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
 import { Eye, EyeOff, LogIn } from "lucide-react"
 import { setSession, setAuthTokens } from "@/lib/storage"
@@ -68,16 +67,17 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <Link href="/" className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
-            <Image src="/logo.png" alt="IAnalista" width={180} height={50} priority />
+          <Link href="/" className="flex flex-col items-center gap-1 mb-3 hover:opacity-80 transition-opacity">
+            <span className="text-2xl font-bold" style={{ color: "#00bcb6" }}>Loma</span>
+            <span className="text-sm font-medium text-[#64748b] tracking-wide">Proteção Veicular</span>
           </Link>
           <p className="text-[#64748b] text-sm">Análise Inteligente de Eventos</p>
         </div>
 
         {/* Card */}
         <div className="bg-white border border-[#e2e8f0] rounded-2xl shadow-sm overflow-hidden">
-          {/* faixa laranja topo */}
-          <div className="h-1 bg-amber-500" />
+          {/* faixa topo */}
+          <div className="h-1" style={{ backgroundColor: "#00bcb6" }} />
 
           <div className="p-8">
             <h1 className="text-xl font-bold text-[#0f172a] mb-1">Acesse sua conta</h1>
@@ -92,7 +92,7 @@ export default function LoginPage() {
                   placeholder="empresa@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#0f172a] placeholder:text-[#94a3b8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#0f172a] placeholder:text-[#94a3b8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00bcb6] focus:ring-2 focus:ring-[#00bcb6]/20 transition-all"
                   required
                 />
               </div>
@@ -106,13 +106,13 @@ export default function LoginPage() {
                     placeholder="Mínimo 6 caracteres"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#0f172a] placeholder:text-[#94a3b8] rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                    className="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#0f172a] placeholder:text-[#94a3b8] rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-[#00bcb6] focus:ring-2 focus:ring-[#00bcb6]/20 transition-all"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-amber-500 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#00bcb6] transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -128,7 +128,10 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm"
+                className="w-full disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm"
+                style={{ backgroundColor: "#00bcb6" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2e9c8f")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#00bcb6")}
               >
                 {loading ? (
                   <>
@@ -151,7 +154,8 @@ export default function LoginPage() {
                   href="https://wa.me/5511926712965"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-500 font-semibold hover:underline"
+                  className="font-semibold hover:underline"
+                  style={{ color: "#00bcb6" }}
                 >
                   WhatsApp
                 </a>

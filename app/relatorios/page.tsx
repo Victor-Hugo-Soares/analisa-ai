@@ -32,10 +32,10 @@ export default function RelatoriosPage() {
   const pendentes = sinistros.filter((s) => s.status === "pendente" || s.status === "em_analise").length
 
   const metrics = [
-    { label: "Total de Eventos", value: total, icon: BarChart3, color: "text-amber-600", bg: "bg-amber-100" },
-    { label: "Aprovados", value: aprovados, icon: TrendingUp, color: "text-green-700", bg: "bg-green-100" },
-    { label: "Suspeitos / Recusados", value: suspeitos, icon: TrendingUp, color: "text-red-700", bg: "bg-red-100" },
-    { label: "Pendentes", value: pendentes, icon: TrendingUp, color: "text-amber-700", bg: "bg-amber-100" },
+    { label: "Total de Eventos", value: total, icon: BarChart3, color: "", bg: "", inlineColor: "#00a89e", inlineBg: "#ccf7f5" },
+    { label: "Aprovados", value: aprovados, icon: TrendingUp, color: "text-green-700", bg: "bg-green-100", inlineColor: undefined, inlineBg: undefined },
+    { label: "Suspeitos / Recusados", value: suspeitos, icon: TrendingUp, color: "text-red-700", bg: "bg-red-100", inlineColor: undefined, inlineBg: undefined },
+    { label: "Pendentes", value: pendentes, icon: TrendingUp, color: "", bg: "", inlineColor: "#2e9c8f", inlineBg: "#f0fdfc" },
   ]
 
   return (
@@ -61,8 +61,8 @@ export default function RelatoriosPage() {
                 const Icon = m.icon
                 return (
                   <div key={m.label} className="bg-white border border-[#e2e8f0] rounded-xl p-4">
-                    <div className={`${m.bg} p-2.5 rounded-lg w-fit mb-3`}>
-                      <Icon className={`w-5 h-5 ${m.color}`} />
+                    <div className={`${m.bg} p-2.5 rounded-lg w-fit mb-3`} style={m.inlineBg ? { backgroundColor: m.inlineBg } : undefined}>
+                      <Icon className={`w-5 h-5 ${m.color}`} style={m.inlineColor ? { color: m.inlineColor } : undefined} />
                     </div>
                     <p className="text-2xl font-bold text-[#0f172a]">{m.value}</p>
                     <p className="text-sm text-[#64748b] mt-0.5">{m.label}</p>

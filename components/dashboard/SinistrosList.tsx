@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import Link from "next/link"
 import { Car, MapPin, Calendar, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -11,11 +12,12 @@ interface SinistrosListProps {
 
 const statusConfig: Record<
   StatusSinistro,
-  { label: string; className: string }
+  { label: string; className: string; style?: React.CSSProperties }
 > = {
   pendente: {
     label: "Pendente",
-    className: "bg-amber-100 text-amber-800 border-amber-200",
+    className: "border text-xs font-medium px-2.5 py-0.5",
+    style: { backgroundColor: "#ccf7f5", color: "#00a89e", borderColor: "#99ede9" },
   },
   em_analise: {
     label: "Em Análise",
@@ -69,10 +71,10 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
           <Link
             key={sinistro.id}
             href={`/sinistros/${sinistro.id}`}
-            className="flex items-center gap-4 p-4 hover:bg-amber-50 transition-colors group"
+            className="flex items-center gap-4 p-4 hover:bg-[#f0fdfc] transition-colors group"
           >
-            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <Car className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#ccf7f5" }}>
+              <Car className="w-5 h-5" style={{ color: "#00a89e" }} />
             </div>
 
             <div className="flex-1 min-w-0">
@@ -110,10 +112,11 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
               <Badge
                 className={`${status.className} border text-xs font-medium px-2.5 py-0.5`}
                 variant="outline"
+                style={status.style}
               >
                 {status.label}
               </Badge>
-              <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-amber-500 transition-colors" />
+              <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#00bcb6] transition-colors" />
             </div>
           </Link>
         )

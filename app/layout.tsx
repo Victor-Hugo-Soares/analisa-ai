@@ -6,26 +6,26 @@ const BASE_URL = "https://ianalista.com"
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "IAnalista — Análise de Eventos Veiculares com IA",
-    template: "%s | IAnalista",
+    default: "Loma Proteção Veicular — Análise de Eventos com IA",
+    template: "%s | Loma Proteção Veicular",
   },
   description:
-    "Plataforma SaaS com IA para análise de sinistros veiculares. Detecte fraudes, transcreva áudios automaticamente e tome decisões assertivas em segundos. Para seguradoras e proteções veiculares.",
+    "Plataforma SaaS com IA para análise de eventos veiculares. Detecte fraudes, transcreva áudios automaticamente e tome decisões assertivas em segundos. Para proteções veiculares.",
   keywords: [
     "análise de sinistros",
     "detecção de fraude veicular",
     "sinistros veiculares",
-    "IA para seguradoras",
+    "IA para proteção veicular",
     "análise de sinistros com inteligência artificial",
     "proteção veicular",
     "análise de fraude",
     "seguro veicular",
-    "SaaS seguradoras",
-    "IAnalista",
+    "SaaS proteção veicular",
+    "Loma Proteção Veicular",
   ],
-  authors: [{ name: "IAnalista", url: BASE_URL }],
-  creator: "IAnalista",
-  publisher: "IAnalista",
+  authors: [{ name: "Loma Proteção Veicular", url: BASE_URL }],
+  creator: "Loma Proteção Veicular",
+  publisher: "Loma Proteção Veicular",
   robots: {
     index: true,
     follow: true,
@@ -38,24 +38,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     url: BASE_URL,
-    siteName: "IAnalista",
-    title: "IAnalista — Análise de Eventos Veiculares com IA",
+    siteName: "Loma Proteção Veicular",
+    title: "Loma Proteção Veicular — Análise de Eventos com IA",
     description:
-      "Detecte fraudes, transcreva áudios e analise sinistros em segundos com IA. Plataforma SaaS para seguradoras e proteções veiculares.",
+      "Detecte fraudes, transcreva áudios e analise eventos em segundos com IA. Plataforma SaaS para proteções veiculares.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "IAnalista — Análise de Eventos com IA",
+        alt: "Loma Proteção Veicular — Análise de Eventos com IA",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "IAnalista — Análise de Eventos Veiculares com IA",
+    title: "Loma Proteção Veicular — Análise de Eventos com IA",
     description:
-      "Detecte fraudes, transcreva áudios e analise sinistros em segundos com IA.",
+      "Detecte fraudes, transcreva áudios e analise eventos em segundos com IA.",
     images: ["/og-image.png"],
   },
   icons: {
@@ -76,7 +76,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <script
@@ -85,10 +85,10 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              name: "IAnalista",
+              name: "Loma Proteção Veicular",
               url: BASE_URL,
               description:
-                "Plataforma SaaS com IA para análise de sinistros veiculares. Detecte fraudes e tome decisões assertivas em segundos.",
+                "Plataforma SaaS com IA para análise de eventos veiculares. Detecte fraudes e tome decisões assertivas em segundos.",
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               offers: {
@@ -99,7 +99,7 @@ export default function RootLayout({
               },
               provider: {
                 "@type": "Organization",
-                name: "IAnalista",
+                name: "Loma Proteção Veicular",
                 url: BASE_URL,
               },
             }),

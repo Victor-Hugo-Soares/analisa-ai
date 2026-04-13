@@ -34,7 +34,8 @@ export default function Sidebar() {
       <div className="p-4">
         <Link
           href="/sinistros/novo"
-          className="flex items-center justify-center gap-2 w-full bg-amber-500 hover:bg-amber-400 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm"
+          className="flex items-center justify-center gap-2 w-full text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm"
+          style={{ backgroundColor: "#00bcb6" }}
         >
           <Plus className="w-4 h-4" />
           Novo Evento
@@ -58,9 +59,14 @@ export default function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-0.5",
                 isActive
-                  ? "bg-amber-50 text-amber-700 font-semibold border-l-2 border-amber-500"
-                  : "text-[#64748b] hover:bg-amber-50 hover:text-amber-700"
+                  ? "font-semibold border-l-2"
+                  : "text-[#64748b] hover:bg-[#f0fdfc]"
               )}
+              style={
+                isActive
+                  ? { backgroundColor: "#f0fdfc", color: "#00a89e", borderColor: "#00bcb6" }
+                  : undefined
+              }
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
               {item.label}
@@ -79,9 +85,14 @@ export default function Sidebar() {
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-0.5",
               pathname === "/admin"
-                ? "bg-amber-500 text-white"
-                : "text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+                ? "text-white"
+                : "hover:bg-[#f0fdfc]"
             )}
+            style={
+              pathname === "/admin"
+                ? { backgroundColor: "#00bcb6" }
+                : { color: "#00a89e" }
+            }
           >
             <ShieldCheck className="w-4 h-4 flex-shrink-0" />
             Painel Master
@@ -89,9 +100,9 @@ export default function Sidebar() {
         </nav>
       )}
 
-      <div className="mx-3 mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-        <p className="text-xs font-semibold text-amber-700 mb-1">Plano Profissional</p>
-        <p className="text-xs text-amber-600">Análises ilimitadas ativas</p>
+      <div className="mx-3 mb-4 p-3 rounded-lg" style={{ backgroundColor: "#f0fdfc", border: "1px solid #99ede9" }}>
+        <p className="text-xs font-semibold mb-1" style={{ color: "#2e9c8f" }}>Plano Profissional</p>
+        <p className="text-xs" style={{ color: "#00a89e" }}>Análises ilimitadas ativas</p>
       </div>
     </aside>
   )

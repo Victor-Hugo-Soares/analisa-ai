@@ -68,7 +68,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <Link href="/sinistros/novo">
-                <Button className="bg-amber-500 hover:bg-amber-400 text-white gap-2">
+                <Button className="text-white gap-2" style={{ backgroundColor: "#00bcb6" }}>
                   <Plus className="w-4 h-4" />
                   Novo Evento
                 </Button>

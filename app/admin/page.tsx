@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import {
   Building2, Users, FileText, AlertTriangle,
   CheckCircle, XCircle, ChevronDown, Save, LogOut, Settings,
@@ -35,7 +34,13 @@ const NIVEL_LABEL: Record<NivelAcesso, string> = {
 const NIVEL_COLOR: Record<NivelAcesso, string> = {
   basico: "bg-slate-100 text-slate-700 border-slate-200",
   avancado: "bg-blue-50 text-blue-700 border-blue-200",
-  premium: "bg-amber-50 text-amber-700 border-amber-200",
+  premium: "border",
+}
+
+const NIVEL_STYLE: Record<NivelAcesso, React.CSSProperties | undefined> = {
+  basico: undefined,
+  avancado: undefined,
+  premium: { backgroundColor: "#f0fdfc", color: "#00a89e", borderColor: "#99ede9" },
 }
 
 const NIVEL_LIMITES: Record<NivelAcesso, number> = {
@@ -201,11 +206,11 @@ export default function AdminPage() {
       <header className="border-b border-[#1e293b] bg-[#0f172a] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2.5">
-              <Image src="/favicon.png" alt="" width={26} height={26} priority />
-              <span className="text-white font-bold tracking-tight">IAnalista</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold tracking-tight text-lg leading-none" style={{ color: "#00bcb6" }}>Loma</span>
+              <span className="text-slate-300 text-sm font-medium hidden sm:inline">Proteção Veicular</span>
             </div>
-            <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: "rgba(0,188,182,0.15)", color: "#00bcb6", border: "1px solid rgba(0,188,182,0.3)" }}>
               MASTER
             </span>
           </div>
@@ -232,7 +237,8 @@ export default function AdminPage() {
           </div>
           <button
             onClick={() => { setShowModal(true); setCriarErro(""); setCriarOk(false) }}
-            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors shadow-lg shadow-amber-500/20"
+            className="flex items-center gap-2 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors"
+            style={{ backgroundColor: "#00bcb6", boxShadow: "0 10px 15px -3px rgba(0,188,182,0.2)" }}
           >
             <Plus className="w-4 h-4" />
             Nova Empresa
@@ -245,7 +251,7 @@ export default function AdminPage() {
             { label: "Empresas", value: totalEmpresas, icon: Building2, color: "text-blue-400" },
             { label: "Ativas", value: totalAtivas, icon: CheckCircle, color: "text-emerald-400" },
             { label: "Usuários", value: totalUsuarios, icon: Users, color: "text-violet-400" },
-            { label: "Sinistros", value: totalSinistros, icon: FileText, color: "text-amber-400" },
+            { label: "Sinistros", value: totalSinistros, icon: FileText, color: "text-[#00bcb6]" },
           ].map((stat) => (
             <div key={stat.label} className="bg-[#1e293b] border border-[#334155] rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
@@ -266,7 +272,7 @@ export default function AdminPage() {
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <div className="w-8 h-8 border-2 border-slate-700 border-t-amber-400 rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-slate-700 rounded-full animate-spin" style={{ borderTopColor: "#00bcb6" }} />
             </div>
           ) : empresas.length === 0 ? (
             <div className="text-center py-16 text-slate-500">
@@ -290,7 +296,7 @@ export default function AdminPage() {
                             Inativa
                           </span>
                         )}
-                        <span className={`flex-shrink-0 text-xs border px-2 py-0.5 rounded-full ${NIVEL_COLOR[empresa.nivel_acesso]}`}>
+                        <span className={`flex-shrink-0 text-xs border px-2 py-0.5 rounded-full ${NIVEL_COLOR[empresa.nivel_acesso]}`} style={NIVEL_STYLE[empresa.nivel_acesso]}>
                           {NIVEL_LABEL[empresa.nivel_acesso]}
                         </span>
                       </div>
@@ -309,7 +315,7 @@ export default function AdminPage() {
                           {empresa.total_sinistros} sinistros
                         </span>
                         {empresa.sinistros_suspeitos > 0 && (
-                          <span className="flex items-center gap-1 text-amber-400 text-xs">
+                          <span className="flex items-center gap-1 text-xs" style={{ color: "#00bcb6" }}>
                             <AlertTriangle className="w-3.5 h-3.5" />
                             {empresa.sinistros_suspeitos} suspeitos
                           </span>
@@ -348,7 +354,7 @@ export default function AdminPage() {
                             min={1}
                             value={form.limite_usuarios ?? empresa.limite_usuarios}
                             onChange={(e) => setForm((f) => ({ ...f, limite_usuarios: Number(e.target.value) }))}
-                            className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                            className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00bcb6]"
                           />
                         </div>
 
@@ -359,7 +365,7 @@ export default function AdminPage() {
                           <select
                             value={form.nivel_acesso ?? empresa.nivel_acesso}
                             onChange={(e) => setForm((f) => ({ ...f, nivel_acesso: e.target.value as NivelAcesso }))}
-                            className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                            className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00bcb6]"
                           >
                             <option value="basico">Básico</option>
                             <option value="avancado">Avançado</option>
@@ -375,7 +381,7 @@ export default function AdminPage() {
                             type="text"
                             value={form.plano ?? empresa.plano ?? ""}
                             onChange={(e) => setForm((f) => ({ ...f, plano: e.target.value }))}
-                            className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                            className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00bcb6]"
                             placeholder="ex: Pro, Enterprise..."
                           />
                         </div>
@@ -415,7 +421,8 @@ export default function AdminPage() {
                         <button
                           onClick={() => salvar(empresa.id)}
                           disabled={salvando}
-                          className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                          className="flex items-center gap-1.5 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                          style={{ backgroundColor: "#00bcb6" }}
                         >
                           <Save className="w-3.5 h-3.5" />
                           {salvando ? "Salvando..." : "Salvar alterações"}
@@ -464,7 +471,7 @@ export default function AdminPage() {
                   placeholder="Seguradora Exemplo S.A."
                   value={novaForm.nome}
                   onChange={e => setNovaForm(f => ({ ...f, nome: e.target.value }))}
-                  className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                  className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#00bcb6]"
                   required
                 />
               </div>
@@ -478,7 +485,7 @@ export default function AdminPage() {
                     placeholder="00.000.000/0001-00"
                     value={novaForm.cnpj}
                     onChange={e => setNovaForm(f => ({ ...f, cnpj: e.target.value }))}
-                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#00bcb6]"
                   />
                 </div>
                 <div>
@@ -488,7 +495,7 @@ export default function AdminPage() {
                     placeholder="admin@empresa.com"
                     value={novaForm.email}
                     onChange={e => setNovaForm(f => ({ ...f, email: e.target.value }))}
-                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#00bcb6]"
                     required
                   />
                 </div>
@@ -503,7 +510,7 @@ export default function AdminPage() {
                     placeholder="Mínimo 6 caracteres"
                     value={novaForm.senha}
                     onChange={e => setNovaForm(f => ({ ...f, senha: e.target.value }))}
-                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 pr-10 text-sm focus:outline-none focus:border-amber-500"
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 pr-10 text-sm focus:outline-none focus:border-[#00bcb6]"
                     required
                   />
                   <button
@@ -523,7 +530,7 @@ export default function AdminPage() {
                   <select
                     value={novaForm.nivel_acesso}
                     onChange={e => handleNivelChange(e.target.value as NivelAcesso)}
-                    className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#00bcb6]"
                   >
                     <option value="basico">Básico</option>
                     <option value="avancado">Avançado</option>
@@ -540,7 +547,7 @@ export default function AdminPage() {
                     max={500}
                     value={novaForm.limite_usuarios}
                     onChange={e => setNovaForm(f => ({ ...f, limite_usuarios: Number(e.target.value) }))}
-                    className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                    className="w-full bg-[#0f172a] border border-[#475569] text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#00bcb6]"
                   />
                 </div>
               </div>
@@ -553,7 +560,7 @@ export default function AdminPage() {
                   placeholder="ex: Pro Mensal, Enterprise..."
                   value={novaForm.plano}
                   onChange={e => setNovaForm(f => ({ ...f, plano: e.target.value }))}
-                  className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                  className="w-full bg-[#0f172a] border border-[#475569] text-white placeholder:text-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#00bcb6]"
                 />
               </div>
 
@@ -583,7 +590,8 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={criando || criarOk}
-                  className="flex-1 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-white font-bold py-2.5 rounded-xl transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 disabled:opacity-60 text-white font-bold py-2.5 rounded-xl transition-colors"
+                  style={{ backgroundColor: "#00bcb6" }}
                 >
                   {criando ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Criando...</>
