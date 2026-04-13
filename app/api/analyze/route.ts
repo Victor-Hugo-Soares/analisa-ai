@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
 import { openai, SYSTEM_PROMPT, AUDIO_TONE_PROMPT } from "@/lib/openai"
 import { createServerClient } from "@/lib/supabase"
-import type { TipoEvento, DadosSinistro } from "@/lib/types"
+import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
+import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
 
 export const maxDuration = 300
 
 interface ArquivoPayload {
   nome: string
   tipo: "audio" | "documento" | "imagem"
+  tipoDoc?: TipoDocumento
   tamanho: number
   base64?: string
   storagePath?: string
@@ -93,10 +95,10 @@ export async function POST(req: NextRequest) {
     }
 
     // ─── 3. Resolver base64 dos documentos (PDFs, etc.) ─────────────────────
-    const docsResolvidos: Array<{ nome: string; base64: string | null }> = []
+    const docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null }> = []
     for (const doc of arquivosDoc) {
       const base64 = await resolveArquivoBase64(doc)
-      docsResolvidos.push({ nome: doc.nome, base64 })
+      docsResolvidos.push({ nome: doc.nome, tipoDoc: doc.tipoDoc, base64 })
       if (base64) {
         console.log(`[Doc] Resolvido: ${doc.nome} (${Math.round(base64.length / 1024)}KB base64)`)
       } else {
@@ -405,7 +407,7 @@ interface ContextoParams {
   dados: DadosSinistro
   transcricoesComAnalise: TranscricaoComAnalise[]
   descricoesImagens: Array<{ arquivo: string; descricao: string }>
-  docsResolvidos: Array<{ nome: string; base64: string | null }>
+  docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null }>
 }
 
 function buildContexto({
@@ -504,7 +506,36 @@ function buildContexto({
     if (docsLidos.length > 0) {
       partes.push(`Os seguintes documentos foram anexados INTEGRALMENTE a esta mensagem e você DEVE LER seu conteúdo completo:`)
       for (const doc of docsLidos) {
-        partes.push(`• ${doc.nome} — LEIA ESTE ARQUIVO COMPLETAMENTE e extraia: número/data do documento, narrativa dos fatos, dados do veículo, condutor, local, horário e qualquer informação relevante para a análise.`)
+        const tipoLabel = doc.tipoDoc ? TIPO_DOCUMENTO_LABEL[doc.tipoDoc] : null
+        const tipoInfo = tipoLabel ? `[TIPO IDENTIFICADO PELO ANALISTA: ${tipoLabel}]` : `[TIPO NÃO CLASSIFICADO — identifique pelo conteúdo]`
+        partes.push(`• ${doc.nome} ${tipoInfo}`)
+
+        // Instruções específicas por tipo de documento
+        if (doc.tipoDoc === "bo") {
+          partes.push(`  → Este é um BOLETIM DE OCORRÊNCIA. Extraia obrigatoriamente: número do BO, delegacia, data/hora do registro, data/hora do evento declarado, narrativa completa dos fatos, dados do condutor, dados do veículo, envolvidos/testemunhas. Preencha o campo "analise_bo" com todas essas informações.`)
+        } else if (doc.tipoDoc === "crlv") {
+          partes.push(`  → Este é o CRLV (Licenciamento). Extraia: proprietário, placa, chassi, renavam, ano fab/modelo, município, restrições. Verifique se o proprietário bate com o associado declarado.`)
+        } else if (doc.tipoDoc === "crv") {
+          partes.push(`  → Este é o CRV (Documento do Veículo). Extraia dados de propriedade e verifique consistência com os dados informados.`)
+        } else if (doc.tipoDoc === "cnh") {
+          partes.push(`  → Esta é a CNH. Verifique: validade, categoria, nome e CPF do condutor. Confirme se a CNH é válida para a categoria do veículo envolvido.`)
+        } else if (doc.tipoDoc === "laudo_pericial") {
+          partes.push(`  → Este é um LAUDO PERICIAL. Extraia: conclusões do perito, compatibilidade dos danos com o evento relatado, estimativa de valor, observações técnicas.`)
+        } else if (doc.tipoDoc === "orcamento") {
+          partes.push(`  → Este é um ORÇAMENTO DE REPARO. Verifique: valor total, itens listados, oficina emitente. Compare o valor com a tabela FIPE para avaliar se está próximo de 75% (limiar de perda total).`)
+        } else if (doc.tipoDoc === "rastreamento") {
+          partes.push(`  → Este é um RELATÓRIO DE RASTREAMENTO GPS. Extraia: localização do veículo no horário do sinistro, histórico de rota, velocidade, status do ignição. Compare com o local e horário declarados.`)
+        } else if (doc.tipoDoc === "nota_fiscal") {
+          partes.push(`  → Esta é uma NOTA FISCAL. Extraia valor, itens, data e emitente. Verifique consistência com os danos declarados.`)
+        } else if (doc.tipoDoc === "declaracao_segurado") {
+          partes.push(`  → Esta é uma DECLARAÇÃO DO ASSOCIADO. Leia a narrativa e compare com o relato escrito e o áudio.`)
+        } else if (doc.tipoDoc === "laudo_medico") {
+          partes.push(`  → Este é um LAUDO MÉDICO. Verifique se as lesões descritas são compatíveis com a dinâmica do acidente relatado.`)
+        } else if (doc.tipoDoc === "procuracao") {
+          partes.push(`  → Esta é uma PROCURAÇÃO. Identifique o outorgante, outorgado e poderes concedidos. Procuração em sinistros é red flag de fraude organizada.`)
+        } else {
+          partes.push(`  → LEIA ESTE ARQUIVO COMPLETAMENTE e extraia todas as informações relevantes para a análise do sinistro.`)
+        }
       }
     }
     if (docsFalhos.length > 0) {

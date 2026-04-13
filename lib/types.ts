@@ -20,9 +20,39 @@ export type Recomendacao =
   | "AGUARDAR_DOCUMENTOS"
   | "RECUSA_RECOMENDADA"
 
+export type TipoDocumento =
+  | "bo"
+  | "crlv"
+  | "crv"
+  | "cnh"
+  | "laudo_pericial"
+  | "orcamento"
+  | "nota_fiscal"
+  | "rastreamento"
+  | "declaracao_segurado"
+  | "laudo_medico"
+  | "procuracao"
+  | "outro"
+
+export const TIPO_DOCUMENTO_LABEL: Record<TipoDocumento, string> = {
+  bo: "Boletim de Ocorrência (BO)",
+  crlv: "CRLV — Licenciamento do Veículo",
+  crv: "CRV — Documento do Veículo",
+  cnh: "CNH do Condutor",
+  laudo_pericial: "Laudo Pericial",
+  orcamento: "Orçamento de Reparo",
+  nota_fiscal: "Nota Fiscal",
+  rastreamento: "Relatório de Rastreamento GPS",
+  declaracao_segurado: "Declaração do Associado",
+  laudo_medico: "Laudo Médico",
+  procuracao: "Procuração",
+  outro: "Outro Documento",
+}
+
 export interface ArquivoAnexo {
   nome: string
   tipo: "audio" | "documento" | "imagem"
+  tipoDoc?: TipoDocumento  // classificação manual para documentos PDF
   tamanho: number
   base64?: string       // usado apenas para arquivos pequenos inline
   storagePath?: string  // path no Supabase Storage (preferido para arquivos grandes)
