@@ -201,7 +201,7 @@ FORMATO DE SAÍDA — JSON OBRIGATÓRIO
     }
   ],
 
-  "resumo_executivo": "Parágrafo de 5-7 linhas para o gestor da associação: tipo de sinistro, documentos analisados, principais achados, conclusão e nível de risco. Linguagem direta e técnica.",
+  "resumo": "Parágrafo de 5-7 linhas para o gestor da associação: tipo de sinistro, documentos analisados, principais achados, conclusão e nível de risco. Linguagem direta e técnica.",
 
   "linha_do_tempo": [
     "DD/MM/AAAA HH:MM — [evento, indicando a fonte: relato do associado / BO / áudio / rastreamento / outro]"
@@ -228,17 +228,14 @@ FORMATO DE SAÍDA — JSON OBRIGATÓRIO
   ],
 
   "analise_audio": {
-    "interlocutores_identificados": "Descreva quem fala em cada parte — associado vs atendente, identificados por contexto e padrão de fala",
     "transcricao_completa": "Transcrição fornecida, sem modificações",
-    "resumo_conteudo": "3-4 linhas sobre o que foi tratado na ligação — o que foi perguntado, o que foi respondido, como encerrou",
-    "arco_emocional": "Evolução emocional do associado do início ao fim, com referência aos momentos de mudança e timestamps reais",
-    "tom_voz": "Comportamento vocal técnico ao longo de toda a ligação: velocidade, pausas, controle, hesitações, diferenciando os diferentes momentos",
-    "perfil_emocional": "O estado emocional observado é compatível com o trauma relatado? Onde há coerência e onde há incompatibilidade? Compare com o esperado para o tipo de sinistro.",
+    "transcricao_resumo": "3-4 linhas sobre o conteúdo da ligação — interlocutores identificados (associado vs atendente), o que foi perguntado, o que foi respondido, como encerrou",
+    "tom_voz": "Comportamento vocal técnico do associado ao longo de toda a ligação: velocidade, pausas, controle, hesitações. Diferencie os diferentes momentos.",
+    "perfil_emocional": "O estado emocional do associado é compatível com o trauma relatado e o tipo de sinistro? Onde há coerência e onde há incompatibilidade?",
     "momentos_alterados": [
       {
         "timestamp": "[MM:SS → MM:SS] exatamente como na transcrição, ou null",
-        "interlocutor": "associado|atendente",
-        "trecho": "Citação exata",
+        "trecho": "Citação exata do que foi dito",
         "tipo_alteracao": "calma_atipica|agitacao|hesitacao|autocorrecao|aceleracao",
         "analise": "O que foi observado, por que é relevante e o que pode indicar"
       }
@@ -255,16 +252,14 @@ FORMATO DE SAÍDA — JSON OBRIGATÓRIO
     ]
   },
 
-  "analise_imagens": [
-    {
-      "arquivo": "Identificação da imagem (ex: foto_1, foto_dianteira, etc.)",
-      "tipo": "veiculo_avariado|cena_acidente|documento|outro",
-      "descricao_tecnica": "O que é visível: partes afetadas, extensão dos danos, estado geral, contexto da cena",
-      "consistencia_relato": "Os danos/cena são compatíveis com a dinâmica do evento declarado? Explique ponto a ponto.",
-      "alertas": ["Observação técnica específica: oxidação nas bordas, iluminação inconsistente, ausência de fragmentos esperados, etc."],
-      "autenticidade": "A imagem parece original e recente? Sinais de edição ou captura secundária?"
-    }
-  ],
+  "analise_imagens": {
+    "descricao": "Descrição técnica de todas as imagens recebidas: partes afetadas, extensão dos danos, estado geral, contexto da cena. Inclua uma descrição por imagem.",
+    "consistencia_relato": "Os danos visíveis são compatíveis com a dinâmica do evento declarado? Explique ponto a ponto.",
+    "observacoes": [
+      "Observação técnica específica com localização exata no veículo: oxidação nas bordas (dano antigo), iluminação inconsistente, ausência de fragmentos esperados, etc."
+    ],
+    "indicadores_autenticidade": "As imagens parecem originais e recentes? Sinais de edição, captura secundária, metadados suspeitos ou danos pré-existentes."
+  },
 
   "analise_bo": {
     "numero_bo": "Número e delegacia",

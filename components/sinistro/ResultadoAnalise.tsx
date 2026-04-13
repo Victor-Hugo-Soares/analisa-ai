@@ -63,6 +63,22 @@ const recomendacaoConfig: Record<
     borderColor: "border-amber-200",
     textColor: "text-amber-800",
   },
+  APROVACAO_COM_RESSALVAS: {
+    label: "Aprovação com Ressalvas",
+    icon: AlertTriangle,
+    color: "text-teal-700",
+    bgColor: "bg-teal-50",
+    borderColor: "border-teal-200",
+    textColor: "text-teal-800",
+  },
+  AGUARDAR_DOCUMENTOS: {
+    label: "Aguardar Documentos",
+    icon: Info,
+    color: "text-blue-700",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-800",
+  },
   RECUSA_RECOMENDADA: {
     label: "Recusa Recomendada",
     icon: XCircle,
@@ -77,6 +93,7 @@ const nivelRiscoBadge = {
   BAIXO: "bg-green-100 text-green-800 border-green-200",
   MEDIO: "bg-amber-100 text-amber-800 border-amber-200",
   ALTO: "bg-red-100 text-red-800 border-red-200",
+  CRITICO: "bg-red-900 text-red-100 border-red-800",
 }
 
 const tipoEventoLabel: Record<TipoEvento, string> = {

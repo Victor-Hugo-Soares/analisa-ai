@@ -11,11 +11,13 @@ export type StatusSinistro =
   | "concluido"
   | "suspeito"
 
-export type NivelRisco = "BAIXO" | "MEDIO" | "ALTO"
+export type NivelRisco = "BAIXO" | "MEDIO" | "ALTO" | "CRITICO"
 
 export type Recomendacao =
   | "APROVACAO_RECOMENDADA"
+  | "APROVACAO_COM_RESSALVAS"
   | "INVESTIGACAO_NECESSARIA"
+  | "AGUARDAR_DOCUMENTOS"
   | "RECUSA_RECOMENDADA"
 
 export interface ArquivoAnexo {
