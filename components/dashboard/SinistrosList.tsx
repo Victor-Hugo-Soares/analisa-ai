@@ -53,7 +53,7 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
     return (
       <div className="text-center py-12">
         <Car className="w-12 h-12 text-[#94a3b8] mx-auto mb-3" />
-        <p className="text-[#64748b] font-medium">Nenhum sinistro encontrado</p>
+        <p className="text-[#64748b] font-medium">Nenhum evento encontrado</p>
         <p className="text-sm text-[#94a3b8] mt-1">
           Clique em &ldquo;Novo Evento&rdquo; para começar
         </p>
