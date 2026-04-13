@@ -13,7 +13,6 @@ export default function robots(): MetadataRoute.Robots {
           "/configuracoes",
           "/admin",
           "/cadastro",
-          "/login",
           "/debug",
           "/api/",
         ],

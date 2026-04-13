@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s | IAnalista",
   },
   description:
-    "Plataforma SaaS com IA para análise de eventos veiculares. Detecte fraudes, transcreva áudios automaticamente e tome decisões assertivas em segundos. Para proteções veiculares.",
+    "Plataforma com IA para análise de eventos veiculares. Detecte fraudes, transcreva áudios automaticamente e tome decisões assertivas em segundos.",
   keywords: [
     "análise de sinistros",
     "detecção de fraude veicular",
@@ -21,15 +21,19 @@ export const metadata: Metadata = {
     "análise de fraude",
     "seguro veicular",
     "SaaS proteção veicular",
-    "Loma Proteção Veicular",
   ],
-  authors: [{ name: "Loma Proteção Veicular", url: BASE_URL }],
-  creator: "Loma Proteção Veicular",
-  publisher: "Loma Proteção Veicular",
+  authors: [{ name: "IAnalista", url: BASE_URL }],
+  creator: "IAnalista",
+  publisher: "IAnalista",
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" },
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+    },
   },
   alternates: {
     canonical: BASE_URL,
@@ -38,10 +42,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     url: BASE_URL,
-    siteName: "Loma Proteção Veicular",
+    siteName: "IAnalista",
     title: "IAnalista — Análise de Eventos Veiculares com IA",
     description:
-      "Detecte fraudes, transcreva áudios e analise eventos em segundos com IA. Plataforma SaaS para proteções veiculares.",
+      "Detecte fraudes, transcreva áudios e analise eventos em segundos com IA. Plataforma para proteções veiculares.",
     images: [
       {
         url: "/og-image.png",
@@ -62,6 +66,10 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
+  },
+  // Google Search Console — preencher após verificação
+  verification: {
+    google: process.env.NEXT_PUBLIC_GSC_VERIFICATION ?? "",
   },
 }
 
@@ -85,21 +93,21 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              name: "Loma Proteção Veicular",
+              name: "IAnalista",
               url: BASE_URL,
               description:
-                "Plataforma SaaS com IA para análise de eventos veiculares. Detecte fraudes e tome decisões assertivas em segundos.",
+                "Plataforma com IA para análise de eventos veiculares. Detecte fraudes e tome decisões assertivas em segundos.",
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               offers: {
                 "@type": "Offer",
                 price: "0",
                 priceCurrency: "BRL",
-                description: "Teste gratuito disponível",
+                description: "Acesso sob contrato",
               },
               provider: {
                 "@type": "Organization",
-                name: "Loma Proteção Veicular",
+                name: "IAnalista",
                 url: BASE_URL,
               },
             }),
@@ -110,4 +118,3 @@ export default function RootLayout({
     </html>
   )
 }
-
