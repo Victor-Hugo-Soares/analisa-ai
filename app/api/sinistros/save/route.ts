@@ -19,6 +19,17 @@ export async function POST(req: NextRequest) {
     }
 
     await saveSinistroDB(sinistro, empresaId, usuarioId)
+
+    // Cria notificação para o gestor da empresa
+    const supabase = createServerClient()
+    const nome = sinistro.dados?.nomeSegurado ?? 'Associado'
+    const tipo = sinistro.tipoEvento ?? 'evento'
+    await supabase.from('notificacoes').insert({
+      empresa_id: empresaId,
+      titulo: 'Novo evento registrado',
+      mensagem: `${nome} — ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} (${sinistro.id})`,
+    })
+
     return NextResponse.json({ success: true })
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 })
