@@ -3,6 +3,8 @@ import { openai, SYSTEM_PROMPT, AUDIO_TONE_PROMPT } from "@/lib/openai"
 import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>
 
 export const maxDuration = 300
 
@@ -94,16 +96,31 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ─── 3. Resolver base64 dos documentos (PDFs, etc.) ─────────────────────
-    const docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null }> = []
+    // ─── 3. Resolver e extrair texto dos documentos (PDFs) ───────────────────
+    const docsResolvidos: Array<{
+      nome: string
+      tipoDoc?: TipoDocumento
+      base64: string | null
+      textoPdf: string | null
+    }> = []
+
     for (const doc of arquivosDoc) {
       const base64 = await resolveArquivoBase64(doc)
-      docsResolvidos.push({ nome: doc.nome, tipoDoc: doc.tipoDoc, base64 })
-      if (base64) {
-        console.log(`[Doc] Resolvido: ${doc.nome} (${Math.round(base64.length / 1024)}KB base64)`)
-      } else {
-        console.warn(`[Doc] Falha ao resolver: ${doc.nome}`)
+      let textoPdf: string | null = null
+
+      if (base64 && doc.nome.toLowerCase().endsWith(".pdf")) {
+        try {
+          const raw = base64.includes(",") ? base64.split(",")[1] : base64
+          const buffer = Buffer.from(raw, "base64")
+          const parsed = await pdfParse(buffer)
+          textoPdf = parsed.text?.trim() ?? null
+          console.log(`[PDF] Texto extraído de ${doc.nome}: ${textoPdf?.length ?? 0} chars`)
+        } catch (e) {
+          console.error(`[PDF] Falha ao extrair texto de ${doc.nome}:`, e)
+        }
       }
+
+      docsResolvidos.push({ nome: doc.nome, tipoDoc: doc.tipoDoc, base64, textoPdf })
     }
 
     // ─── 4. Montar contexto completo para análise final ──────────────────────
@@ -117,35 +134,12 @@ export async function POST(req: NextRequest) {
 
     console.log(`[Análise] Enviando contexto ao GPT-4o (${contexto.length} chars, ${docsResolvidos.filter(d => d.base64).length} docs anexados)`)
 
-    // ─── 5. Montar content array: texto + PDFs como file_data ────────────────
-    type ContentPart =
-      | { type: "text"; text: string }
-      | { type: "file"; file: { filename: string; file_data: string } }
-
-    const userContent: ContentPart[] = [{ type: "text", text: contexto }]
-
-    for (const doc of docsResolvidos) {
-      if (!doc.base64) continue
-      const isPdf = doc.nome.toLowerCase().endsWith(".pdf")
-      if (!isPdf) continue
-      const raw = doc.base64.includes(",") ? doc.base64.split(",")[1] : doc.base64
-      userContent.push({
-        type: "file",
-        file: {
-          filename: doc.nome,
-          file_data: `data:application/pdf;base64,${raw}`,
-        },
-      })
-      console.log(`[Doc] Anexando PDF ao contexto: ${doc.nome}`)
-    }
-
-    // ─── 6. Análise final com GPT-4o ─────────────────────────────────────────
+    // ─── 5. Análise final com GPT-4o ─────────────────────────────────────────
     const analiseResponse = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        { role: "user", content: userContent as any },
+        { role: "user", content: contexto },
       ],
       temperature: 0.15,
       max_tokens: 5000,
@@ -407,7 +401,7 @@ interface ContextoParams {
   dados: DadosSinistro
   transcricoesComAnalise: TranscricaoComAnalise[]
   descricoesImagens: Array<{ arquivo: string; descricao: string }>
-  docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null }>
+  docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null; textoPdf: string | null }>
 }
 
 function buildContexto({
@@ -497,57 +491,53 @@ function buildContexto({
   if (docsResolvidos.length > 0) {
     partes.push(``)
     partes.push(`════════════════════════════════════════`)
-    partes.push(`DOCUMENTOS ANEXADOS PARA LEITURA`)
+    partes.push(`CONTEÚDO DOS DOCUMENTOS EXTRAÍDOS`)
     partes.push(`════════════════════════════════════════`)
-
-    const docsLidos = docsResolvidos.filter((d) => d.base64)
-    const docsFalhos = docsResolvidos.filter((d) => !d.base64)
-
-    if (docsLidos.length > 0) {
-      partes.push(`Os seguintes documentos foram anexados INTEGRALMENTE a esta mensagem e você DEVE LER seu conteúdo completo:`)
-      for (const doc of docsLidos) {
-        const tipoLabel = doc.tipoDoc ? TIPO_DOCUMENTO_LABEL[doc.tipoDoc] : null
-        const tipoInfo = tipoLabel ? `[TIPO IDENTIFICADO PELO ANALISTA: ${tipoLabel}]` : `[TIPO NÃO CLASSIFICADO — identifique pelo conteúdo]`
-        partes.push(`• ${doc.nome} ${tipoInfo}`)
-
-        // Instruções específicas por tipo de documento
-        if (doc.tipoDoc === "bo") {
-          partes.push(`  → Este é um BOLETIM DE OCORRÊNCIA. Extraia obrigatoriamente: número do BO, delegacia, data/hora do registro, data/hora do evento declarado, narrativa completa dos fatos, dados do condutor, dados do veículo, envolvidos/testemunhas. Preencha o campo "analise_bo" com todas essas informações.`)
-        } else if (doc.tipoDoc === "crlv") {
-          partes.push(`  → Este é o CRLV (Licenciamento). Extraia: proprietário, placa, chassi, renavam, ano fab/modelo, município, restrições. Verifique se o proprietário bate com o associado declarado.`)
-        } else if (doc.tipoDoc === "crv") {
-          partes.push(`  → Este é o CRV (Documento do Veículo). Extraia dados de propriedade e verifique consistência com os dados informados.`)
-        } else if (doc.tipoDoc === "cnh") {
-          partes.push(`  → Esta é a CNH. Verifique: validade, categoria, nome e CPF do condutor. Confirme se a CNH é válida para a categoria do veículo envolvido.`)
-        } else if (doc.tipoDoc === "laudo_pericial") {
-          partes.push(`  → Este é um LAUDO PERICIAL. Extraia: conclusões do perito, compatibilidade dos danos com o evento relatado, estimativa de valor, observações técnicas.`)
-        } else if (doc.tipoDoc === "orcamento") {
-          partes.push(`  → Este é um ORÇAMENTO DE REPARO. Verifique: valor total, itens listados, oficina emitente. Compare o valor com a tabela FIPE para avaliar se está próximo de 75% (limiar de perda total).`)
-        } else if (doc.tipoDoc === "rastreamento") {
-          partes.push(`  → Este é um RELATÓRIO DE RASTREAMENTO GPS. Extraia: localização do veículo no horário do sinistro, histórico de rota, velocidade, status do ignição. Compare com o local e horário declarados.`)
-        } else if (doc.tipoDoc === "nota_fiscal") {
-          partes.push(`  → Esta é uma NOTA FISCAL. Extraia valor, itens, data e emitente. Verifique consistência com os danos declarados.`)
-        } else if (doc.tipoDoc === "declaracao_segurado") {
-          partes.push(`  → Esta é uma DECLARAÇÃO DO ASSOCIADO. Leia a narrativa e compare com o relato escrito e o áudio.`)
-        } else if (doc.tipoDoc === "laudo_medico") {
-          partes.push(`  → Este é um LAUDO MÉDICO. Verifique se as lesões descritas são compatíveis com a dinâmica do acidente relatado.`)
-        } else if (doc.tipoDoc === "procuracao") {
-          partes.push(`  → Esta é uma PROCURAÇÃO. Identifique o outorgante, outorgado e poderes concedidos. Procuração em sinistros é red flag de fraude organizada.`)
-        } else {
-          partes.push(`  → LEIA ESTE ARQUIVO COMPLETAMENTE e extraia todas as informações relevantes para a análise do sinistro.`)
-        }
-      }
-    }
-    if (docsFalhos.length > 0) {
-      partes.push(``)
-      partes.push(`Os seguintes arquivos não puderam ser lidos (registre como pendência):`)
-      for (const doc of docsFalhos) {
-        partes.push(`• ${doc.nome}`)
-      }
-    }
+    partes.push(`ATENÇÃO: Os textos abaixo foram extraídos diretamente dos PDFs enviados.`)
+    partes.push(`USE APENAS as datas, nomes, números e informações que aparecem nestes textos.`)
+    partes.push(`NÃO invente, NÃO presuma, NÃO use dados do relato para preencher campos do documento.`)
     partes.push(``)
-    partes.push(`INSTRUÇÃO CRÍTICA: Para cada documento lido, preencha o campo "documentos_recebidos" com as informações extraídas do conteúdo real do arquivo — não apenas o nome do arquivo.`)
-    partes.push(`Em "analise_bo": extraia TODOS os dados do BO (número, delegacia, data/hora do evento declarado, data/hora do registro, narrativa completa dos fatos, dados do condutor/terceiros).`)
+
+    for (const doc of docsResolvidos) {
+      const tipoLabel = doc.tipoDoc ? TIPO_DOCUMENTO_LABEL[doc.tipoDoc] : "Documento"
+      partes.push(`──── ${tipoLabel.toUpperCase()}: ${doc.nome} ────`)
+
+      if (doc.textoPdf && doc.textoPdf.length > 10) {
+        partes.push(`CONTEÚDO EXTRAÍDO DO PDF:`)
+        partes.push(doc.textoPdf)
+
+        // Instrução de extração específica por tipo
+        partes.push(``)
+        if (doc.tipoDoc === "bo") {
+          partes.push(`INSTRUÇÃO: Com base no texto acima, preencha "analise_bo" com:`)
+          partes.push(`  - numero_bo: número exato do BO conforme consta no documento`)
+          partes.push(`  - data_registro: data e hora em que o BO foi registrado na delegacia`)
+          partes.push(`  - data_evento_declarado: data e hora do evento conforme declarado no BO`)
+          partes.push(`  - narrativa_bo: narrativa completa dos fatos conforme o documento`)
+          partes.push(`  - consistencia_relato: compare o texto do BO com o relato do associado acima`)
+          partes.push(`  CRÍTICO: use SOMENTE as datas que aparecem no texto extraído acima. Se a data no relato`)
+          partes.push(`  do associado divergir da data no BO, registre essa divergência como contradição.`)
+        } else if (doc.tipoDoc === "crlv") {
+          partes.push(`INSTRUÇÃO: Extraia proprietário, placa, chassi, renavam, ano/modelo, restrições.`)
+          partes.push(`Verifique se o proprietário bate com o associado declarado no relato.`)
+        } else if (doc.tipoDoc === "cnh") {
+          partes.push(`INSTRUÇÃO: Extraia nome, CPF, validade e categoria. Verifique se a CNH é válida.`)
+        } else if (doc.tipoDoc === "rastreamento") {
+          partes.push(`INSTRUÇÃO: Extraia localização, rota, velocidade e status de ignição no horário do sinistro.`)
+          partes.push(`Compare com o local e horário declarados pelo associado.`)
+        } else if (doc.tipoDoc === "orcamento") {
+          partes.push(`INSTRUÇÃO: Extraia valor total e itens. Compare o valor com 75% da FIPE para avaliar perda total.`)
+        } else if (doc.tipoDoc === "procuracao") {
+          partes.push(`INSTRUÇÃO: Procuração em sinistros é RED FLAG de fraude organizada. Identifique outorgante e poderes.`)
+        }
+      } else if (!doc.base64) {
+        partes.push(`⚠ PENDÊNCIA CRÍTICA: arquivo não pôde ser lido — registre como documento pendente.`)
+      } else {
+        partes.push(`⚠ Não foi possível extrair texto deste PDF (pode ser imagem escaneada).`)
+        partes.push(`Registre como pendência e solicite versão digital do documento.`)
+      }
+      partes.push(``)
+    }
   }
 
   // ── Instrução final ───────────────────────────────────────────────────────
