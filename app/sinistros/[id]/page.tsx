@@ -6,6 +6,7 @@ import { ArrowLeft, AlertCircle } from "lucide-react"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
 import ResultadoAnalise from "@/components/sinistro/ResultadoAnalise"
+import ChatSinistro from "@/components/sinistro/ChatSinistro"
 import { getSession, getSinistro, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession, Sinistro } from "@/lib/types"
 
@@ -113,7 +114,12 @@ export default function SinistroPage() {
                 </button>
               </div>
             ) : sinistro ? (
-              <ResultadoAnalise sinistro={sinistro} />
+              <div className="space-y-6">
+                <ResultadoAnalise sinistro={sinistro} />
+                {sinistro.analise && (
+                  <ChatSinistro sinistro={sinistro} />
+                )}
+              </div>
             ) : null}
           </div>
         </main>
