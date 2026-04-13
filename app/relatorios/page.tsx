@@ -6,7 +6,7 @@ import { BarChart3, TrendingUp, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
-import { getSession, getSinistros } from "@/lib/storage"
+import { getSession, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession, Sinistro } from "@/lib/types"
 
 export default function RelatoriosPage() {
@@ -18,7 +18,12 @@ export default function RelatoriosPage() {
     const s = getSession()
     if (!s) { router.push("/login"); return }
     setSession(s)
-    setSinistros(getSinistros())
+    const token = getAccessToken()
+    if (token) {
+      fetch("/api/sinistros", { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => r.json())
+        .then((d) => { if (d.sinistros) setSinistros(d.sinistros) })
+    }
   }, [router])
 
   const total = sinistros.length
