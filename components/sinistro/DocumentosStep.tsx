@@ -2,7 +2,7 @@
 
 import { useCallback } from "react"
 import { useDropzone } from "react-dropzone"
-import { Mic, FileText, Image, X, Upload, ChevronDown } from "lucide-react"
+import { Mic, FileText, ImageIcon, X, Upload, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { ArquivoAnexo, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
@@ -119,7 +119,7 @@ function ImageDropzone({ arquivos, onDrop, onRemove }: ImageDropzoneProps) {
         <input {...getInputProps()} />
         <div className="flex flex-col items-center text-center">
           <div className="p-3 rounded-xl mb-3 bg-purple-600/10">
-            <Image className="w-7 h-7 text-purple-600" />
+            <ImageIcon className="w-7 h-7 text-purple-600" />
           </div>
           <p className="font-semibold text-[#0f172a] text-sm mb-1">Fotos e Vídeos</p>
           <p className="text-xs text-[#64748b] mb-2">JPG, PNG, WEBP — até 20MB cada</p>
@@ -133,7 +133,7 @@ function ImageDropzone({ arquivos, onDrop, onRemove }: ImageDropzoneProps) {
         <div className="mt-2 space-y-1.5">
           {lista.map((a) => (
             <div key={a.nome} className="flex items-center gap-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-3 py-2">
-              <Image className="w-4 h-4 text-[#64748b] flex-shrink-0" />
+              <ImageIcon className="w-4 h-4 text-[#64748b] flex-shrink-0" />
               <span className="text-sm text-[#0f172a] flex-1 truncate">{a.nome}</span>
               <span className="text-xs text-[#94a3b8] flex-shrink-0">{formatSize(a.tamanho)}</span>
               <button type="button" onClick={() => onRemove(a.nome)} className="text-[#94a3b8] hover:text-red-500 transition-colors flex-shrink-0">

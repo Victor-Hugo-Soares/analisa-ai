@@ -173,9 +173,10 @@ export default function NovoEventoPage() {
         arquivos: arquivosComPath.map((a) => ({
           nome: a.nome,
           tipo: a.tipo,
+          tipoDoc: a.tipoDoc,
           tamanho: a.tamanho,
           storagePath: a.storagePath,
-          base64: a.base64, // fallback para arquivos sem storagePath
+          base64: a.base64,
         })),
       }
 
