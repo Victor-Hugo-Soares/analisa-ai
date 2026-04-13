@@ -193,29 +193,76 @@ async function transcribeAudio(base64: string, nome: string): Promise<string> {
     model: "whisper-1",
     language: "pt",
     response_format: "verbose_json",
-    timestamp_granularities: ["segment"],
+    timestamp_granularities: ["word", "segment"],
   })
 
-  // Formatar com timestamps dos segmentos para melhor análise de tom
+  // Preferência: word-level timestamps (mais precisos que segment)
+  if (
+    typeof transcription === "object" &&
+    "words" in transcription &&
+    Array.isArray(transcription.words) &&
+    transcription.words.length > 0
+  ) {
+    return buildTranscricaoFromWords(
+      transcription.words as { word: string; start: number; end: number }[]
+    )
+  }
+
+  // Fallback: segment-level
   if (
     typeof transcription === "object" &&
     "segments" in transcription &&
     Array.isArray(transcription.segments)
   ) {
     const comTimestamps = transcription.segments
-      .map((seg: { start: number; end: number; text: string }) => {
-        const inicio = formatTimestamp(seg.start)
-        const fim = formatTimestamp(seg.end)
-        return `[${inicio} → ${fim}] ${seg.text.trim()}`
-      })
+      .map((seg: { start: number; end: number; text: string }) =>
+        `[${formatTimestamp(seg.start)} → ${formatTimestamp(seg.end)}] ${seg.text.trim()}`
+      )
       .join("\n")
     return comTimestamps
   }
 
-  // Fallback: texto simples
   return typeof transcription === "string"
     ? transcription
     : (transcription as { text: string }).text ?? ""
+}
+
+// Agrupa palavras em segmentos de até 8s ou por pausa > 0.6s
+// Resultado: timestamps precisos ao nível de palavra
+function buildTranscricaoFromWords(
+  words: { word: string; start: number; end: number }[]
+): string {
+  if (words.length === 0) return ""
+
+  const MAX_DURATION = 8   // segundos máximos por segmento
+  const PAUSE_THRESHOLD = 0.6  // pausa que força novo segmento
+
+  const linhas: string[] = []
+  let segStart = words[0].start
+  let segWords: string[] = []
+  let prevEnd = words[0].start
+
+  for (const w of words) {
+    const pause = w.start - prevEnd
+    const segDuration = w.end - segStart
+
+    // Fecha segmento se pausa grande ou segmento muito longo
+    if (segWords.length > 0 && (pause > PAUSE_THRESHOLD || segDuration > MAX_DURATION)) {
+      linhas.push(`[${formatTimestamp(segStart)} → ${formatTimestamp(prevEnd)}] ${segWords.join(" ")}`)
+      segStart = w.start
+      segWords = []
+    }
+
+    segWords.push(w.word.trim())
+    prevEnd = w.end
+  }
+
+  // Último segmento
+  if (segWords.length > 0) {
+    linhas.push(`[${formatTimestamp(segStart)} → ${formatTimestamp(prevEnd)}] ${segWords.join(" ")}`)
+  }
+
+  return linhas.join("\n")
 }
 
 function formatTimestamp(seconds: number): string {
