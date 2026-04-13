@@ -6,7 +6,7 @@ const BASE_URL = "https://ianalista.com"
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "IAnalista — Análise de Sinistros Veiculares com IA",
+    default: "IAnalista — Análise de Eventos Veiculares com IA",
     template: "%s | IAnalista",
   },
   description:
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: BASE_URL,
     siteName: "IAnalista",
-    title: "IAnalista — Análise de Sinistros Veiculares com IA",
+    title: "IAnalista — Análise de Eventos Veiculares com IA",
     description:
       "Detecte fraudes, transcreva áudios e analise sinistros em segundos com IA. Plataforma SaaS para seguradoras e proteções veiculares.",
     images: [
@@ -47,13 +47,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "IAnalista — Análise de Sinistros com IA",
+        alt: "IAnalista — Análise de Eventos com IA",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "IAnalista — Análise de Sinistros Veiculares com IA",
+    title: "IAnalista — Análise de Eventos Veiculares com IA",
     description:
       "Detecte fraudes, transcreva áudios e analise sinistros em segundos com IA.",
     images: ["/og-image.png"],

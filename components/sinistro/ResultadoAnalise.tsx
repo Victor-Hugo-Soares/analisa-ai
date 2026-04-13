@@ -297,13 +297,13 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* ── Coluna esquerda ── */}
         <div className="space-y-4">
-          {/* Dados do Sinistro */}
+          {/* Dados do Evento */}
           <div className="bg-white border border-[#e2e8f0] rounded-xl p-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-[#64748b] mb-3">
-              Dados do Sinistro
+              Dados do Evento
             </p>
             <div className="space-y-3">
-              <InfoRow icon={User} label="Segurado" value={sinistro.dados.nomeSegurado} />
+              <InfoRow icon={User} label="Associado" value={sinistro.dados.nomeSegurado} />
               <InfoRow icon={CreditCard} label="CPF" value={sinistro.dados.cpf} />
               <InfoRow icon={Car} label="Placa" value={sinistro.dados.placa} />
               <InfoRow
@@ -367,7 +367,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
           {/* Relato */}
           <div className="bg-white border border-[#e2e8f0] rounded-xl p-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-[#64748b] mb-2">
-              Relato do Segurado
+              Relato do Associado
             </p>
             <p className="text-sm text-[#0f172a] leading-relaxed">
               {sinistro.dados.relato}
@@ -815,7 +815,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 className="bg-green-600 hover:bg-green-700 text-white gap-2 flex-1"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Aprovar Sinistro
+                Aprovar Evento
               </Button>
               <Button
                 onClick={() => handleDecisao("em_analise")}
@@ -829,7 +829,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 className="bg-red-600 hover:bg-red-700 text-white gap-2 flex-1"
               >
                 <XCircle className="w-4 h-4" />
-                Recusar Sinistro
+                Recusar Evento
               </Button>
               <Button
                 variant="outline"

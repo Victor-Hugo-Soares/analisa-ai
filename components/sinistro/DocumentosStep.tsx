@@ -156,7 +156,7 @@ export default function DocumentosStep({
       <div className="space-y-4">
         <DropzoneZone
           tipo="audio"
-          label="Ligação do Segurado"
+          label="Ligação do Associado"
           description="MP3, WAV, M4A — até 25MB"
           icon={Mic}
           iconColor="blue-600"

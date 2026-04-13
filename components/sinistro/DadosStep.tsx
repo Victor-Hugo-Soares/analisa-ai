@@ -18,7 +18,7 @@ export default function DadosStep({ dados, onChange }: DadosStepProps) {
   return (
     <div>
       <h2 className="text-xl font-bold text-[#0f172a] mb-1">
-        Dados do Sinistro
+        Dados do Evento
       </h2>
       <p className="text-[#64748b] text-sm mb-6">
         Preencha as informações do segurado e do evento
@@ -28,7 +28,7 @@ export default function DadosStep({ dados, onChange }: DadosStepProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-[#0f172a] font-medium">
-              Nome do Segurado <span className="text-red-500">*</span>
+              Nome do Associado <span className="text-red-500">*</span>
             </Label>
             <Input
               name="nomeSegurado"
@@ -72,7 +72,7 @@ export default function DadosStep({ dados, onChange }: DadosStepProps) {
 
           <div className="space-y-2">
             <Label className="text-[#0f172a] font-medium">
-              Data e Hora do Sinistro <span className="text-red-500">*</span>
+              Data e Hora do Evento <span className="text-red-500">*</span>
             </Label>
             <Input
               name="dataHora"
@@ -87,7 +87,7 @@ export default function DadosStep({ dados, onChange }: DadosStepProps) {
 
         <div className="space-y-2">
           <Label className="text-[#0f172a] font-medium">
-            Local do Sinistro <span className="text-red-500">*</span>
+            Local do Evento <span className="text-red-500">*</span>
           </Label>
           <Input
             name="local"
@@ -101,7 +101,7 @@ export default function DadosStep({ dados, onChange }: DadosStepProps) {
 
         <div className="space-y-2">
           <Label className="text-[#0f172a] font-medium">
-            Relato do Segurado <span className="text-red-500">*</span>
+            Relato do Associado <span className="text-red-500">*</span>
           </Label>
           <Textarea
             name="relato"

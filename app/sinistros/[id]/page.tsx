@@ -10,13 +10,13 @@ import ChatSinistro from "@/components/sinistro/ChatSinistro"
 import { getSession, getSinistro, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession, Sinistro } from "@/lib/types"
 
-export default function SinistroPage() {
+export default function EventoPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
 
   const [session, setSession] = useState<EmpresaSession | null>(null)
-  const [sinistro, setSinistro] = useState<Sinistro | null>(null)
+  const [sinistro, setEvento] = useState<Sinistro | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
@@ -32,7 +32,7 @@ export default function SinistroPage() {
       // Tenta localStorage primeiro (com análise)
       const local = getSinistro(id)
       if (local?.analise) {
-        setSinistro(local)
+        setEvento(local)
         setLoading(false)
         return
       }
@@ -46,7 +46,7 @@ export default function SinistroPage() {
           })
           if (res.ok) {
             const data = await res.json()
-            setSinistro(data.sinistro)
+            setEvento(data.sinistro)
             setLoading(false)
             return
           }
@@ -56,7 +56,7 @@ export default function SinistroPage() {
       }
 
       if (local) {
-        setSinistro(local)
+        setEvento(local)
       } else {
         setNotFound(true)
       }
@@ -89,7 +89,7 @@ export default function SinistroPage() {
               </button>
               <div>
                 <h1 className="text-xl font-bold text-[#0f172a]">
-                  Sinistro {id}
+                  Evento {id}
                 </h1>
                 <p className="text-sm text-[#64748b]">
                   {sinistro?.dados?.nomeSegurado ?? ""}
@@ -101,7 +101,7 @@ export default function SinistroPage() {
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <AlertCircle className="w-12 h-12 text-[#94a3b8] mb-4" />
                 <h2 className="text-lg font-semibold text-[#0f172a] mb-2">
-                  Sinistro não encontrado
+                  Evento não encontrado
                 </h2>
                 <p className="text-[#64748b] text-sm mb-6">
                   O sinistro {id} não existe ou foi removido.

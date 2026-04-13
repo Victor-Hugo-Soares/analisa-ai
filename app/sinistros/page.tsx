@@ -20,10 +20,10 @@ const statusOptions: { value: string; label: string }[] = [
   { value: "suspeito", label: "Suspeito" },
 ]
 
-export default function SinistrosPage() {
+export default function EventosPage() {
   const router = useRouter()
   const [session, setSession] = useState<EmpresaSession | null>(null)
-  const [sinistros, setSinistros] = useState<Sinistro[]>([])
+  const [sinistros, setEventos] = useState<Sinistro[]>([])
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("todos")
   const [loading, setLoading] = useState(true)
@@ -39,7 +39,7 @@ export default function SinistrosPage() {
     if (token) {
       fetch("/api/sinistros", { headers: { Authorization: `Bearer ${token}` } })
         .then((r) => r.json())
-        .then((d) => { if (d.sinistros) setSinistros(d.sinistros) })
+        .then((d) => { if (d.sinistros) setEventos(d.sinistros) })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
@@ -76,15 +76,15 @@ export default function SinistrosPage() {
           <div className="max-w-5xl mx-auto">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-[#0f172a]">Sinistros</h1>
+                <h1 className="text-2xl font-bold text-[#0f172a]">Eventos</h1>
                 <p className="text-[#64748b] text-sm mt-0.5">
-                  {sinistros.length} sinistro{sinistros.length !== 1 ? "s" : ""} registrados
+                  {sinistros.length} evento{sinistros.length !== 1 ? "s" : ""} registrados
                 </p>
               </div>
               <Link href="/sinistros/novo">
                 <Button className="bg-amber-500 hover:bg-amber-400 text-white gap-2">
                   <Plus className="w-4 h-4" />
-                  Novo Sinistro
+                  Novo Evento
                 </Button>
               </Link>
             </div>
@@ -119,7 +119,7 @@ export default function SinistrosPage() {
             <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden shadow-sm">
               {filtered.length === 0 ? (
                 <div className="text-center py-16 text-[#64748b]">
-                  <p className="font-medium">Nenhum sinistro encontrado</p>
+                  <p className="font-medium">Nenhum evento encontrado</p>
                   <p className="text-sm text-[#94a3b8] mt-1">
                     Tente ajustar os filtros de busca
                   </p>

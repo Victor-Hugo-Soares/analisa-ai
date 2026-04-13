@@ -43,7 +43,7 @@ const dadosIniciais: DadosSinistro = {
   relato: "",
 }
 
-export default function NovoSinistroPage() {
+export default function NovoEventoPage() {
   const router = useRouter()
   const [session, setSession] = useState<EmpresaSession | null>(null)
   const [currentStep, setCurrentStep] = useState(1)
@@ -52,7 +52,7 @@ export default function NovoSinistroPage() {
   const [arquivos, setArquivos] = useState<ArquivoAnexo[]>([])
   const [analisando, setAnalisando] = useState(false)
   const [erroAnalise, setErroAnalise] = useState<string | null>(null)
-  const [sinistroId, setSinistroId] = useState<string | null>(null)
+  const [sinistroId, setEventoId] = useState<string | null>(null)
   const [rawFiles, setRawFiles] = useState<Map<string, File>>(new Map())
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function NovoSinistroPage() {
       return
     }
     setSession(s)
-    setSinistroId(generateId())
+    setEventoId(generateId())
   }, [router])
 
   function canProceed(): boolean {
@@ -243,7 +243,7 @@ export default function NovoSinistroPage() {
               </button>
               <div>
                 <h1 className="text-xl font-bold text-[#0f172a]">
-                  Novo Sinistro
+                  Novo Evento
                 </h1>
                 <p className="text-sm text-[#64748b]">
                   {sinistroId} &middot; Preencha os dados para análise

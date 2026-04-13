@@ -16,7 +16,7 @@ import { isMaster } from "@/lib/storage"
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Sinistros", href: "/sinistros", icon: FileText },
+  { label: "Eventos", href: "/sinistros", icon: FileText },
   { label: "Relatórios", href: "/relatorios", icon: BarChart3 },
   { label: "Configurações", href: "/configuracoes", icon: Settings },
 ]
@@ -37,7 +37,7 @@ export default function Sidebar() {
           className="flex items-center justify-center gap-2 w-full bg-amber-500 hover:bg-amber-400 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm"
         >
           <Plus className="w-4 h-4" />
-          Novo Sinistro
+          Novo Evento
         </Link>
       </div>
 

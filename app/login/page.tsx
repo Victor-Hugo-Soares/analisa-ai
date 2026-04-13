@@ -71,7 +71,7 @@ export default function LoginPage() {
           <Link href="/" className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
             <Image src="/logo.png" alt="IAnalista" width={180} height={50} priority />
           </Link>
-          <p className="text-[#64748b] text-sm">Análise Inteligente de Sinistros</p>
+          <p className="text-[#64748b] text-sm">Análise Inteligente de Eventos</p>
         </div>
 
         {/* Card */}

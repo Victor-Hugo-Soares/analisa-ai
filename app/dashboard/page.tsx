@@ -15,7 +15,7 @@ import type { EmpresaSession, Sinistro } from "@/lib/types"
 export default function DashboardPage() {
   const router = useRouter()
   const [session, setSession] = useState<EmpresaSession | null>(null)
-  const [sinistros, setSinistros] = useState<Sinistro[]>([])
+  const [sinistros, setEventos] = useState<Sinistro[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function DashboardPage() {
     if (token) {
       fetch("/api/sinistros", { headers: { Authorization: `Bearer ${token}` } })
         .then((r) => r.json())
-        .then((d) => { if (d.sinistros) setSinistros(d.sinistros) })
+        .then((d) => { if (d.sinistros) setEventos(d.sinistros) })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
@@ -64,20 +64,20 @@ export default function DashboardPage() {
               <div>
                 <h1 className="text-2xl font-bold text-[#0f172a]">Dashboard</h1>
                 <p className="text-[#64748b] text-sm mt-0.5">
-                  Visão geral dos sinistros
+                  Visão geral dos eventos
                 </p>
               </div>
               <Link href="/sinistros/novo">
                 <Button className="bg-amber-500 hover:bg-amber-400 text-white gap-2">
                   <Plus className="w-4 h-4" />
-                  Novo Sinistro
+                  Novo Evento
                 </Button>
               </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <StatsCard
-                title="Total de Sinistros"
+                title="Total de Eventos"
                 value={total}
                 subtitle="Todos os registros"
                 icon={FileText}
@@ -110,10 +110,10 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between px-5 py-4 border-b border-[#e2e8f0]">
                 <div>
                   <h2 className="font-semibold text-[#0f172a]">
-                    Sinistros Recentes
+                    Eventos Recentes
                   </h2>
                   <p className="text-xs text-[#64748b] mt-0.5">
-                    {total} sinistro{total !== 1 ? "s" : ""} no total
+                    {total} evento{total !== 1 ? "s" : ""} no total
                   </p>
                 </div>
                 <Link

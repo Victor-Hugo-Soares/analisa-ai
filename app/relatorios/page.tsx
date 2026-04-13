@@ -12,7 +12,7 @@ import type { EmpresaSession, Sinistro } from "@/lib/types"
 export default function RelatoriosPage() {
   const router = useRouter()
   const [session, setSession] = useState<EmpresaSession | null>(null)
-  const [sinistros, setSinistros] = useState<Sinistro[]>([])
+  const [sinistros, setEventos] = useState<Sinistro[]>([])
 
   useEffect(() => {
     const s = getSession()
@@ -22,7 +22,7 @@ export default function RelatoriosPage() {
     if (token) {
       fetch("/api/sinistros", { headers: { Authorization: `Bearer ${token}` } })
         .then((r) => r.json())
-        .then((d) => { if (d.sinistros) setSinistros(d.sinistros) })
+        .then((d) => { if (d.sinistros) setEventos(d.sinistros) })
     }
   }, [router])
 
@@ -32,7 +32,7 @@ export default function RelatoriosPage() {
   const pendentes = sinistros.filter((s) => s.status === "pendente" || s.status === "em_analise").length
 
   const metrics = [
-    { label: "Total de Sinistros", value: total, icon: BarChart3, color: "text-amber-600", bg: "bg-amber-100" },
+    { label: "Total de Eventos", value: total, icon: BarChart3, color: "text-amber-600", bg: "bg-amber-100" },
     { label: "Aprovados", value: aprovados, icon: TrendingUp, color: "text-green-700", bg: "bg-green-100" },
     { label: "Suspeitos / Recusados", value: suspeitos, icon: TrendingUp, color: "text-red-700", bg: "bg-red-100" },
     { label: "Pendentes", value: pendentes, icon: TrendingUp, color: "text-amber-700", bg: "bg-amber-100" },

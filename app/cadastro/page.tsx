@@ -83,7 +83,7 @@ export default function CadastroPage() {
             </div>
             <span className="text-2xl font-black text-slate-900 tracking-tight">IAnalista</span>
           </Link>
-          <p className="text-slate-500 text-sm">Análise Inteligente de Sinistros</p>
+          <p className="text-slate-500 text-sm">Análise Inteligente de Eventos</p>
         </div>
 
         {/* Card */}
@@ -96,7 +96,7 @@ export default function CadastroPage() {
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Nome da empresa</label>
               <input
                 name="empresa"
-                placeholder="Seguradora Exemplo S.A."
+                placeholder="Associadora Exemplo S.A."
                 value={form.empresa}
                 onChange={handleChange}
                 className="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"

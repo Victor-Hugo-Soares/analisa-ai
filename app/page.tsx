@@ -16,7 +16,7 @@ type Step = 1 | 2 | 3 | 4
 type TipoEvento = "colisao" | "roubo" | "furto" | "natureza" | "vidros"
 
 interface FormData {
-  nomeSegurado: string
+  nomeAssociado: string
   cpf: string
   placa: string
   tipoEvento: TipoEvento | ""
@@ -46,7 +46,7 @@ const TIPO_EVENTO_OPTIONS: { value: TipoEvento; label: string; icon: React.React
   { value: "vidros", label: "Vidros", icon: <GlassWater className="w-4 h-4" /> },
 ]
 
-const STEP_LABELS = ["Dados do Associado", "Relato do Sinistro", "Documentos", "Resultado"]
+const STEP_LABELS = ["Dados do Associado", "Relato do Evento", "Documentos", "Resultado"]
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 interface AnaliseResult {
@@ -66,7 +66,7 @@ export default function LandingPage() {
   const trialRef = useRef<HTMLDivElement>(null)
   const [step, setStep] = useState<Step>(1)
   const [form, setForm] = useState<FormData>({
-    nomeSegurado: "", cpf: "", placa: "", tipoEvento: "",
+    nomeAssociado: "", cpf: "", placa: "", tipoEvento: "",
     dataHora: "", local: "", relato: "",
   })
   const [files, setFiles] = useState<UploadedFile[]>([])
@@ -122,7 +122,7 @@ export default function LandingPage() {
         body: JSON.stringify({
           tipoEvento: form.tipoEvento,
           dados: {
-            nomeSegurado: form.nomeSegurado,
+            nomeSegurado: form.nomeAssociado,
             cpf: form.cpf,
             placa: form.placa,
             dataHora: form.dataHora,
@@ -149,7 +149,7 @@ export default function LandingPage() {
   }
 
   const step1Valid =
-    form.nomeSegurado.trim().length >= 2 &&
+    form.nomeAssociado.trim().length >= 2 &&
     form.tipoEvento !== ""
 
   const step2Valid = form.relato.trim().length > 20
@@ -295,7 +295,7 @@ export default function LandingPage() {
               {
                 icon: <TrendingDown className="w-6 h-6 text-orange-500" />,
                 bg: "bg-orange-50",
-                title: "Sinistros acumulados",
+                title: "Eventos acumulados",
                 desc: "Processos represados, associados insatisfeitos e equipe sobrecarregada sem visibilidade do que está pendente.",
               },
               {
@@ -488,7 +488,7 @@ export default function LandingPage() {
               <div className="bg-amber-500/15 w-11 h-11 rounded-xl flex items-center justify-center mb-4">
                 <BarChart3 className="w-5 h-5 text-amber-600" />
               </div>
-              <h3 className="font-bold text-lg text-[#1a2744] mb-2">Gestão de Sinistros</h3>
+              <h3 className="font-bold text-lg text-[#1a2744] mb-2">Gestão de Eventos</h3>
               <p className="text-[#64748b] text-sm leading-relaxed mb-4">
                 Painel centralizado com todos os sinistros da sua empresa. Filtre por status, tipo de evento, score e período. Nunca mais perca um caso no meio da fila.
               </p>
@@ -634,7 +634,7 @@ export default function LandingPage() {
                 <h3 className="font-bold text-[#1a2744] text-lg mb-6">Dados do Associado</h3>
                 <div className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <Field label="Nome completo" name="nomeSegurado" value={form.nomeSegurado} onChange={handleFormChange} placeholder="João da Silva" />
+                    <Field label="Nome completo" name="nomeAssociado" value={form.nomeAssociado} onChange={handleFormChange} placeholder="João da Silva" />
                     <Field label="CPF" name="cpf" value={form.cpf} onChange={handleFormChange} placeholder="000.000.000-00" />
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
@@ -682,7 +682,7 @@ export default function LandingPage() {
             {/* ── STEP 2: Relato ── */}
             {step === 2 && (
               <div className="p-6 sm:p-8">
-                <h3 className="font-bold text-[#1a2744] text-lg mb-2">Relato do Sinistro</h3>
+                <h3 className="font-bold text-[#1a2744] text-lg mb-2">Relato do Evento</h3>
                 <p className="text-[#64748b] text-sm mb-6">Descreva o que aconteceu com o máximo de detalhes possível.</p>
                 <textarea
                   name="relato"
@@ -919,7 +919,7 @@ export default function LandingPage() {
 
                 <div className="mt-4 pt-4 border-t border-[#e2e8f0] text-center">
                   <button
-                    onClick={() => { setStep(1); setResult(null); setFiles([]); setForm({ nomeSegurado: "", cpf: "", placa: "", tipoEvento: "", dataHora: "", local: "", relato: "" }) }}
+                    onClick={() => { setStep(1); setResult(null); setFiles([]); setForm({ nomeAssociado: "", cpf: "", placa: "", tipoEvento: "", dataHora: "", local: "", relato: "" }) }}
                     className="text-sm text-[#64748b] hover:text-[#1a2744] transition-colors"
                   >
                     ↩ Fazer outra análise

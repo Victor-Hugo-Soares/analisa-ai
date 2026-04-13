@@ -106,7 +106,7 @@ export default function AnaliseStep({
       </div>
 
       <h2 className="text-xl font-bold text-[#0f172a] mb-2">
-        Analisando Sinistro
+        Analisando Evento
       </h2>
       <p className="text-[#64748b] text-sm mb-8 max-w-md">
         Nossa IA está processando todos os dados e evidências para gerar uma
