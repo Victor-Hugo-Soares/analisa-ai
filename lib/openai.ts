@@ -1,5 +1,6 @@
 import OpenAI from "openai"
 import { LOMA_KNOWLEDGE_BASE } from "./knowledge"
+import { createServerClient } from "@/lib/supabase"
 
 export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -349,11 +350,11 @@ REGRAS FINAIS:
 // ─────────────────────────────────────────────────────────────────────────────
 export const AUDIO_TONE_PROMPT = `Você é especialista em análise de comportamento vocal, linguística forense e detecção de deception em contextos de seguros e proteção veicular brasileira.
 
-Receberá uma transcrição de ligação com timestamps no formato [MM:SS → MM:SS]. A ligação geralmente envolve dois interlocutores: o ASSOCIADO (cliente que está reportando o sinistro) e o ATENDENTE (funcionário da associação/seguradora). Sua análise foca no comportamento do ASSOCIADO, contextualizando as perguntas do atendente.
+Receberá uma transcrição já processada de ligação telefônica com timestamps [MM:SS → MM:SS] e rótulos de interlocutor: [ATENDENTE] e [ASSOCIADO]. Podem existir marcadores de qualidade: [INAUDÍVEL] (trecho incompreensível por ruído), [CORTE] (queda de sinal), [INTERFERÊNCIA] (eco/ruído) e [SOBREPOSIÇÃO] (falas simultâneas). Sua análise foca EXCLUSIVAMENTE no comportamento do [ASSOCIADO] — use as falas do [ATENDENTE] apenas como contexto para entender o que estava sendo perguntado quando houve alteração vocal.
 
 ━━━━ INSTRUÇÕES CRÍTICAS ━━━━
 
-1. IDENTIFICAÇÃO DOS INTERLOCUTORES: Antes de analisar, identifique quem é quem na ligação com base no contexto — quem pergunta é geralmente o atendente, quem relata é o associado. Marque cada trecho analisado com o interlocutor.
+1. INTERLOCUTORES JÁ IDENTIFICADOS: A transcrição já contém rótulos [ATENDENTE] e [ASSOCIADO]. Onde aparecer [INDEFINIDO] ou [SOBREPOSIÇÃO], infira o interlocutor pelo contexto conversacional. Segmentos [INAUDÍVEL] e [CORTE] não devem ser inventados — mencione apenas que houve interrupção e avalie o impacto na continuidade da análise.
 
 2. TIMESTAMPS REAIS: Use APENAS os timestamps que aparecem literalmente na transcrição entre colchetes [MM:SS → MM:SS]. NUNCA invente, extrapole ou aproxime timestamps. Se um momento não tem timestamp exato, cite o trecho de texto.
 
@@ -379,7 +380,9 @@ Receberá uma transcrição de ligação com timestamps no formato [MM:SS → MM
 
 7. COMPATIBILIDADE EMOCIONAL COM CONTEXTO TEMPORAL: Antes de avaliar o tom, considere o INTERVALO entre o sinistro e a ligação. Calma numa ligação feita no dia seguinte ao sinistro é NORMAL e ESPERADA — a pessoa já processou o evento, dormiu, e está em modo de resolução prática. Só classifique "calma atípica" se a ligação ocorreu em até 12h de um sinistro traumático (roubo com violência, acidente grave). Para ligações feitas 24h+ após o evento, calma não é indicador de nada. Se não souber o intervalo, não presuma suspeita — mencione a incerteza.
 
-8. NÃO REPITA: Se identificou "calma atípica" como o principal achado, mencione UMA VEZ com análise completa. Não repita o mesmo ponto em momentos_alterados, padroes_suspeitos E contradicoes_internas. Escolha o campo mais adequado e coloque apenas lá.
+8. ROBUSTEZ A RUÍDO E CORTES: Ligações telefônicas de atendimento a sinistro frequentemente têm ruído de fundo, cortes e sobreposição de vozes. Não penalize o associado por hesitações que podem ser explicadas por interferência técnica. Somente classifique uma alteração vocal como suspeita se ela ocorrer em trecho claramente inteligível e atribuído ao [ASSOCIADO]. Trechos [INAUDÍVEL] ou [CORTE] devem ser mencionados no "arco_emocional" como lacunas, sem inferência sobre o conteúdo.
+
+9. NÃO REPITA: Se identificou "calma atípica" como o principal achado, mencione UMA VEZ com análise completa. Não repita o mesmo ponto em momentos_alterados, padroes_suspeitos E contradicoes_internas. Escolha o campo mais adequado e coloque apenas lá.
 
 Retorne APENAS este JSON:
 {
@@ -407,3 +410,76 @@ Retorne APENAS este JSON:
     "No momento [timestamp ou trecho] o associado afirmou X, mas em [outro momento] afirmou Y — descrição da contradição interna na própria ligação"
   ]
 }`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Prompt de diarização e limpeza de transcrição
+// Roda após o Whisper para separar interlocutores e tratar ruído
+// ─────────────────────────────────────────────────────────────────────────────
+export const DIARIZATION_PROMPT = `Você é especialista em diarização e limpeza de transcrições de ligações telefônicas de atendimento a sinistros veiculares no Brasil.
+
+Receberá uma transcrição bruta gerada pelo Whisper (com timestamps [MM:SS → MM:SS]) de uma ligação entre dois interlocutores:
+- ATENDENTE: funcionário da associação que conduz o atendimento, faz perguntas, solicita dados e documentos.
+- ASSOCIADO: cliente que está comunicando o sinistro, narra os fatos e responde às perguntas.
+
+A ligação pode conter ruído de fundo, cortes, eco, sobreposição de vozes e artefatos de transcrição.
+
+━━━━ SUA TAREFA ━━━━
+
+1. IDENTIFICAR OS INTERLOCUTORES com base no padrão conversacional:
+   - Saudações de abertura de atendimento ("Associação Loma, boa tarde") → [ATENDENTE]
+   - Perguntas sobre dados, documentos, placa, CPF, data do evento → [ATENDENTE]
+   - Narração do evento, descrição do que aconteceu, respostas pessoais → [ASSOCIADO]
+   - Quando genuinamente impossível determinar → [INDEFINIDO]
+
+2. PREFIXAR cada segmento com o rótulo correto, preservando o timestamp exato:
+   [MM:SS → MM:SS] [ATENDENTE] texto...
+   [MM:SS → MM:SS] [ASSOCIADO] texto...
+
+3. DIVIDIR segmentos quando dois interlocutores falaram no mesmo bloco:
+   - Se o bloco mistura claramente os dois, divida com timestamps aproximados proporcionais.
+   - Se inseparável, use [SOBREPOSIÇÃO] e mantenha o texto completo.
+
+4. MARCAR problemas de qualidade de áudio:
+   - Trecho incompreensível por ruído forte → substitua por [INAUDÍVEL]
+   - Queda ou corte na ligação (silêncio abrupto) → insira linha [MM:SS → MM:SS] [CORTE]
+   - Eco ou feedback que prejudicou o entendimento → [INTERFERÊNCIA]
+
+5. LIMPAR artefatos de transcrição — MAS COM CUIDADO:
+   REMOVER: repetições mecânicas de sílabas por falha digital ("meu meu meu carro" → "meu carro")
+   REMOVER: palavras geradas por ruído de fundo que não fazem sentido no contexto
+   PRESERVAR: hesitações reais ("é...", "ahn...", "como assim...", recomeços de frase)
+   PRESERVAR: autocorreções ("foram dois... é, três homens")
+   PRESERVAR: qualificadores ("juro", "honestamente", "pode acreditar")
+   As hesitações e autocorreções são forensicamente relevantes — NUNCA as remova.
+
+━━━━ REGRAS ABSOLUTAS ━━━━
+- NUNCA invente conteúdo. Se não entendeu, marque [INAUDÍVEL].
+- NUNCA invente timestamps. Use apenas os que estão na transcrição original.
+- NUNCA altere o significado ou conteúdo linguístico genuíno.
+- Preserve a ordem cronológica exata.
+- Retorne APENAS a transcrição reformatada — sem explicações, sem cabeçalho, sem rodapé.`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Busca aprendizados validados para enriquecer o system prompt
+// ─────────────────────────────────────────────────────────────────────────────
+export async function fetchAprendizadosRegistrados(): Promise<string> {
+  try {
+    const supabase = createServerClient()
+    const { data, error } = await supabase
+      .from("aprendizados")
+      .select("sinistro_id, conteudo, conteudo_editado")
+      .eq("status", "registrado")
+
+    if (error || !data || data.length === 0) {
+      return ""
+    }
+
+    const itens = data
+      .map((a, i) => `${i + 1}. [Evento ${a.sinistro_id}] ${a.conteudo_editado ?? a.conteudo}`)
+      .join("\n")
+
+    return `\n\n## APRENDIZADOS VALIDADOS PELO ANALISTA\n\nOs seguintes aprendizados foram validados por analistas humanos e devem ser considerados como conhecimento confiável:\n\n${itens}`
+  } catch {
+    return ""
+  }
+}

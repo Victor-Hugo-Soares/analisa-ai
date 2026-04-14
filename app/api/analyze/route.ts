@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { openai, SYSTEM_PROMPT, AUDIO_TONE_PROMPT } from "@/lib/openai"
+import { openai, SYSTEM_PROMPT, AUDIO_TONE_PROMPT, DIARIZATION_PROMPT, fetchAprendizadosRegistrados } from "@/lib/openai"
 import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
@@ -52,10 +52,17 @@ export async function POST(req: NextRequest) {
       if (!base64) continue
       try {
         console.log(`[Audio] Transcrevendo: ${audio.nome}`)
-        const transcricao = await transcribeAudio(base64, audio.nome)
-        console.log(`[Audio] Transcrição concluída (${transcricao.length} chars)`)
+        const transcricaoBruta = await transcribeAudio(base64, audio.nome)
+        console.log(`[Audio] Transcrição bruta (${transcricaoBruta.length} chars)`)
 
-        // Segunda etapa: análise de tom e comportamento vocal via GPT-4o
+        // Segunda etapa: diarização — separa interlocutores e limpa ruído
+        let transcricao = transcricaoBruta
+        if (transcricaoBruta.length > 50) {
+          transcricao = await diarizeTranscription(transcricaoBruta)
+          console.log(`[Audio] Diarização concluída (${transcricao.length} chars)`)
+        }
+
+        // Terceira etapa: análise de tom e comportamento vocal via GPT-4o
         let analiseTom: Record<string, unknown> | null = null
         if (transcricao && transcricao.length > 50) {
           analiseTom = await analyzeAudioTone(transcricao)
@@ -135,10 +142,13 @@ export async function POST(req: NextRequest) {
     console.log(`[Análise] Enviando contexto ao GPT-4o (${contexto.length} chars, ${docsResolvidos.filter(d => d.base64).length} docs anexados)`)
 
     // ─── 5. Análise final com GPT-4o ─────────────────────────────────────────
+    const aprendizados = await fetchAprendizadosRegistrados()
+    const systemPromptFinal = SYSTEM_PROMPT + aprendizados
+
     const analiseResponse = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: systemPromptFinal },
         { role: "user", content: contexto },
       ],
       temperature: 0.15,
@@ -225,6 +235,7 @@ async function transcribeAudio(base64: string, nome: string): Promise<string> {
     language: "pt",
     response_format: "verbose_json",
     timestamp_granularities: ["word", "segment"],
+    prompt: "Ligação telefônica de atendimento a sinistro veicular. Termos esperados: boletim de ocorrência, CRLV, CNH, sinistro, roubo, furto, colisão, rastreador, franquia, proteção veicular, associação, indenização, ressarcimento, guincho.",
   })
 
   // Preferência: word-level timestamps (mais precisos que segment)
@@ -303,6 +314,36 @@ function formatTimestamp(seconds: number): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// GPT-4o: Diarização — separa interlocutores e limpa ruído da transcrição
+// ─────────────────────────────────────────────────────────────────────────────
+async function diarizeTranscription(transcricaoBruta: string): Promise<string> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: DIARIZATION_PROMPT },
+        {
+          role: "user",
+          content: `Processe esta transcrição bruta de ligação de atendimento a sinistro:\n\n${transcricaoBruta}`,
+        },
+      ],
+      temperature: 0.1,
+      max_tokens: 4000,
+    })
+
+    const content = response.choices[0]?.message?.content
+    if (!content || content.length < 20) {
+      console.warn("[Diarização] Resposta vazia — usando transcrição bruta")
+      return transcricaoBruta
+    }
+    return content
+  } catch (e) {
+    console.error("[Diarização] Erro — usando transcrição bruta:", e)
+    return transcricaoBruta
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GPT-4o: Análise de tom e comportamento vocal
 // ─────────────────────────────────────────────────────────────────────────────
 async function analyzeAudioTone(
@@ -315,7 +356,7 @@ async function analyzeAudioTone(
         { role: "system", content: AUDIO_TONE_PROMPT },
         {
           role: "user",
-          content: `Analise esta transcrição da ligação do segurado:\n\n${transcricao}`,
+          content: `Analise esta transcrição diarizada da ligação (interlocutores já identificados com [ATENDENTE] e [ASSOCIADO]):\n\n${transcricao}`,
         },
       ],
       temperature: 0.2,

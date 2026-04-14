@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   Building2, Users, FileText, AlertTriangle,
   CheckCircle, XCircle, ChevronDown, Save, LogOut, Settings,
-  Plus, X, Eye, EyeOff, Loader2,
+  Plus, X, Eye, EyeOff, Loader2, BookOpen, ChevronRight,
 } from "lucide-react"
 import { getSession, isMaster, getAccessToken, clearSession } from "@/lib/storage"
 import type { NivelAcesso } from "@/lib/types"
@@ -261,6 +261,28 @@ export default function AdminPage() {
               <span className="text-2xl font-bold text-white">{stat.value}</span>
             </div>
           ))}
+        </div>
+
+        {/* Navegação rápida */}
+        <div className="mb-6">
+          <button
+            onClick={() => router.push("/admin/aprendizados")}
+            className="w-full sm:w-auto flex items-center justify-between gap-4 bg-[#1e293b] border border-[#334155] hover:border-[#00bcb6]/40 rounded-xl px-5 py-4 transition-colors group"
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: "rgba(0,188,182,0.12)" }}
+              >
+                <BookOpen className="w-4 h-4" style={{ color: "#00bcb6" }} />
+              </div>
+              <div className="text-left">
+                <p className="text-white text-sm font-semibold">Aprendizados</p>
+                <p className="text-slate-400 text-xs">Revisar e registrar aprendizados dos analistas na IA</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors flex-shrink-0" />
+          </button>
         </div>
 
         {/* Lista de empresas */}

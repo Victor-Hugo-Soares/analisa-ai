@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { LogOut, Bell, X } from "lucide-react"
+import { LogOut, Bell, X, BookOpen } from "lucide-react"
 import { clearSession, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession } from "@/lib/types"
+import AprendizadoModal from "@/components/AprendizadoModal"
 
 interface Notificacao {
   id: string
@@ -24,6 +25,7 @@ export default function Header({ session }: HeaderProps) {
   const router = useRouter()
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([])
   const [aberto, setAberto] = useState(false)
+  const [showAprendizadoModal, setShowAprendizadoModal] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   const naoLidas = notificacoes.filter((n) => !n.lida).length
@@ -93,6 +95,15 @@ export default function Header({ session }: HeaderProps) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-3">
+        {/* Relatar aprendizado */}
+        <button
+          onClick={() => setShowAprendizadoModal(true)}
+          title="Relatar aprendizado"
+          className="p-2 text-[#94a3b8] hover:text-[#1a2744] hover:bg-[#f1f5f9] rounded-lg transition-colors"
+        >
+          <BookOpen className="w-5 h-5" />
+        </button>
+
         {/* Sino de notificações */}
         <div className="relative" ref={ref}>
           <button
@@ -171,6 +182,11 @@ export default function Header({ session }: HeaderProps) {
           <span className="hidden md:inline">Sair</span>
         </button>
       </div>
+
+      <AprendizadoModal
+        open={showAprendizadoModal}
+        onClose={() => setShowAprendizadoModal(false)}
+      />
     </header>
   )
 }

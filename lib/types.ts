@@ -171,3 +171,18 @@ export interface ArquivoDB {
   storage_path: string | null
   criado_em: string
 }
+
+export type StatusAprendizado = 'pendente' | 'aprovado' | 'reprovado' | 'registrado'
+
+export interface Aprendizado {
+  id: string
+  empresa_id: string
+  usuario_id: string
+  sinistro_id: string
+  conteudo: string
+  status: StatusAprendizado
+  conteudo_editado?: string
+  criado_em: string
+  revisado_em?: string
+  revisado_por?: string
+}
