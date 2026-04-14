@@ -5,9 +5,10 @@ export const dynamic = "force-dynamic"
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const token = req.headers.get("authorization")?.replace("Bearer ", "")
     if (!token) {
       return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
@@ -33,7 +34,7 @@ export async function POST(
     const { data: aprendizado, error: fetchError } = await supabase
       .from("aprendizados")
       .select("id, status")
-      .eq("id", params.id)
+      .eq("id", id)
       .single()
 
     if (fetchError || !aprendizado) {
@@ -50,7 +51,7 @@ export async function POST(
     const { error: updateError } = await supabase
       .from("aprendizados")
       .update({ status: "registrado" })
-      .eq("id", params.id)
+      .eq("id", id)
 
     if (updateError) {
       console.error("[Admin/Aprendizados/Registrar] Erro ao registrar:", updateError)
