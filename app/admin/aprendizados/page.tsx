@@ -12,7 +12,7 @@ type StatusAprendizado = "pendente" | "aprovado" | "reprovado" | "registrado"
 
 interface Aprendizado {
   id: string
-  evento_id: string
+  sinistro_id: string
   conteudo: string
   conteudo_editado: string | null
   status: StatusAprendizado
@@ -275,7 +275,7 @@ export default function AprendizadosPage() {
                         className="text-sm font-bold font-mono"
                         style={{ color: "#00bcb6" }}
                       >
-                        {item.evento_id}
+                        {item.sinistro_id}
                       </span>
                       <span className="text-slate-600 text-xs">·</span>
                       <span className="text-slate-500 text-xs">{formatarData(item.criado_em)}</span>
