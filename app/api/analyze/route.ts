@@ -3,10 +3,8 @@ import { openai, SYSTEM_PROMPT, AUDIO_TONE_PROMPT, DIARIZATION_PROMPT, fetchApre
 import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>
-
 export const maxDuration = 300
+export const dynamic = "force-dynamic"
 
 interface ArquivoPayload {
   nome: string
@@ -119,6 +117,8 @@ export async function POST(req: NextRequest) {
         try {
           const raw = base64.includes(",") ? base64.split(",")[1] : base64
           const buffer = Buffer.from(raw, "base64")
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>
           const parsed = await pdfParse(buffer)
           textoPdf = parsed.text?.trim() ?? null
           console.log(`[PDF] Texto extraído de ${doc.nome}: ${textoPdf?.length ?? 0} chars`)
