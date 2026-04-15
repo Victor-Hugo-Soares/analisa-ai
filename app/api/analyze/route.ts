@@ -200,8 +200,14 @@ export async function POST(req: NextRequest) {
     > = [{ type: "text", text: contexto }]
 
     for (const doc of docsResolvidos) {
-      // Apenas PDFs escaneados (sem texto extraível) que chegaram com base64
-      if (doc.base64 && (!doc.textoPdf || doc.textoPdf.length <= 10) && doc.nome.toLowerCase().endsWith(".pdf")) {
+      if (!doc.base64 || !doc.nome.toLowerCase().endsWith(".pdf")) continue
+
+      // Fotos em PDF: sempre envia para visão, independente de ter texto
+      const eFotosPdf = doc.tipoDoc === "fotos_pdf"
+      // PDFs escaneados (sem texto extraível): envia para visão
+      const eEscaneado = !doc.textoPdf || doc.textoPdf.length <= 10
+
+      if (eFotosPdf || eEscaneado) {
         const raw = doc.base64.includes(",") ? doc.base64.split(",")[1] : doc.base64
         userContentParts.push({
           type: "file",
@@ -210,7 +216,8 @@ export async function POST(req: NextRequest) {
             file_data: `data:application/pdf;base64,${raw}`,
           },
         })
-        console.log(`[Análise] PDF escaneado "${doc.nome}" enviado diretamente ao GPT-4o para leitura visual`)
+        const motivo = eFotosPdf ? "classificado como fotos" : "escaneado sem texto"
+        console.log(`[Análise] PDF "${doc.nome}" (${motivo}) enviado ao GPT-4o para leitura visual`)
       }
     }
 
@@ -763,8 +770,20 @@ function buildContexto({
         partes.push(`NÃO trate como documento pendente do associado — o problema é técnico, não documental.`)
       } else if (!doc.base64) {
         partes.push(`⚠ PENDÊNCIA CRÍTICA: arquivo NÃO foi recebido — o documento não foi anexado. Registre como "ausente".`)
+      } else if (doc.tipoDoc === "fotos_pdf") {
+        partes.push(`✓ PDF DE FOTOS DO SINISTRO — o arquivo "${doc.nome}" foi anexado a esta mensagem para análise visual.`)
+        partes.push(`INSTRUÇÃO CRÍTICA: Analise TODAS as páginas/fotos deste PDF como se fossem imagens do sinistro.`)
+        partes.push(`Para cada foto visível no PDF, avalie:`)
+        partes.push(`  1. O que está visível (veículo, danos, ambiente, contexto)`)
+        partes.push(`  2. Extensão e localização dos danos (leve/moderado/grave, partes afetadas)`)
+        partes.push(`  3. Consistência com o tipo de evento "${tipoEvento}" declarado`)
+        partes.push(`  4. Sinais de antiguidade: ferrugem, oxidação nas bordas, sujeira acumulada`)
+        partes.push(`  5. Autenticidade: a foto parece tirada no momento do sinistro? Há edição ou montagem?`)
+        partes.push(`  6. Consistência entre as fotos: iluminação, posição dos danos e ambiente são coerentes?`)
+        partes.push(`Use os resultados para preencher "analise_imagens" no JSON de resposta.`)
+        partes.push(`Se identificar inconsistências entre fotos, registre em "indicadores_fraude".`)
       } else {
-        partes.push(`✓ DOCUMENTO RECEBIDO como PDF escaneado — o arquivo foi anexado a esta mensagem para leitura visual direta.`)
+        partes.push(`✓ DOCUMENTO RECEBIDO como PDF escaneado — o arquivo "${doc.nome}" foi anexado a esta mensagem para leitura visual direta.`)
         partes.push(`INSTRUÇÃO CRÍTICA: Leia o PDF "${doc.nome}" anexado e extraia TODAS as informações visíveis nele.`)
         if (doc.tipoDoc === "bo") {
           partes.push(`Extraia: número do BO, delegacia, data/hora do registro, data/hora declarada do evento, narrativa completa dos fatos.`)

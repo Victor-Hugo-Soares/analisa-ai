@@ -32,6 +32,7 @@ export type TipoDocumento =
   | "declaracao_segurado"
   | "laudo_medico"
   | "procuracao"
+  | "fotos_pdf"
   | "outro"
 
 export const TIPO_DOCUMENTO_LABEL: Record<TipoDocumento, string> = {
@@ -46,6 +47,7 @@ export const TIPO_DOCUMENTO_LABEL: Record<TipoDocumento, string> = {
   declaracao_segurado: "Declaração do Associado",
   laudo_medico: "Laudo Médico",
   procuracao: "Procuração",
+  fotos_pdf: "Fotos do Sinistro (PDF)",
   outro: "Outro Documento",
 }
 
@@ -78,20 +80,30 @@ export interface Sinistro {
 }
 
 export interface AnaliseAudio {
-  transcricao_completa: string
-  transcricao_resumo: string
-  tom_voz: string
-  perfil_emocional: string
-  momentos_alterados: string[]
-  padroes_suspeitos: string[]
-  contradicoes_com_relato: string[]
+  transcricao_completa: string | null
+  transcricao_resumo?: string | null
+  tom_voz?: string | null
+  perfil_emocional?: string | null
+  momentos_alterados?: unknown[] | null
+  padroes_suspeitos?: unknown[] | null
+  contradicoes_com_relato?: string[] | null
 }
 
 export interface AnaliseImagens {
-  descricao: string
-  consistencia_relato: string
-  observacoes: string[]
-  indicadores_autenticidade: string
+  descricao?: string | null
+  consistencia_relato?: string | null
+  observacoes?: string[] | null
+  indicadores_autenticidade?: string | null
+}
+
+export interface AnaliseBo {
+  numero_bo?: string | null
+  data_registro?: string | null
+  data_evento_declarado?: string | null
+  intervalo_registro?: string | null
+  narrativa_bo?: string | null
+  consistencia_relato?: string | null
+  alertas?: string[]
 }
 
 export interface AnaliseIA {
@@ -101,8 +113,9 @@ export interface AnaliseIA {
   pontos_atencao: string[]
   contradicoes: string[]
   indicadores_fraude: string[]
-  analise_audio?: AnaliseAudio
-  analise_imagens?: AnaliseImagens
+  analise_audio?: AnaliseAudio | null
+  analise_imagens?: AnaliseImagens | null
+  analise_bo?: AnaliseBo | null
   nivel_risco: NivelRisco
   score_confiabilidade: number
   recomendacao: Recomendacao
