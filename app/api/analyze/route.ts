@@ -718,7 +718,9 @@ function buildContexto({
           partes.push(`  CRÍTICO: use SOMENTE as datas que aparecem no texto extraído acima. Se a data no relato`)
           partes.push(`  do associado divergir da data no BO, registre essa divergência como contradição.`)
         } else if (doc.tipoDoc === "crlv") {
-          partes.push(`INSTRUÇÃO: Extraia proprietário, placa, chassi, renavam, ano/modelo, restrições.`)
+          partes.push(`INSTRUÇÃO: Extraia proprietário, placa, chassi, renavam, ano/modelo, restrições e data de emissão do licenciamento.`)
+          partes.push(`CRÍTICO: Leia datas EXATAMENTE como estão impressas no documento — NÃO corrija, NÃO interprete, NÃO converta formato.`)
+          partes.push(`Ex: se o documento mostra "11/01/2026", registre "11/01/2026" — jamais converta para "11/03/2026" ou outro valor.`)
           partes.push(`Verifique se o proprietário bate com o associado declarado no relato.`)
         } else if (doc.tipoDoc === "cnh") {
           partes.push(`INSTRUÇÃO: Extraia nome, CPF, validade e categoria. Verifique se a CNH é válida.`)
@@ -789,7 +791,9 @@ function buildContexto({
           partes.push(`Extraia: número do BO, delegacia, data/hora do registro, data/hora declarada do evento, narrativa completa dos fatos.`)
           partes.push(`Compare a narrativa do BO com o relato do associado e registre qualquer divergência em "contradicoes".`)
         } else if (doc.tipoDoc === "crlv") {
-          partes.push(`Extraia: proprietário, CPF/CNPJ, placa, chassi, RENAVAM, ano/modelo, município, restrições (alienação, furto, impedimento).`)
+          partes.push(`Extraia: proprietário, CPF/CNPJ, placa, chassi, RENAVAM, ano/modelo, município, restrições (alienação, furto, impedimento) e data de emissão.`)
+          partes.push(`CRÍTICO: Leia todas as datas EXATAMENTE como estão impressas no documento — NÃO corrija, NÃO interprete, NÃO converta.`)
+          partes.push(`Ex: se o documento mostra "11/01/2026", registre "11/01/2026" — jamais altere o mês ou qualquer dígito.`)
           partes.push(`Verifique se o proprietário bate com o associado declarado — discrepância é RED FLAG CRÍTICO.`)
         } else if (doc.tipoDoc === "cnh") {
           partes.push(`Extraia: nome, CPF, data de validade, categoria. Verifique se a CNH está dentro da validade.`)
