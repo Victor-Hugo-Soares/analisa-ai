@@ -12,7 +12,7 @@
  * Toda análise realizada pelo sistema deve ser interpretada à luz deste documento,
  * que tem precedência sobre qualquer suposição genérica.
  *
- * Versão: 1.0 — Abril/2026
+ * Versão: 2.0 — Abril/2026
  * Próxima revisão: ao receber novos PDFs, casos ou orientações da gestão Loma.
  */
 
@@ -424,7 +424,390 @@ PADRÕES DE FRAUDE RECORRENTES NO CONTEXTO DE PROTEÇÕES VEICULARES:
 `
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SEÇÃO 10 — REGRAS DE APRENDIZADO CONTÍNUO
+// SEÇÃO 10 — ANÁLISE FORENSE AVANÇADA DE IMAGENS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_FORENSE_IMAGENS = `
+TÉCNICAS DE ANÁLISE FORENSE DE IMAGENS VEICULARES:
+
+──── DATAÇÃO DO DANO (distinguir dano recente de pré-existente) ────
+
+• OXIDAÇÃO/FERRUGEM NAS BORDAS: o principal marcador de dano antigo.
+  - Ferrugem laranja/marrom nas bordas da amassado → dano com mais de 2 semanas.
+  - Borda metálica exposta brilhante, sem oxidação → dano recente (< 72h).
+  - Oxidação parcial com borda metálica → dano intermediário (3–14 dias).
+  - ATENÇÃO: em regiões úmidas ou próximas ao litoral, oxidação pode surgir em 48h.
+
+• TINTA NAS BORDAS DO DANO:
+  - Bordas com tinta lascada em camadas (primer + tinta + verniz visíveis) → reparado antes.
+  - Bordas com tinta única e lisa → amassado original sem reparo anterior.
+
+• SUJEIRA E ACÚMULO:
+  - Sujeira dentro do dano, ao redor de parafusos soltos ou sobre peças expostas → dano antigo.
+  - Interior do dano limpo, mesma sujeira do restante do veículo → dano recente.
+
+• ESPESSURA DE PINTURA (quando aferida por medidor):
+  - Padrão de fábrica: 90–180 microns. Acima de 300 = reparo com massa. Abaixo de 60 = lixada.
+  - Irregularidade de espessura entre painéis adjacentes = peça substituída ou reparada.
+
+──── AUTENTICIDADE DA IMAGEM ────
+
+• ILUMINAÇÃO E SOMBRAS:
+  - Sombras incompatíveis entre o veículo e objetos ao redor → possível montagem.
+  - Iluminação diferente em partes da mesma foto → edição digital.
+  - Reflexos irreais no veículo que não existem na cena ao fundo → manipulação.
+
+• CAPTURA SECUNDÁRIA (foto de foto):
+  - Baixa nitidez com pixel quadrado visível → foto de tela de celular.
+  - Moiré (padrão de interferência) → foto de foto impressa ou de tela.
+  - Metadados ausentes ou inconsistentes (EXIF) → possível edição ou captura secundária.
+
+• AUSÊNCIA DE FRAGMENTOS ESPERADOS:
+  - Colisão frontal sem fragmentos de plástico, vidro ou tinta no solo → suspeito.
+  - Para-choque traseiro amassado sem vestígios de tinta do veículo colisor → suspeito.
+  - Vidro quebrado sem fragmentos no banco ou no chão → suspeito.
+
+──── COMPATIBILIDADE FÍSICA: DANO vs. DINÂMICA DECLARADA ────
+
+• Direção do impacto e deformação devem ser coerentes:
+  - Impacto lateral esquerdo → amassado na lateral esquerda, não no capô.
+  - Capotamento → danos distribuídos no teto e nos pilares, não apenas em uma lateral.
+  - Colisão traseira → dano no para-choque traseiro e possivelmente no compartimento.
+
+• Profundidade do dano vs. velocidade declarada:
+  - Dano profundo com deformação estrutural + "bati devagar" → inconsistente.
+  - Dano superficial (riscos, arranhões) + "colisão violenta" → inconsistente.
+
+• ÂNGULO E ALTURA DO IMPACTO:
+  - Marca de impacto de veículo alto (caminhão, SUV) em veículo baixo → dano em altura superior.
+  - Impacto de veículo baixo em veículo alto → dano em altura inferior.
+  - Compatibilidade entre os danos declarados de ambos os veículos deve ser verificada.
+
+──── ANÁLISE DE CENA ────
+
+• LOCAL VISÍVEL é compatível com o local declarado?
+  - Tipo de pavimento, arborização, sinalização, comércio ao fundo.
+  - Luz natural compatível com horário declarado (sol baixo = manhã/tarde, ausência = noite).
+  - Condições climáticas visíveis compatíveis com o evento declarado (granizo sem marcas no solo?).
+
+• POSICIONAMENTO DO VEÍCULO NA CENA:
+  - Veículo em posição implausível para a dinâmica declarada.
+  - Ausência de marcas de frenagem em colisão em alta velocidade.
+  - Outros veículos ao fundo que contradizem o local declarado.
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 11 — ANÁLISE LINGUÍSTICA E VOCAL FORENSE
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_LINGUISTICA = `
+ANÁLISE LINGUÍSTICA E VOCAL FORENSE APLICADA A SINISTROS:
+
+──── PRINCÍPIOS FUNDAMENTAIS ────
+
+A análise linguística forense parte do pressuposto de que a memória de eventos reais
+gera narrativas com características diferentes de narrativas fabricadas:
+
+• Narrativa VERDADEIRA: espontânea, não linear, contém detalhes periféricos irrelevantes,
+  admite incerteza ("não sei exatamente que horas eram"), usa linguagem emocional natural,
+  inclui pensamentos internos ("fiquei com medo de sair do carro").
+
+• Narrativa FABRICADA: roteirizada, muito linear, excessivamente completa, evita incertezas,
+  usa linguagem técnica de seguro, foca nos elementos que justificam a cobertura.
+
+──── INDICADORES DE DECEPTION NA FALA ────
+
+1. DISTANCIAMENTO PSICOLÓGICO:
+   - "o carro" em vez de "meu carro" — o fraudador não se sente dono do bem.
+   - "o veículo" em vez de "minha caminhonete".
+   - "o evento" em vez de "o acidente" — linguagem clínica para algo que deveria ser traumático.
+
+2. QUALIFICADORES DE VERACIDADE (estatisticamente associados à mentira):
+   - "Juro por Deus", "te falo a verdade", "honestamente", "pode acreditar".
+   - Pessoas que dizem a verdade raramente sentem necessidade de afirmá-la.
+
+3. RESPOSTA QUE NÃO CORRESPONDE À PERGUNTA (evasão):
+   - Pergunta: "Onde você estava quando o carro foi furtado?"
+   - Resposta: "Eu paguei tudo em dia, nunca tive problema antes..."
+   - A evasão é uma forma de evitar mentir diretamente.
+
+4. DETALHES EXCESSIVOS EM PERGUNTAS SIMPLES (compensação cognitiva):
+   - Pergunta: "Em que horário foi o acidente?"
+   - Resposta: "Eram exatamente 22h14, eu tinha acabado de sair do trabalho, tinha parado
+     num semáforo antes, o sinal abriu, eu estava ouvindo uma música..."
+   - Quem fabrica uma história adiciona detalhes para parecer crível.
+
+5. AUTOCORREÇÃO SUSPEITA:
+   - "O cara me abordou com uma... com dois homens armados..."
+   - Número de criminosos é informação que o fraudador tende a errar (detalhes que não foram vividos).
+
+6. MUDANÇA DE TEMPO VERBAL:
+   - Narrar no presente um evento que deveria estar no passado:
+   - "Aí eu tô saindo do estacionamento, aí eles vêm com o carro e me fecham..."
+   - Indica que o associado está "construindo" a cena mentalmente em tempo real.
+
+7. AUSÊNCIA DE PERGUNTAS ESPONTÂNEAS E NATURAIS:
+   - Vítimas reais perguntam: "E agora, o que faço?", "Em quanto tempo fica pronto?",
+     "Vai cobrir tudo?", "Tenho que ir à delegacia de novo?"
+   - Fraudadores focam em confirmar a narrativa e raramente perguntam sobre processos.
+
+8. LINGUAGEM TÉCNICA INESPERADA:
+   - Leigo que usa "aviso de sinistro", "perda total", "cobertura abrangente", "franquia" —
+     indica que o associado pesquisou ou foi orientado sobre o processo antes de acionar.
+
+──── ANÁLISE DE TOM DE VOZ — CONTEXTO TEMPORAL É CRÍTICO ────
+
+Antes de avaliar o estado emocional, calcular o INTERVALO entre o evento e a ligação:
+
+| Intervalo        | Estado emocional esperado do associado                              |
+|------------------|---------------------------------------------------------------------|
+| 0–6h             | Agitação, choque, confusão, voz trêmula. CALMA é atípica.         |
+| 6–24h            | Estabilização parcial. Ainda se espera tensão residual.            |
+| 24–48h           | Calma é COMPLETAMENTE NORMAL. Choque agudo já passou.              |
+| Acima de 48h     | Tom neutro/resolutivo é ESPERADO. Agitação seria mais suspeita.    |
+
+TIPOS DE SINISTRO e expectativa emocional:
+- Roubo com violência (arma, ameaça): impacto emocional alto → calma imediata é suspeita.
+- Furto simples (veículo sumiu da rua): impacto emocional moderado → calma é mais aceitável.
+- Colisão sem vítimas: impacto emocional variável → avaliar conforme gravidade.
+- Vidros/granizo: impacto emocional baixo → calma sempre esperada.
+
+──── ANÁLISE DE RELATO ESCRITO (SCAN aplicado a sinistros) ────
+
+Ao analisar o relato escrito do associado, verificar:
+
+1. ESTRUTURA DA NARRATIVA:
+   - O relato tem começo, meio e fim cronológico? (Narrativa fabricada tende a ser mais estruturada.)
+   - Há saltos temporais sem justificativa? (Saltam partes que o fraudador prefere não descrever.)
+   - O relato começa muito antes do evento ou vai direto ao ponto? (Direto ao ponto = possível ensaio.)
+
+2. LINGUAGEM EMOCIONAL:
+   - Há expressão de emoções? (Medo, surpresa, raiva, alívio?)
+   - Ou é um relato puramente factual, como um relatório policial?
+   - Excesso de detalhes técnicos sem emoção = suspeito.
+
+3. QUANTIDADE DE INFORMAÇÃO POR SEÇÃO:
+   - Associado descreve muito bem o antes e o depois, mas é vago no momento exato do evento?
+   - A parte mais crítica (o crime em si) com menos detalhes que o resto = red flag.
+
+4. PRONOMES E PROPRIEDADE:
+   - Uso consistente de "meu carro", "minha moto"?
+   - Troca súbita para "o veículo" em partes específicas do relato?
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 12 — VARIÁVEIS DE RISCO E SCORE ANTIFRAUDE
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_SCORE_RISCO = `
+VARIÁVEIS PREDITIVAS DE RISCO — MODELO ANTIFRAUDE:
+
+──── VARIÁVEIS DE ALTO PESO (aumentam risco significativamente) ────
+
+• INTERVALO ADESÃO → PRIMEIRO SINISTRO:
+  - < 30 dias: risco extremamente alto (sinistro pré-existente ou planejado).
+  - 30–90 dias: risco alto.
+  - 90–180 dias: risco moderado.
+  - > 180 dias: risco baixo.
+  BENCHMARK: fraudes planejadas ocorrem predominantemente nos primeiros 90 dias.
+
+• HISTÓRICO DE SINISTROS:
+  - 2+ sinistros em 12 meses na Loma: risco alto + cota em dobro/triplicado.
+  - Sinistro anterior em outra proteção veicular: verificar tipo, data e desfecho.
+  - Tipo de sinistro idêntico ao anterior: risco multiplicado.
+
+• RASTREADOR INATIVO NO MOMENTO DO EVENTO:
+  - Para veículos acima de R$60.000: exclusão automática de cobertura + red flag crítico.
+  - Para demais veículos: indicador forte de fraude.
+
+• PERFIL FINANCEIRO DO ASSOCIADO:
+  - Alienação fiduciária em atraso (parcelas não pagas) → motivação financeira para fraude.
+  - Restrições judiciais no CPF/CNPJ.
+  - Sinistro logo após redução de renda (desemprego, falência).
+  - Veículo com dívidas de IPVA, multas ou licenciamento em atraso.
+
+• VALOR DO VEÍCULO vs. PERFIL DO ASSOCIADO:
+  - Veículo de alto valor em nome de pessoa com renda incompatível.
+  - Veículo muito depreciado com cobertura máxima contratada.
+
+──── VARIÁVEIS DE MÉDIO PESO ────
+
+• DIA E HORÁRIO DO SINISTRO:
+  - Furtos/roubos entre 23h–5h em locais sem câmeras: risco elevado.
+  - Colisões às 12h–14h e 19h–21h em veículos com suporte de celular: risco Uber/delivery.
+  - Sinistros em feriados prolongados (menos testemunhas e câmeras monitoradas).
+
+• LOCAL DO SINISTRO:
+  - O principal preditor de risco em modelos de ML.
+  - Regiões com alta incidência de furtos (mapa de calor da PM).
+  - Local incompatível com o trajeto habitual do associado.
+  - Local ermo, sem câmeras, sem testemunhas: risco elevado.
+
+• COMUNICAÇÃO TARDIA:
+  - Roubo/furto comunicado após 24h: red flag independente do prazo contratual.
+  - Colisão comunicada após 15+ dias sem justificativa: suspeito.
+
+• CONDUTA PÓS-SINISTRO:
+  - Não acionou rastreador imediatamente (furto/roubo): suspeito.
+  - Não buscou socorro médico após colisão com vitimas declaradas: suspeito.
+  - Já tinha orçamento pronto no momento de acionar: suspeito (indica preparação).
+
+──── VARIÁVEIS DE BAIXO PESO (contexto adicional) ────
+
+• Estado civil, idade e sexo: uso apenas como contexto estatístico, nunca isoladamente.
+• Tempo de associação: associados antigos têm menor risco médio.
+• Quilometragem declarada vs. desgaste real do veículo.
+• Região de emplacamento vs. local do sinistro.
+
+──── INTERPRETAÇÃO DO SCORE ────
+
+0–20: Fraude praticamente confirmada. Múltiplos indicadores convergentes.
+21–40: Risco CRÍTICO. Investigação aprofundada obrigatória antes de qualquer decisão.
+41–55: Risco ALTO. Sindicância recomendada, documentação completa obrigatória.
+56–70: Risco MÉDIO. Aprovação com ressalvas. Verificar pontos específicos.
+71–85: Risco BAIXO. Aprovação recomendada após conferência documental.
+86–100: Risco MÍNIMO. Sinistro com múltiplos elementos de veracidade confirmados.
+
+NOTA: A maioria dos casos reais e legítimos fica entre 55 e 75.
+Scores acima de 80 e abaixo de 30 são incomuns e merecem atenção especial por si só.
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 13 — ANÁLISE FORENSE DE TELEMETRIA E GPS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_TELEMETRIA = `
+ANÁLISE FORENSE DE DADOS DE RASTREAMENTO E TELEMETRIA:
+
+──── O QUE O RELATÓRIO DE RASTREAMENTO DEVE CONTER ────
+
+Um relatório completo de empresa de rastreamento deve incluir:
+• Histórico de posições GPS (latitude/longitude com timestamp).
+• Status da ignição (ligado/desligado) com horário exato.
+• Velocidade registrada em cada posição.
+• Eventos especiais: alertas de bateria baixa, desconexão do módulo, jammer detectado.
+• Última posição conhecida antes da perda de sinal.
+• Tempo entre a última posição e o momento da comunicação do sinistro.
+
+──── RED FLAGS NA TELEMETRIA ────
+
+1. DESCONEXÃO EXATAMENTE NO MOMENTO DO SINISTRO:
+   - Probabilidade de coincidência genuína é ínfima em veículos de alto valor.
+   - Padrão típico de fraude: associado desconecta o módulo (ou deixa a bateria descarregar
+     intencionalmente) antes de "ceder" o veículo para o desmanche.
+
+2. "BATERIA BAIXA" CRÔNICA ANTES DO EVENTO:
+   - Alertas recorrentes de bateria baixa nas semanas anteriores ao sinistro sem manutenção.
+   - Indica possível sabotagem gradual para criar histórico de falhas.
+
+3. ÚLTIMA POSIÇÃO INCOMPATÍVEL COM O LOCAL DECLARADO:
+   - Veículo registrado a >5km do local declarado do furto/roubo nas últimas horas.
+   - Veículo em trajeto completamente diferente do declarado antes da perda de sinal.
+
+4. IGNIÇÃO DESLIGADA EM LOCAL INUSITADO:
+   - Veículo desliga a ignição em local que não é casa, trabalho ou ponto habitual do associado.
+   - Especialmente suspeito se o local é próximo a desmanches conhecidos.
+
+5. VELOCIDADE INCOMPATÍVEL COM A DINÂMICA:
+   - Colisão declarada a "baixa velocidade" mas telemetria registra >80km/h no momento.
+   - Aceleração brusca ou frenagem de emergência registrada em horário diferente do declarado.
+
+6. JAMMER DETECTADO:
+   - Dispositivo bloqueador de GPS detectado = fraude organizada ou roubo profissional.
+   - Para seguros, qualquer detecção de jammer é red flag crítico independente do desfecho.
+
+──── INTERPRETAÇÃO DO RELATÓRIO ────
+
+• VEÍCULO NO LOCAL DECLARADO + IGNIÇÃO DESLIGADA NO HORÁRIO DECLARADO:
+  Consistente com furto. Corrobora o relato.
+
+• VEÍCULO PARADO EM LOCAL DIFERENTE DO DECLARADO + DESCONEXÃO APÓS:
+  Inconsistente. O veículo estava em outro local antes do "furto".
+
+• VEÍCULO EM MOVIMENTO APÓS O HORÁRIO DECLARADO DO FURTO:
+  Fortemente inconsistente. Alguém dirigiu o veículo após o alegado furto.
+  (Pode ser o próprio associado, ladrão ou desmanchador — todos são red flags.)
+
+• DADOS AUSENTES (empresa não responde, login negado, sistema "fora do ar"):
+  O associado tem obrigação de fornecer acesso ao sistema de rastreamento.
+  Negativa ou impossibilidade → perda de cobertura por não colaboração.
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 14 — NOVOS VETORES DE FRAUDE (ERA DA IA GENERATIVA)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_FRAUDE_IA = `
+NOVOS VETORES DE FRAUDE NA ERA DA INTELIGÊNCIA ARTIFICIAL GENERATIVA:
+
+──── DEEPFAKES E IMAGENS SINTÉTICAS ────
+
+Com o avanço das ferramentas de IA generativa (Midjourney, DALL-E, Stable Diffusion e outros),
+fraudadores sofisticados podem gerar imagens de danos veiculares que nunca existiram.
+
+COMO IDENTIFICAR:
+• Imperfeições nas bordas de objetos (pneus, rodas, antenas, retrovisores).
+• Mãos, dedos ou reflexos de pessoas nos vidros com anatomia incorreta.
+• Texto ilegível em placas, cartazes ou documentos visíveis no fundo.
+• Padrão de "pixel repetido" em texturas de asfalto, grama ou céu.
+• Metadados EXIF ausentes ou com modelo de câmera genérico/inexistente.
+• Iluminação perfeitamente uniforme em toda a cena (câmeras reais capturam imperfeições).
+• Ausência de desfoque (bokeh) natural em objetos ao fundo.
+• Sombras projetadas em ângulos impossíveis para a posição do sol no horário declarado.
+
+PROTOCOLO RECOMENDADO:
+- Solicitar fotos adicionais de ângulos diferentes (dificulta a geração sintética consistente).
+- Cruzar com foto da vistoria inicial do veículo para verificar identidade visual (cor, acessórios).
+- Em casos suspeitos, solicitar vídeo breve do veículo em vez de fotos estáticas.
+- Verificar se o EXIF da foto contém coordenadas GPS compatíveis com o local declarado.
+
+──── ÁUDIOS E VOZES SINTÉTICAS ────
+
+Clonagem de voz por IA já é acessível. Fraudadores podem tentar enviar áudios sintéticos
+simulando a voz do associado.
+
+INDICADORES DE ÁUDIO SINTÉTICO:
+• Ausência de ruídos de ambiente (respiração, veículos ao fundo, vento, ecos).
+• Tom de voz excessivamente uniforme, sem variações de volume naturais.
+• Pausas mecânicas entre palavras (não naturais).
+• Pronúncia artificialmente correta de palavras que falantes nativos tipicamente reduzem.
+• Ausência de vícios de linguagem, gírias e regionalismos esperados do perfil do associado.
+
+MITIGAÇÃO: ligar de volta para o número cadastrado do associado para confirmação verbal ao vivo.
+
+──── DOCUMENTOS DIGITAIS ADULTERADOS ────
+
+Adulteração de BOs, CRLVs, CNHs e laudos por PDF editors e ferramentas de IA.
+
+COMO IDENTIFICAR:
+• Inconsistência tipográfica: fonte diferente em partes do documento.
+• Espaçamento irregular entre caracteres em campos editados.
+• Metadados do PDF com data de criação posterior à data no documento.
+• Número do BO que não bate com o padrão da delegacia da região declarada.
+• CRLV com dados que não batem com a consulta no DETRAN (número de chassi, renavam).
+• Carimbo ou assinatura com resolução diferente do restante do documento.
+
+PROTOCOLO:
+- Sempre cruzar dados do CRLV com consulta direta no sistema DETRAN.
+- Para BOs suspeitos, solicitar confirmação na delegacia emissora.
+- Laudos periciais: verificar número de registro no conselho profissional do signatário.
+
+──── FRAUDE POR "ENCOMENDA GUIADA POR IA" ────
+
+Fraudadores passam a usar IAs para simular o comportamento correto no atendimento:
+- Pesquisam exatamente o que dizer para não gerar red flags.
+- Usam scripts gerados por IA para responder às perguntas do atendente.
+- Narrativas extremamente bem construídas, sem os "erros naturais" de quem viveu o evento.
+
+COMO IDENTIFICAR:
+• Relato muito bem estruturado, sem hesitações, perfeito demais para alguém em situação de stress.
+• Vocabulário técnico correto para um leigo.
+• Ausência completa de elementos emocionais (tristeza, raiva, alívio).
+• Respostas que cobrem exatamente os pontos que excluiriam a cobertura, sem ser perguntado.
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 15 — REGRAS DE APRENDIZADO CONTÍNUO
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const IANALISTA_APRENDIZADO = `
@@ -483,6 +866,16 @@ ${LOMA_RASTREADOR}
 ${LOMA_SINDICANCIA}
 
 ${LOMA_FRAUDES}
+
+${IANALISTA_FORENSE_IMAGENS}
+
+${IANALISTA_LINGUISTICA}
+
+${IANALISTA_SCORE_RISCO}
+
+${IANALISTA_TELEMETRIA}
+
+${IANALISTA_FRAUDE_IA}
 
 ${IANALISTA_APRENDIZADO}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
