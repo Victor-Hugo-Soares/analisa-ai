@@ -28,7 +28,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { saveSinistro } from "@/lib/storage"
+import { saveSinistro, getAccessToken } from "@/lib/storage"
 import type { Sinistro, StatusSinistro, Recomendacao, TipoEvento } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -264,9 +264,27 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
   const rec = recomendacaoConfig[analise.recomendacao]
   const RecIcon = rec.icon
 
-  function handleDecisao(status: StatusSinistro) {
+  async function handleDecisao(status: StatusSinistro) {
     const updated: Sinistro = { ...sinistro, status }
     saveSinistro(updated)
+
+    // Persiste a decisão no Supabase
+    const token = getAccessToken()
+    if (token) {
+      try {
+        await fetch(`/api/sinistros/${sinistro.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        })
+      } catch (e) {
+        console.error("Erro ao atualizar status no banco:", e)
+      }
+    }
+
     router.push("/dashboard")
   }
 
@@ -762,7 +780,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                         Observações Técnicas
                       </p>
                       <ul className="space-y-1.5">
-                        {analise.analise_imagens.observacoes.map((o, i) => (
+                        {analise.analise_imagens.observacoes?.map((o, i) => (
                           <li
                             key={i}
                             className="text-sm text-purple-900 flex items-start gap-2"

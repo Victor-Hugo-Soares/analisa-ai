@@ -197,7 +197,7 @@ export default function NovoEventoPage() {
         tipoEvento: tipoEvento!,
         dados,
         arquivos: arquivosComPath.map(({ base64: _, ...rest }) => rest),
-        status: "concluido",
+        status: "em_analise",
         criadoEm: new Date().toISOString(),
         analise: result.analise,
       }
