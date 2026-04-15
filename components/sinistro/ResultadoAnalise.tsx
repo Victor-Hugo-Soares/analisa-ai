@@ -449,7 +449,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
               defaultOpen={false}
             >
               <ol className="space-y-2 mt-1">
-                {analise.linha_do_tempo.map((evento, i) => (
+                {analise.linha_do_tempo?.map((evento, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
                     <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#1a2744]/10 flex items-center justify-center mt-0.5">
                       <span className="text-[10px] font-bold text-[#1a2744]">
@@ -471,7 +471,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
               icon={CheckCircle2}
             >
               <ul className="space-y-2">
-                {analise.pontos_verdadeiros.map((ponto, i) => (
+                {analise.pontos_verdadeiros?.map((ponto, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm">
                     <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                     <span className="text-green-800 leading-relaxed">{ponto}</span>
@@ -489,7 +489,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
               icon={AlertTriangle}
             >
               <ul className="space-y-2">
-                {analise.pontos_atencao.map((ponto, i) => (
+                {analise.pontos_atencao?.map((ponto, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm">
                     <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                     <span className="text-amber-800 leading-relaxed">{ponto}</span>
@@ -507,7 +507,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
               icon={XCircle}
             >
               <ul className="space-y-2">
-                {analise.contradicoes.map((c, i) => (
+                {analise.contradicoes?.map((c, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm">
                     <XCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
                     <span className="text-red-800 leading-relaxed">{c}</span>
@@ -531,7 +531,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 </p>
               </div>
               <ul className="space-y-2 mt-2">
-                {analise.indicadores_fraude.map((ind, i) => (
+                {analise.indicadores_fraude?.map((ind, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm">
                     <ShieldAlert className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
                     <span className="text-red-900 leading-relaxed font-medium">
@@ -679,7 +679,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                         Contradições com o Relato Escrito
                       </p>
                       <ul className="space-y-1.5">
-                        {analise.analise_audio.contradicoes_com_relato.map(
+                        {analise.analise_audio.contradicoes_com_relato?.map(
                           (c, i) => (
                             <li
                               key={i}
@@ -805,7 +805,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
               icon={ArrowRight}
             >
               <ol className="space-y-2">
-                {analise.proximos_passos.map((passo, i) => (
+                {analise.proximos_passos?.map((passo, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
                     <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#1a2744] flex items-center justify-center mt-0.5">
                       <span className="text-[10px] font-bold text-white">
