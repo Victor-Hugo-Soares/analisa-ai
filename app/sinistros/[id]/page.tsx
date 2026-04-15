@@ -29,16 +29,10 @@ export default function EventoPage() {
       }
       setSession(s)
 
-      // Tenta localStorage primeiro (com análise)
       const local = getSinistro(id)
-      if (local?.analise) {
-        setEvento(local)
-        setLoading(false)
-        return
-      }
-
-      // Fallback: busca no Supabase (autenticado)
       const token = getAccessToken()
+
+      // Sempre busca da API para garantir storagePath atualizado
       if (token) {
         try {
           const res = await fetch(`/api/sinistros/${id}`, {
@@ -51,10 +45,11 @@ export default function EventoPage() {
             return
           }
         } catch {
-          // sem conectividade — usa o que tiver localmente
+          // sem conectividade — usa localStorage como fallback
         }
       }
 
+      // Fallback offline: localStorage
       if (local) {
         setEvento(local)
       } else {
