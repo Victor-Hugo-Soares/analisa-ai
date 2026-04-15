@@ -20,6 +20,7 @@ function dbToSinistro(row: SinistroDB, arquivos: ArquivoDB[] = []): Sinistro {
       nome: a.nome,
       tipo: a.tipo,
       tamanho: a.tamanho,
+      storagePath: a.storage_path ?? undefined,
     })),
     status: row.status,
     criadoEm: row.criado_em,
@@ -89,7 +90,7 @@ export async function saveSinistroDB(
         nome: a.nome,
         tipo: a.tipo,
         tamanho: a.tamanho,
-        storage_path: null,
+        storage_path: a.storagePath ?? null,
       }))
     )
   }

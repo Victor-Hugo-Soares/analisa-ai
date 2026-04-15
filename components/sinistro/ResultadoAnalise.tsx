@@ -363,13 +363,39 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
               <div className="space-y-2">
                 {sinistro.arquivos.map((arquivo) => {
                   const Icon = tipoIcone[arquivo.tipo]
+                  const handleDownload = arquivo.storagePath
+                    ? async () => {
+                        try {
+                          const res = await fetch(
+                            `/api/sinistros/${sinistro.id}/download-url?path=${encodeURIComponent(arquivo.storagePath!)}`
+                          )
+                          const json = await res.json()
+                          if (json.url) {
+                            window.open(json.url, '_blank')
+                          }
+                        } catch {
+                          // silencioso
+                        }
+                      }
+                    : undefined
+
                   return (
                     <div
                       key={arquivo.nome}
-                      className="flex items-center gap-2.5 text-sm"
+                      onClick={handleDownload}
+                      className={cn(
+                        "flex items-center gap-2.5 text-sm rounded-lg px-2 py-1.5 -mx-2",
+                        handleDownload
+                          ? "cursor-pointer hover:bg-[#f1f5f9] transition-colors"
+                          : "cursor-default"
+                      )}
+                      title={handleDownload ? "Clique para abrir o arquivo" : undefined}
                     >
                       <Icon className="w-4 h-4 text-[#64748b] flex-shrink-0" />
-                      <span className="flex-1 text-[#0f172a] truncate">
+                      <span className={cn(
+                        "flex-1 truncate",
+                        handleDownload ? "text-[#2563eb] hover:underline" : "text-[#0f172a]"
+                      )}>
                         {arquivo.nome}
                       </span>
                       <span className="text-xs text-[#94a3b8]">
