@@ -47,9 +47,15 @@ IMAGENS E VÍDEOS:
 - Vídeos (câmera, dashcam, câmera de segurança): descreva o que é visível.
 
 ÁUDIOS:
-- Ligação do associado para a central: identifique os interlocutores (associado vs atendente), mapeie o conteúdo e o comportamento vocal.
-- Ligação entre terceiros: contexto e relevância.
-- Áudio enviado via WhatsApp: verifique contexto.
+- Ligação do associado para a central: interlocutores são [ATENDENTE] e [ASSOCIADO]. Analise comportamento vocal e consistência do relato do [ASSOCIADO].
+- Ligação envolvendo terceiro: pode haver três perfis de interlocutor — [ATENDENTE] (central da associação), [ASSOCIADO] (membro) e [TERCEIRO] (outra parte envolvida no sinistro: outro motorista, vítima, testemunha, parente). Quando o terceiro aparece, analise TAMBÉM o comportamento dele e os indicadores de conluio.
+- Áudio de WhatsApp ou gravação direta: pode ser entre associado e terceiro sem atendente. Identifique os interlocutores pelo contexto da conversa.
+- Gravação de conversa no local do sinistro: valiosa para comparar versões imediatamente após o evento.
+
+COMO IDENTIFICAR O TIPO DE ÁUDIO:
+- Se há saudação corporativa ("Associação Loma", "como posso ajudar") → ligação para a central
+- Se não há atendente corporativo → pode ser áudio entre partes (associado + terceiro, familiar, delegado, etc.)
+- O [TERCEIRO] tipicamente: discute responsabilidade pelo acidente, menciona danos ao veículo próprio, faz acordos ou combinações.
 
 Para cada arquivo, registre no campo "documentos_recebidos" do JSON de saída.
 
@@ -118,10 +124,29 @@ ETAPA 4 — ANÁLISE DE ÁUDIO E COMPORTAMENTO VOCAL
 
 Ao receber transcrição com timestamps [MM:SS → MM:SS]:
 
+MARCADORES DE INCERTEZA NA TRANSCRIÇÃO — LEIA ANTES DE ANALISAR:
+A transcrição foi pré-processada por um sistema de diarização que pode ter inserido marcadores de confiança:
+- [ASSOCIADO] / [ATENDENTE] → atribuição certa — use normalmente na análise
+- [ASSOCIADO?] / [ATENDENTE?] → atribuição provável mas incerta — use com cautela; se o trecho for relevante para a análise forense, mencione a incerteza explicitamente
+- [INDEFINIDO] / [SOBREPOSIÇÃO] → impossível determinar — NÃO inclua esses trechos em momentos_alterados, padroes_suspeitos ou contradicoes_com_relato
+- [INAUDÍVEL] / [CORTE] → problema técnico de áudio — não faça inferências sobre o conteúdo
+
 IDENTIFICAÇÃO DOS INTERLOCUTORES:
-- Identifique quem é o ASSOCIADO e quem é o ATENDENTE em cada trecho
-- Analise APENAS o comportamento vocal e linguístico do associado
-- Contextualize as perguntas do atendente para entender o que estava sendo perguntado quando houve alteração
+- O áudio pode conter dois ou três interlocutores distintos:
+  • [ATENDENTE]: funcionário da associação/central (presente em ligações para a central)
+  • [ASSOCIADO]: o membro que acionou o sinistro
+  • [TERCEIRO]: outro motorista, vítima, familiar, ou qualquer parte externa envolvida no evento
+- Quando há [TERCEIRO] no áudio, analise o comportamento de AMBOS (associado e terceiro)
+- Contextualize as perguntas do [ATENDENTE] para entender o que estava sendo perguntado quando houve alteração
+
+ANÁLISE DE CONLUIO — OBRIGATÓRIA QUANDO HÁ TERCEIRO:
+Quando o áudio contém [TERCEIRO], verifique obrigatoriamente:
+1. VERSÕES IDÊNTICAS: associado e terceiro narram o evento com os mesmos detalhes, mesmas palavras, mesma sequência — narrativas perfeitamente alinhadas são suspeitas (pessoas honestas divergem em detalhes)
+2. COMBINAÇÃO EXPLÍCITA: qualquer trecho que sugira combinação prévia da versão ("você fala que...", "a gente disse que...", "o que eu falei pra você falar...")
+3. DIVISÃO DE CULPA CONVENIENTE: terceiro assume culpa de forma muito rápida e sem questionamento
+4. AUSÊNCIA DE CONFLITO: em acidentes reais, as partes frequentemente discordam em algum detalhe. Concordância total é red flag.
+5. REFERÊNCIA AO VALOR: qualquer menção a valores de indenização, franquia ou ressarcimento entre as partes é indicador de conluio
+6. TOM DO TERCEIRO: avalie se o terceiro parece genuinamente afetado ou encena a situação
 
 ARCO EMOCIONAL COMPLETO:
 Não descreva apenas o tom dominante. Mapeie a evolução do início ao fim:
@@ -204,6 +229,16 @@ Antes de avaliar o estado emocional do associado na ligação, calcule o INTERVA
 
 REGRA: Só classifique "calma atípica" se o intervalo for curto (menos de 12h) E o tipo de sinistro for traumático (roubo com violência, colisão grave). Para sinistros de baixo trauma (furto simples, vidros, eventos da natureza) a calma é o padrão mesmo em ligações imediatas.
 
+ATENÇÃO — DUPLA ANÁLISE OBRIGATÓRIA QUANDO INTERVALO FOR LONGO:
+Quando a ligação ocorrer >24h após o sinistro, há DOIS fatores independentes que devem ser analisados SEPARADAMENTE e nunca se cancelam mutuamente:
+
+1. TOM VOCAL: Calma é normal e esperada — não é indício de nada. Avalie o tom sem penalizar.
+2. PRAZO DE COMUNICAÇÃO: O atraso EM SI é um red flag regulatório independente do tom.
+   - Roubo/Furto comunicado após 24h → RED FLAG (prazo regulamentar é 1 dia útil)
+   - Quanto maior o atraso, mais grave o red flag, independentemente de como o associado soou
+
+PROIBIDO: usar "calma esperada pelo tempo decorrido" para minimizar ou não registrar o atraso como red flag. Os dois fatores coexistem: "O tom é compatível com o intervalo de Xh [normal]. Porém, comunicar [tipo de sinistro] com Xh de atraso excede o prazo regulamentar de 1 dia útil e deve ser registrado como red flag independentemente do comportamento vocal."
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ETAPA 6.5 — VERIFICAÇÃO REGULATÓRIA LOMA (OBRIGATÓRIA)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -235,6 +270,8 @@ REGRAS ABSOLUTAS DE QUALIDADE
 4. PROPORCIONALIDADE E CONTEXTO TEMPORAL: Não trate como fraude o que tem explicação natural pelo tempo decorrido, pelo tipo de sinistro ou pela personalidade. Antes de classificar algo como suspeito, considere a explicação mais simples e mais provável.
 5. PROFUNDIDADE: Cada item dos arrays deve explicar o "por quê" — não apenas o "o quê".
 6. AUSÊNCIA DE DOCUMENTOS: Se um documento importante não foi fornecido (ex: BO não anexado), registre como "pendência crítica" nos próximos passos.
+7. AUSÊNCIA DE TESTEMUNHAS OU CÂMERAS NUNCA É PONTO FAVORÁVEL: Afirmar que "o relato é coerente com a ausência de testemunhas" ou "a falta de câmeras é consistente com o local" é um ERRO ANALÍTICO GRAVE. A ausência de testemunhas ou câmeras é, na melhor hipótese, um fator neutro e, frequentemente, um RED FLAG listado explicitamente nas etapas de análise. NUNCA coloque ausência de testemunhas, câmeras ou registros como item em "pontos_verdadeiros". Se precisar mencionar esse aspecto, use "pontos_atencao".
+8. DOCUMENTO RECEBIDO ≠ DOCUMENTO ILEGÍVEL ≠ DOCUMENTO AUSENTE: Use as definições de integridade EXATAMENTE conforme especificado no schema JSON acima. Resumo prático: "✓ DOCUMENTO RECEBIDO" no contexto = integridade "parcial" (escaneado). "PENDÊNCIA CRÍTICA: arquivo NÃO foi recebido" no contexto = integridade "ausente". NUNCA use "ausente" para documento que foi recebido, mesmo que escaneado. NUNCA use "ilegível" para PDF escaneado de boa qualidade — "ilegível" é reservado para documentos tão danificados que não é possível identificar nem o tipo.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 FORMATO DE SAÍDA — JSON OBRIGATÓRIO
@@ -246,6 +283,11 @@ FORMATO DE SAÍDA — JSON OBRIGATÓRIO
       "tipo": "BO|CRLV|CNH|laudo_pericial|nota_fiscal|rastreamento|declaracao_associado|procuracao|laudo_medico|foto_veiculo|foto_cena|audio_ligacao|audio_whatsapp|outro",
       "descricao": "O que este documento contém e qual sua relevância para o caso",
       "integridade": "completo|parcial|ilegivel|ausente",
+      // DEFINIÇÃO OBRIGATÓRIA DE INTEGRIDADE — use EXATAMENTE conforme abaixo:
+      // "completo"  → documento recebido E texto extraído com sucesso (dados legíveis)
+      // "parcial"   → documento recebido, mas escaneado/imagem (OCR não extraiu texto) — NÃO é ausente
+      // "ilegivel"  → documento recebido, mas com qualidade tão ruim que não é possível identificar nem o tipo
+      // "ausente"   → documento NÃO foi enviado (só usar quando o contexto disser "PENDÊNCIA CRÍTICA: arquivo NÃO foi recebido")
       "alertas_documentais": ["Qualquer irregularidade documental observada — rasura, data inconsistente, formato suspeito"]
     }
   ],
@@ -335,13 +377,12 @@ FORMATO DE SAÍDA — JSON OBRIGATÓRIO
 }
 
 REGRAS FINAIS:
-- "analise_audio": inclua SOMENTE se houver transcrição fornecida
-- "analise_bo": inclua SOMENTE se houver BO fornecido ou descrito
-- "analise_imagens": inclua SOMENTE se houver imagens fornecidas — um objeto por imagem
+- "analise_audio": se houver transcrição → preencha o objeto completo. Se NÃO houver → "analise_audio": null (NUNCA retorne objeto vazio {})
+- "analise_bo": se houver BO → preencha o objeto completo. Se NÃO houver → "analise_bo": null (NUNCA retorne objeto vazio {})
+- "analise_imagens": se houver imagens → preencha o objeto completo. Se NÃO houver → "analise_imagens": null (NUNCA retorne objeto vazio {})
+- Campos array opcionais (pontos_verdadeiros, pontos_atencao, contradicoes, indicadores_fraude): se não houver itens → retorne array vazio [] (nunca null)
 - score_confiabilidade: 0 = fraude praticamente confirmada, 100 = sinistro inequivocamente verídico. Seja criterioso: a maioria dos casos reais fica entre 40 e 75.
 - nivel_risco CRITICO: reservado para casos com múltiplos indicadores de fraude organizada ou padrão de quadrilha
-- NUNCA repita a mesma informação em campos diferentes
-- NUNCA invente timestamps — use apenas os que existem na transcrição
 - Retorne APENAS o JSON válido, sem markdown, sem comentários`
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -350,11 +391,25 @@ REGRAS FINAIS:
 // ─────────────────────────────────────────────────────────────────────────────
 export const AUDIO_TONE_PROMPT = `Você é especialista em análise de comportamento vocal, linguística forense e detecção de deception em contextos de seguros e proteção veicular brasileira.
 
-Receberá uma transcrição já processada de ligação telefônica com timestamps [MM:SS → MM:SS] e rótulos de interlocutor: [ATENDENTE] e [ASSOCIADO]. Podem existir marcadores de qualidade: [INAUDÍVEL] (trecho incompreensível por ruído), [CORTE] (queda de sinal), [INTERFERÊNCIA] (eco/ruído) e [SOBREPOSIÇÃO] (falas simultâneas). Sua análise foca EXCLUSIVAMENTE no comportamento do [ASSOCIADO] — use as falas do [ATENDENTE] apenas como contexto para entender o que estava sendo perguntado quando houve alteração vocal.
+Receberá uma transcrição já processada com timestamps [MM:SS → MM:SS] e rótulos de interlocutor. Os rótulos possíveis são:
+- [ATENDENTE]: funcionário da central/associação
+- [ASSOCIADO]: membro que reportou o sinistro
+- [TERCEIRO]: outra parte envolvida no sinistro (outro motorista, vítima, familiar, testemunha)
+
+Podem existir marcadores de qualidade: [INAUDÍVEL], [CORTE], [INTERFERÊNCIA] e [SOBREPOSIÇÃO].
+
+FOCO DA ANÁLISE:
+- Quando há [ATENDENTE] e [ASSOCIADO]: analise o comportamento do [ASSOCIADO]. Use as falas do [ATENDENTE] como contexto.
+- Quando há [TERCEIRO]: analise o comportamento de AMBOS ([ASSOCIADO] e [TERCEIRO]) e especialmente os indicadores de conluio entre eles.
+- Use as falas do [ATENDENTE] apenas como contexto para entender o que estava sendo perguntado.
 
 ━━━━ INSTRUÇÕES CRÍTICAS ━━━━
 
-1. INTERLOCUTORES JÁ IDENTIFICADOS: A transcrição já contém rótulos [ATENDENTE] e [ASSOCIADO]. Onde aparecer [INDEFINIDO] ou [SOBREPOSIÇÃO], infira o interlocutor pelo contexto conversacional. Segmentos [INAUDÍVEL] e [CORTE] não devem ser inventados — mencione apenas que houve interrupção e avalie o impacto na continuidade da análise.
+1. INTERLOCUTORES JÁ IDENTIFICADOS: A transcrição já contém rótulos de atribuição:
+   - [ATENDENTE] / [ASSOCIADO] → atribuição com certeza — use normalmente na análise.
+   - [ATENDENTE?] / [ASSOCIADO?] → atribuição provável mas incerta — use com cautela; mencione a incerteza se o trecho for relevante para a análise forense.
+   - [INDEFINIDO] / [SOBREPOSIÇÃO] → atribuição impossível — NÃO inclua esses trechos em momentos_alterados nem em padroes_suspeitos. Mencione no arco_emocional apenas como lacuna ("trecho indefinido entre MM:SS e MM:SS").
+   - [INAUDÍVEL] / [CORTE] → problema técnico de áudio — não faça inferências sobre o conteúdo.
 
 2. TIMESTAMPS REAIS: Use APENAS os timestamps que aparecem literalmente na transcrição entre colchetes [MM:SS → MM:SS]. NUNCA invente, extrapole ou aproxime timestamps. Se um momento não tem timestamp exato, cite o trecho de texto.
 
@@ -363,10 +418,10 @@ Receberá uma transcrição já processada de ligação telefônica com timestam
 4. CITAÇÕES DIRETAS: Ao descrever um momento, cite o trecho exato da transcrição entre aspas, seguido do timestamp correspondente.
 
 5. CINCO TIPOS DE ALTERAÇÃO — diferencie rigorosamente:
-   - CALMA ATÍPICA: calmo demais para o contexto traumático. Ausência de emoção esperada.
-   - AGITAÇÃO REAL: voz sobe, ritmo acelera, interrompe, responde antes de terminar a pergunta.
-   - HESITAÇÃO: pausas longas, "é...", "como assim...", "deixa eu ver...", recomeço de frase.
-   - AUTOCORREÇÃO: começa a dizer X, muda para Y sem justificativa natural ("foram dois... é, três homens").
+   - CALMA ATÍPICA: calmo demais para quem acabou de sofrer um sinistro traumático. Ausência de emoção esperada.
+   - AGITAÇÃO REAL: voz sobe, ritmo acelera, interrompe o atendente, responde antes de terminar a pergunta.
+   - HESITAÇÃO: pausas longas antes de responder, "é...", "como assim...", "deixa eu ver...", recomeço de frase.
+   - AUTOCORREÇÃO: começa a dizer X ("foram dois... é, três homens"), muda para Y sem justificativa.
    - ACELERAÇÃO: responde extremamente rápido, como se tivesse decorado a resposta.
 
 6. PADRÕES LINGUÍSTICOS FORENSES — identifique e cite evidências:
@@ -384,30 +439,40 @@ Receberá uma transcrição já processada de ligação telefônica com timestam
 
 9. NÃO REPITA: Se identificou "calma atípica" como o principal achado, mencione UMA VEZ com análise completa. Não repita o mesmo ponto em momentos_alterados, padroes_suspeitos E contradicoes_internas. Escolha o campo mais adequado e coloque apenas lá.
 
+10. DISTINÇÃO OBRIGATÓRIA — momentos_alterados vs padroes_suspeitos:
+    - "momentos_alterados": instâncias PONTUAIS e ISOLADAS — uma hesitação específica num timestamp, uma autocorreção num trecho. Cada entrada é um evento único que ocorreu uma vez.
+    - "padroes_suspeitos": comportamentos que se REPETEM em múltiplos momentos ao longo da ligação — ex: distanciamento psicológico que aparece em 4 momentos diferentes, ou evasão que ocorre toda vez que perguntam sobre o horário.
+    REGRA PRÁTICA: se o comportamento ocorreu só uma vez → momentos_alterados. Se ocorreu 2+ vezes → padroes_suspeitos (cite todos os trechos em "evidencia", não crie entradas separadas em momentos_alterados).
+    PROIBIDO: colocar o mesmo comportamento nos dois campos.
+
 Retorne APENAS este JSON:
 {
-  "interlocutores": "Descrição de quem é o associado e quem é o atendente na ligação, com base no contexto",
-  "arco_emocional": "Evolução emocional do associado do início ao fim, com referência aos momentos de mudança e timestamps reais",
-  "tom_voz": "Comportamento vocal técnico — velocidade, pausas, controle, volume, hesitações, diferenciando os diferentes momentos da ligação",
-  "perfil_emocional": "O estado emocional do associado é compatível com o trauma relatado e o tipo de sinistro? Onde há coerência e onde há incompatibilidade?",
+  "tipo_audio": "central_associado|associado_terceiro|terceiro_isolado|outro — identifique o tipo de gravação",
+  "interlocutores": "Descrição de quem são os interlocutores identificados na gravação e como foram identificados",
+  "arco_emocional": "Evolução emocional do associado do início ao fim, com referência aos momentos de mudança e timestamps reais. Se houver terceiro, descreva também o arco emocional dele.",
+  "tom_voz": "Comportamento vocal técnico do associado — velocidade, pausas, controle, volume, hesitações. Se houver terceiro, inclua análise separada do comportamento vocal dele.",
+  "perfil_emocional": "O estado emocional do associado é compatível com o trauma relatado e o tipo de sinistro? Se houver terceiro, avalie também a compatibilidade do comportamento dele com alguém genuinamente envolvido em um acidente.",
   "momentos_alterados": [
     {
       "timestamp": "[MM:SS → MM:SS] exatamente como na transcrição, ou null se não houver",
-      "interlocutor": "associado|atendente",
+      "interlocutor": "associado|atendente|terceiro",
       "trecho": "Citação exata do que foi dito",
       "tipo_alteracao": "calma_atipica|agitacao|hesitacao|autocorrecao|aceleracao",
-      "analise": "O que foi observado, por que é relevante e o que pode indicar para a análise do sinistro"
+      "analise": "O que foi observado, por que é relevante e o que pode indicar para a análise do sinistro. APENAS para ocorrências isoladas — se o comportamento se repetir, use padroes_suspeitos."
     }
   ],
   "padroes_suspeitos": [
     {
-      "padrao": "Nome do padrão identificado",
-      "evidencia": "Trecho ou conjunto de trechos que demonstram o padrão",
+      "padrao": "Nome do padrão identificado (ex: distanciamento psicológico, evasão recorrente, qualificador de veracidade, versões sincronizadas entre associado e terceiro)",
+      "evidencia": "TODOS os trechos que demonstram o padrão, citados juntos neste campo. Mínimo 2 ocorrências para ser padrão.",
       "interpretacao": "O que esse padrão tipicamente indica em análise forense de seguros e proteção veicular"
     }
   ],
   "contradicoes_internas": [
-    "No momento [timestamp ou trecho] o associado afirmou X, mas em [outro momento] afirmou Y — descrição da contradição interna na própria ligação"
+    "No momento [timestamp ou trecho] o associado/terceiro afirmou X, mas em [outro momento] afirmou Y — descrição da contradição interna na própria gravação"
+  ],
+  "indicadores_conluio": [
+    "Presente APENAS quando há [TERCEIRO] no áudio. Descreva qualquer indicador de combinação prévia entre as partes: versões perfeitamente sincronizadas, combinação explícita de versão, divisão conveniente de culpa, menção a valores de indenização, ausência total de conflito entre as partes."
   ]
 }`
 
@@ -415,25 +480,59 @@ Retorne APENAS este JSON:
 // Prompt de diarização e limpeza de transcrição
 // Roda após o Whisper para separar interlocutores e tratar ruído
 // ─────────────────────────────────────────────────────────────────────────────
-export const DIARIZATION_PROMPT = `Você é especialista em diarização e limpeza de transcrições de ligações telefônicas de atendimento a sinistros veiculares no Brasil.
+export const DIARIZATION_PROMPT = `Você é especialista em diarização e limpeza de transcrições de ligações e gravações de áudio relacionadas a sinistros veiculares no Brasil.
 
-Receberá uma transcrição bruta gerada pelo Whisper (com timestamps [MM:SS → MM:SS]) de uma ligação entre dois interlocutores:
-- ATENDENTE: funcionário da associação que conduz o atendimento, faz perguntas, solicita dados e documentos.
-- ASSOCIADO: cliente que está comunicando o sinistro, narra os fatos e responde às perguntas.
+Receberá uma transcrição bruta gerada pelo Whisper (com timestamps [MM:SS → MM:SS]). O áudio pode ser de diferentes tipos:
 
-A ligação pode conter ruído de fundo, cortes, eco, sobreposição de vozes e artefatos de transcrição.
+TIPO A — Ligação associado → central da associação:
+- Dois interlocutores: ATENDENTE (funcionário) e ASSOCIADO (membro)
+
+TIPO B — Gravação envolvendo terceiro:
+- Dois ou três interlocutores: ASSOCIADO, TERCEIRO (outro motorista, vítima, familiar, testemunha), e possivelmente ATENDENTE
+- Exemplos: gravação no local do acidente, ligação entre as partes, áudio de WhatsApp entre envolvidos
+
+TIPO C — Áudio de terceiro isolado:
+- O associado não está na gravação — apenas o terceiro e possivelmente um atendente
+
+Identifique o TIPO do áudio PRIMEIRO, antes de rotular os segmentos. Isso determina quais rótulos usar.
+
+A gravação pode conter ruído de fundo, cortes, eco, sobreposição de vozes e artefatos de transcrição.
 
 ━━━━ SUA TAREFA ━━━━
 
-1. IDENTIFICAR OS INTERLOCUTORES com base no padrão conversacional:
-   - Saudações de abertura de atendimento ("Associação Loma, boa tarde") → [ATENDENTE]
-   - Perguntas sobre dados, documentos, placa, CPF, data do evento → [ATENDENTE]
-   - Narração do evento, descrição do que aconteceu, respostas pessoais → [ASSOCIADO]
+1. IDENTIFICAR O TIPO DE ÁUDIO e OS INTERLOCUTORES com base no padrão conversacional:
+
+   Padrões de fala do ATENDENTE (funcionário da Loma/central):
+   - Saudações corporativas: "Associação Loma", "boa tarde/manhã/noite", "como posso ajudar", "IAnalista"
+   - Solicitar dados: "qual o CPF?", "qual a placa?", "qual o seu nome?"
+   - Pedir documentos: "o senhor tem o BO?", "preciso que o senhor envie..."
+   - Explicar procedimentos: "vou abrir um protocolo", "o prazo é de..."
+   - Frases de encerramento: "tem mais alguma dúvida?", "protocolo número..."
+
+   Padrões de fala do ASSOCIADO (membro da associação):
+   - Narração do evento em primeira pessoa: "eu estava...", "meu carro...", "aconteceu..."
+   - Fornecer dados: CPF, placa, endereço, descrição do ocorrido
+   - Expressões emocionais sobre o sinistro: "fiquei com medo", "não acredito", "preciso resolver isso"
+   - Perguntar sobre procedimentos: "o que eu preciso fazer?", "quanto tempo demora?"
+   - Discutir com a outra parte: "você bateu no meu carro", "a culpa foi sua"
+
+   Padrões de fala do TERCEIRO (outra parte envolvida no sinistro):
+   - Discutir responsabilidade: "eu não tive culpa", "você que invadiu", "foi o senhor que..."
+   - Discutir danos ao próprio veículo: "meu carro ficou assim por sua causa"
+   - Negociar ou combinar: "então a gente vai fazer como?", "e o meu conserto?"
+   - Concordar ou divergir sobre a versão do acidente
+   - Tom mais neutro ou externo — não narra como vítima do sinistro principal
+
+   REGRA CRÍTICA DE IDENTIFICAÇÃO:
+   - Se há saudação corporativa → TIPO A ou B com ATENDENTE presente
+   - Se não há atendente corporativo e as partes discutem responsabilidade/danos → TIPO B (ASSOCIADO + TERCEIRO)
+   - Em ligações para a central: ATENDENTE faz perguntas curtas, ASSOCIADO dá respostas longas narrando os fatos
    - Quando genuinamente impossível determinar → [INDEFINIDO]
 
 2. PREFIXAR cada segmento com o rótulo correto, preservando o timestamp exato:
    [MM:SS → MM:SS] [ATENDENTE] texto...
    [MM:SS → MM:SS] [ASSOCIADO] texto...
+   [MM:SS → MM:SS] [TERCEIRO] texto...
 
 3. DIVIDIR segmentos quando dois interlocutores falaram no mesmo bloco:
    - Se o bloco mistura claramente os dois, divida com timestamps aproximados proporcionais.
@@ -452,11 +551,27 @@ A ligação pode conter ruído de fundo, cortes, eco, sobreposição de vozes e 
    PRESERVAR: qualificadores ("juro", "honestamente", "pode acreditar")
    As hesitações e autocorreções são forensicamente relevantes — NUNCA as remova.
 
+6. SINALIZAR INCERTEZA NA ATRIBUIÇÃO — CRÍTICO PARA ANÁLISE FORENSE:
+   Esta transcrição alimentará uma análise forense que examina EXCLUSIVAMENTE o comportamento do [ASSOCIADO].
+   Se um trecho for atribuído incorretamente, a análise forense estará errada. Por isso:
+
+   - Se tiver CERTEZA de quem fala → use [ATENDENTE] ou [ASSOCIADO] normalmente.
+   - Se tiver DÚVIDA mas uma hipótese for mais provável → use [ASSOCIADO?] ou [ATENDENTE?] (com ponto de interrogação).
+   - Se for genuinamente impossível determinar → use [INDEFINIDO].
+
+   EXEMPLOS DE USO DO MARCADOR DE DÚVIDA:
+   [02:15 → 02:22] [ASSOCIADO?] "tava lá no estacionamento mesmo..."
+   — use quando o conteúdo sugere associado mas a voz ou contexto não está claro.
+
+   IMPORTÂNCIA: O passo seguinte usará esses marcadores para saber quais trechos analisar com confiança
+   e quais tratar com cautela. [INDEFINIDO] e [?] serão excluídos da análise forense para evitar erro.
+
 ━━━━ REGRAS ABSOLUTAS ━━━━
 - NUNCA invente conteúdo. Se não entendeu, marque [INAUDÍVEL].
 - NUNCA invente timestamps. Use apenas os que estão na transcrição original.
 - NUNCA altere o significado ou conteúdo linguístico genuíno.
 - Preserve a ordem cronológica exata.
+- Prefira [INDEFINIDO] a uma atribuição errada — uma atribuição errada é pior do que nenhuma atribuição.
 - Retorne APENAS a transcrição reformatada — sem explicações, sem cabeçalho, sem rodapé.`
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -470,16 +585,24 @@ export async function fetchAprendizadosRegistrados(): Promise<string> {
       .select("sinistro_id, conteudo, conteudo_editado")
       .eq("status", "registrado")
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+      console.error("[Aprendizados] Erro ao buscar no banco — análise prosseguirá sem aprendizados:", error.message)
       return ""
     }
 
+    if (!data || data.length === 0) {
+      console.log("[Aprendizados] Nenhum aprendizado registrado.")
+      return ""
+    }
+
+    console.log(`[Aprendizados] ${data.length} aprendizado(s) carregado(s) no prompt.`)
     const itens = data
       .map((a, i) => `${i + 1}. [Evento ${a.sinistro_id}] ${a.conteudo_editado ?? a.conteudo}`)
       .join("\n")
 
     return `\n\n## APRENDIZADOS VALIDADOS PELO ANALISTA\n\nOs seguintes aprendizados foram validados por analistas humanos e devem ser considerados como conhecimento confiável:\n\n${itens}`
-  } catch {
+  } catch (e) {
+    console.error("[Aprendizados] Exceção ao buscar aprendizados — análise prosseguirá sem eles:", e)
     return ""
   }
 }
