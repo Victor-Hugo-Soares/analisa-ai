@@ -12,11 +12,11 @@ interface EtapaProcessamento {
 
 const etapas: EtapaProcessamento[] = [
   { label: "Recebendo arquivos...", duracao: 500 },
-  { label: "Transcrevendo áudio com Whisper AI...", duracao: 3000 },
-  { label: "Analisando imagens com Vision AI...", duracao: 2500 },
+  { label: "Transcrevendo áudio...", duracao: 3000 },
+  { label: "Analisando imagens...", duracao: 2500 },
   { label: "Processando documentos...", duracao: 1500 },
   { label: "Cruzando informações...", duracao: 1000 },
-  { label: "Gerando análise com GPT-4o...", duracao: 4000 },
+  { label: "Gerando análise...", duracao: 4000 },
   { label: "Estruturando relatório...", duracao: 500 },
 ]
 

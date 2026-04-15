@@ -96,7 +96,7 @@ export default function ChatSinistro({ sinistro }: { sinistro: Sinistro }) {
         </div>
         <div className="ml-auto flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="text-xs text-[#64748b]">GPT-4o</span>
+          <span className="text-xs text-[#64748b]">IA online</span>
         </div>
       </div>
 
