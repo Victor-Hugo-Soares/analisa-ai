@@ -589,7 +589,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 )}
 
                 {/* Momentos Alterados */}
-                {analise.analise_audio.momentos_alterados?.length > 0 && (
+                {(analise.analise_audio.momentos_alterados?.length ?? 0) > 0 && (
                   <>
                     <Separator className="bg-blue-200" />
                     <div>
