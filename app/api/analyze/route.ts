@@ -34,6 +34,20 @@ export async function POST(req: NextRequest) {
     const body = (await req.json()) as AnalyzePayload
     const { tipoEvento, dados, arquivos } = body
 
+    const tiposValidos = Object.keys(tipoEventoLabel) as TipoEvento[]
+    if (!tipoEvento || !tiposValidos.includes(tipoEvento)) {
+      return NextResponse.json(
+        { error: `tipoEvento inválido: "${tipoEvento}". Tipos aceitos: ${tiposValidos.join(", ")}` },
+        { status: 400 }
+      )
+    }
+    if (!dados || !arquivos || !Array.isArray(arquivos)) {
+      return NextResponse.json(
+        { error: "Payload inválido: campos obrigatórios ausentes (dados, arquivos)" },
+        { status: 400 }
+      )
+    }
+
     const arquivosAudio = arquivos.filter((a) => a.tipo === "audio")
     const arquivosImagem = arquivos.filter((a) => a.tipo === "imagem")
     const arquivosDoc = arquivos.filter((a) => a.tipo === "documento")
@@ -47,7 +61,18 @@ export async function POST(req: NextRequest) {
 
     for (const audio of arquivosAudio) {
       const base64 = await resolveArquivoBase64(audio)
-      if (!base64) continue
+      if (!base64) {
+        const erroSistema = !!audio.storagePath
+        console.error(`[Audio] Arquivo não resolvido: ${audio.nome} — ${erroSistema ? "ERRO DE SISTEMA" : "não foi anexado"}`)
+        transcricoesComAnalise.push({
+          arquivo: audio.nome,
+          transcricao: erroSistema
+            ? "[ERRO DO SISTEMA: o arquivo de áudio foi enviado mas não pôde ser lido por falha técnica — oriente o analista a reenviar]"
+            : "[PENDÊNCIA: arquivo de áudio não foi anexado]",
+          analise_tom: null,
+        })
+        continue
+      }
       try {
         console.log(`[Audio] Transcrevendo: ${audio.nome}`)
         const transcricaoBruta = await transcribeAudio(base64, audio.nome)
@@ -86,7 +111,17 @@ export async function POST(req: NextRequest) {
 
     for (const imagem of arquivosImagem) {
       const base64 = await resolveArquivoBase64(imagem)
-      if (!base64) continue
+      if (!base64) {
+        const erroSistema = !!imagem.storagePath
+        console.error(`[Imagem] Arquivo não resolvido: ${imagem.nome} — ${erroSistema ? "ERRO DE SISTEMA" : "não foi anexado"}`)
+        descricoesImagens.push({
+          arquivo: imagem.nome,
+          descricao: erroSistema
+            ? "[ERRO DO SISTEMA: a imagem foi enviada mas não pôde ser lida por falha técnica — oriente o analista a reenviar]"
+            : "[PENDÊNCIA: imagem não foi anexada]",
+        })
+        continue
+      }
       try {
         console.log(`[Imagem] Analisando: ${imagem.nome}`)
         const descricao = await analyzeImage(base64, imagem.nome, tipoEventoLabel[tipoEvento])
@@ -94,9 +129,12 @@ export async function POST(req: NextRequest) {
         console.log(`[Imagem] Análise concluída`)
       } catch (e) {
         console.error("[Imagem] Erro:", e)
+        const errorMsg = e instanceof Error ? e.message : String(e)
         descricoesImagens.push({
           arquivo: imagem.nome,
-          descricao: "[Erro ao processar imagem]",
+          descricao: errorMsg.toLowerCase().includes("content_policy")
+            ? "[Imagem rejeitada pelo modelo: conteúdo sensível]"
+            : "[Erro ao processar imagem: formato inválido ou corrompido]",
         })
       }
     }
@@ -107,13 +145,22 @@ export async function POST(req: NextRequest) {
       tipoDoc?: TipoDocumento
       base64: string | null
       textoPdf: string | null
+      erroSistema: boolean  // true = arquivo foi enviado mas falhou por problema técnico
     }> = []
 
     for (const doc of arquivosDoc) {
       const base64 = await resolveArquivoBase64(doc)
       let textoPdf: string | null = null
 
-      if (base64 && doc.nome.toLowerCase().endsWith(".pdf")) {
+      if (!base64) {
+        // Distingue: tinha storagePath (arquivo enviado, sistema falhou) vs nunca teve (não anexado)
+        const erroSistema = !!doc.storagePath
+        console.error(`[Doc] Arquivo não resolvido: ${doc.nome} — ${erroSistema ? "ERRO DE SISTEMA (storagePath existia)" : "não foi anexado"}`)
+        docsResolvidos.push({ nome: doc.nome, tipoDoc: doc.tipoDoc, base64: null, textoPdf: null, erroSistema })
+        continue
+      }
+
+      if (doc.nome.toLowerCase().endsWith(".pdf")) {
         try {
           const raw = base64.includes(",") ? base64.split(",")[1] : base64
           const buffer = Buffer.from(raw, "base64")
@@ -127,7 +174,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      docsResolvidos.push({ nome: doc.nome, tipoDoc: doc.tipoDoc, base64, textoPdf })
+      docsResolvidos.push({ nome: doc.nome, tipoDoc: doc.tipoDoc, base64, textoPdf, erroSistema: false })
     }
 
     // ─── 4. Montar contexto completo para análise final ──────────────────────
@@ -144,12 +191,35 @@ export async function POST(req: NextRequest) {
     // ─── 5. Análise final com GPT-4o ─────────────────────────────────────────
     const aprendizados = await fetchAprendizadosRegistrados()
     const systemPromptFinal = SYSTEM_PROMPT + aprendizados
+    console.log(`[Análise] System prompt final: ${systemPromptFinal.length} chars (aprendizados: ${aprendizados.length > 0 ? "sim" : "não"})`)
+
+    // Montar conteúdo do usuário: texto + PDFs escaneados como arquivo para visão
+    const userContentParts: Array<
+      | { type: "text"; text: string }
+      | { type: "file"; file: { filename: string; file_data: string } }
+    > = [{ type: "text", text: contexto }]
+
+    for (const doc of docsResolvidos) {
+      // Apenas PDFs escaneados (sem texto extraível) que chegaram com base64
+      if (doc.base64 && (!doc.textoPdf || doc.textoPdf.length <= 10) && doc.nome.toLowerCase().endsWith(".pdf")) {
+        const raw = doc.base64.includes(",") ? doc.base64.split(",")[1] : doc.base64
+        userContentParts.push({
+          type: "file",
+          file: {
+            filename: doc.nome,
+            file_data: `data:application/pdf;base64,${raw}`,
+          },
+        })
+        console.log(`[Análise] PDF escaneado "${doc.nome}" enviado diretamente ao GPT-4o para leitura visual`)
+      }
+    }
 
     const analiseResponse = await openai.chat.completions.create({
       model: "gpt-4o",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: [
         { role: "system", content: systemPromptFinal },
-        { role: "user", content: contexto },
+        { role: "user", content: userContentParts as any },
       ],
       temperature: 0.15,
       max_tokens: 5000,
@@ -162,10 +232,45 @@ export async function POST(req: NextRequest) {
     const analise = JSON.parse(analiseText)
 
     // Injetar transcrição completa na analise_audio se houver
+    // Se havia áudio mas a IA retornou analise_audio: null, cria o objeto mínimo
+    if (transcricoesComAnalise.length > 0 && !analise.analise_audio) {
+      console.warn("[Análise] analise_audio retornou null apesar de haver transcrição — criando objeto mínimo")
+      analise.analise_audio = { transcricao_completa: null }
+    }
     if (transcricoesComAnalise.length > 0 && analise.analise_audio) {
-      analise.analise_audio.transcricao_completa = transcricoesComAnalise
+      const LIMITE_CHARS = 50000
+      const transcricaoFull = transcricoesComAnalise
         .map((t) => `=== ${t.arquivo} ===\n${t.transcricao}`)
         .join("\n\n")
+
+      analise.analise_audio.transcricao_completa =
+        transcricaoFull.length > LIMITE_CHARS
+          ? transcricaoFull.substring(0, LIMITE_CHARS) +
+            `\n\n[... transcrição truncada — ${transcricaoFull.length.toLocaleString("pt-BR")} caracteres no total, exibindo os primeiros ${LIMITE_CHARS.toLocaleString("pt-BR")}]`
+          : transcricaoFull
+
+      if (transcricaoFull.length > LIMITE_CHARS) {
+        console.warn(`[Análise] Transcrição truncada no JSON de resposta: ${transcricaoFull.length} chars → ${LIMITE_CHARS} chars`)
+      }
+    }
+
+    // Fallback para analise_bo — se havia BO mas IA retornou null
+    const temBO = docsResolvidos.some((d) => d.tipoDoc === "bo" && d.base64)
+    if (temBO && !analise.analise_bo) {
+      console.warn("[Análise] analise_bo retornou null apesar de haver BO — criando objeto mínimo")
+      analise.analise_bo = {
+        numero_bo: null, data_registro: null, data_evento_declarado: null,
+        intervalo_registro: null, narrativa_bo: null, consistencia_relato: null, alertas: [],
+      }
+    }
+
+    // Fallback para analise_imagens — se havia imagens mas IA retornou null
+    const temImagens = descricoesImagens.some((i) => !i.descricao.startsWith("[ERRO") && !i.descricao.startsWith("[PENDÊNCIA"))
+    if (temImagens && !analise.analise_imagens) {
+      console.warn("[Análise] analise_imagens retornou null apesar de haver imagens — criando objeto mínimo")
+      analise.analise_imagens = {
+        descricao: null, consistencia_relato: null, observacoes: [], indicadores_autenticidade: null,
+      }
     }
 
     return NextResponse.json({ analise }, { status: 200 })
@@ -179,22 +284,56 @@ export async function POST(req: NextRequest) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Resolve arquivo: storagePath → signed URL → buffer  |  base64 → buffer
+// Retenta até 3 vezes com backoff para absorver instabilidades transitórias
 // ─────────────────────────────────────────────────────────────────────────────
 async function resolveArquivoBase64(arquivo: ArquivoPayload): Promise<string | null> {
   if (arquivo.storagePath) {
-    const supabase = createServerClient()
-    const { data, error } = await supabase.storage
-      .from("sinistros-arquivos")
-      .createSignedUrl(arquivo.storagePath, 300)
-    if (error || !data?.signedUrl) {
-      console.error("[Storage] Erro ao gerar signed URL:", error)
-      return null
+    const MAX_TENTATIVAS = 3
+    const BACKOFF_MS = [500, 1500, 3000]
+
+    for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
+      try {
+        // Gera uma nova signed URL a cada tentativa (a anterior pode ter expirado)
+        const supabase = createServerClient()
+        const { data, error } = await supabase.storage
+          .from("sinistros-arquivos")
+          .createSignedUrl(arquivo.storagePath, 300)
+
+        if (error || !data?.signedUrl) {
+          console.error(`[Storage] Tentativa ${tentativa}/${MAX_TENTATIVAS} — erro ao gerar signed URL para "${arquivo.nome}":`, error)
+          if (tentativa < MAX_TENTATIVAS) {
+            await new Promise((r) => setTimeout(r, BACKOFF_MS[tentativa - 1]))
+            continue
+          }
+          return null
+        }
+
+        const res = await fetch(data.signedUrl)
+        if (!res.ok) {
+          console.error(`[Storage] Tentativa ${tentativa}/${MAX_TENTATIVAS} — fetch falhou para "${arquivo.nome}": HTTP ${res.status} ${res.statusText}`)
+          if (tentativa < MAX_TENTATIVAS) {
+            await new Promise((r) => setTimeout(r, BACKOFF_MS[tentativa - 1]))
+            continue
+          }
+          return null
+        }
+
+        const arrayBuffer = await res.arrayBuffer()
+        const mimeType = getMimeType(arquivo.nome)
+        if (tentativa > 1) {
+          console.log(`[Storage] "${arquivo.nome}" resolvido na tentativa ${tentativa}`)
+        }
+        return `data:${mimeType};base64,${Buffer.from(arrayBuffer).toString("base64")}`
+      } catch (e) {
+        console.error(`[Storage] Tentativa ${tentativa}/${MAX_TENTATIVAS} — exceção ao resolver "${arquivo.nome}":`, e)
+        if (tentativa < MAX_TENTATIVAS) {
+          await new Promise((r) => setTimeout(r, BACKOFF_MS[tentativa - 1]))
+        }
+      }
     }
-    const res = await fetch(data.signedUrl)
-    if (!res.ok) return null
-    const arrayBuffer = await res.arrayBuffer()
-    const mimeType = getMimeType(arquivo.nome)
-    return `data:${mimeType};base64,${Buffer.from(arrayBuffer).toString("base64")}`
+
+    console.error(`[Storage] Todas as ${MAX_TENTATIVAS} tentativas falharam para "${arquivo.nome}"`)
+    return null
   }
   return arquivo.base64 ?? null
 }
@@ -442,7 +581,7 @@ interface ContextoParams {
   dados: DadosSinistro
   transcricoesComAnalise: TranscricaoComAnalise[]
   descricoesImagens: Array<{ arquivo: string; descricao: string }>
-  docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null; textoPdf: string | null }>
+  docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null; textoPdf: string | null; erroSistema: boolean }>
 }
 
 function buildContexto({
@@ -524,8 +663,21 @@ function buildContexto({
       partes.push(img.descricao)
     }
     partes.push(``)
-    partes.push(`Instruções: Avalie se os danos visíveis são coerentes com o tipo "${tipoEventoLabel[tipoEvento]}" e com o relato.`)
-    partes.push(`Identifique sinais de oxidação nas bordas (dano antigo), ângulos suspeitos e inconsistências entre fotos.`)
+    partes.push(`INSTRUÇÃO — ANÁLISE INDIVIDUAL:`)
+    partes.push(`Avalie se os danos visíveis em cada imagem são coerentes com o tipo "${tipoEventoLabel[tipoEvento]}" e com o relato.`)
+    partes.push(`Identifique sinais de oxidação nas bordas (dano antigo), ângulos suspeitos e ausência de fragmentos esperados.`)
+
+    if (descricoesImagens.length > 1) {
+      partes.push(``)
+      partes.push(`INSTRUÇÃO ADICIONAL — CONSISTÊNCIA ENTRE IMAGENS (${descricoesImagens.length} fotos recebidas):`)
+      partes.push(`Compare TODAS as imagens entre si e verifique obrigatoriamente:`)
+      partes.push(`1. ILUMINAÇÃO: a luz e as sombras são compatíveis entre as fotos? Iluminação diferente no mesmo dano indica fotos tiradas em momentos distintos ou montagem.`)
+      partes.push(`2. POSIÇÃO DO DANO: o dano aparece na mesma posição relativa no veículo em todas as fotos? Se o dano "muda de lugar" entre fotos, são veículos diferentes.`)
+      partes.push(`3. ESTADO DO DANO: o dano parece igual em todas as fotos (mesma extensão, mesma profundidade)? Variação de tamanho é red flag.`)
+      partes.push(`4. SUJEIRA E CONTEXTO: a sujeira do veículo, o ambiente ao fundo e as condições climáticas são consistentes entre as fotos?`)
+      partes.push(`5. REFLEXOS: reflexos e brilhos no veículo são coerentes com a mesma fonte de luz e o mesmo ambiente?`)
+      partes.push(`Se qualquer inconsistência for encontrada entre as fotos, registre em "indicadores_fraude" — não em "pontos_atencao".`)
+    }
   }
 
   // ── Documentos ────────────────────────────────────────────────────────────
@@ -570,12 +722,62 @@ function buildContexto({
           partes.push(`INSTRUÇÃO: Extraia valor total e itens. Compare o valor com 75% da FIPE para avaliar perda total.`)
         } else if (doc.tipoDoc === "procuracao") {
           partes.push(`INSTRUÇÃO: Procuração em sinistros é RED FLAG de fraude organizada. Identifique outorgante e poderes.`)
+        } else if (doc.tipoDoc === "crv") {
+          partes.push(`INSTRUÇÃO: Extraia proprietário, CPF, chassi, placa, ano/modelo.`)
+          partes.push(`Verifique se o proprietário bate com o associado. Em caso de perda total, o CRV deve estar preenchido`)
+          partes.push(`a favor da Loma com firma reconhecida — a ausência desse preenchimento é pendência crítica.`)
+          partes.push(`Se o veículo estiver em nome de terceiro sem registro de transferência, registre como contradição.`)
+        } else if (doc.tipoDoc === "laudo_pericial") {
+          partes.push(`INSTRUÇÃO: Extraia: nome e registro do perito, data da vistoria, conclusão sobre causa do sinistro,`)
+          partes.push(`partes danificadas identificadas e estimativa de danos.`)
+          partes.push(`Verifique: (1) os danos descritos são compatíveis com o evento declarado? (2) há menção a danos`)
+          partes.push(`pré-existentes ou oxidação nas bordas? (3) a causa apontada pelo perito bate com o relato do associado?`)
+          partes.push(`(4) o laudo tem carimbo, assinatura e número de registro — ausência é red flag de documento adulterado.`)
+          partes.push(`Compare os danos do laudo com os danos visíveis nas fotos recebidas.`)
+        } else if (doc.tipoDoc === "nota_fiscal") {
+          partes.push(`INSTRUÇÃO: Extraia: itens, valores unitários, valor total, CNPJ e nome da oficina, data de emissão.`)
+          partes.push(`Verifique: (1) os itens cobrados são compatíveis com os danos declarados e visíveis nas fotos?`)
+          partes.push(`(2) o valor total está próximo de 75% da FIPE? Se sim, avalie se há inflação para atingir perda total.`)
+          partes.push(`(3) a data da nota é posterior ao evento? Nota emitida antes do evento é red flag crítico.`)
+          partes.push(`(4) itens de som, rodas, acessórios não originais — não cobertos conforme regulamento Loma.`)
+        } else if (doc.tipoDoc === "declaracao_segurado") {
+          partes.push(`INSTRUÇÃO: Extraia a narrativa completa, datas e assinatura do associado.`)
+          partes.push(`Compare CADA detalhe da declaração com o relato escrito fornecido no início deste contexto:`)
+          partes.push(`divergências de horário, local, sequência de eventos ou detalhes dos criminosos são contradições`)
+          partes.push(`que devem ser registradas explicitamente no campo "contradicoes".`)
+          partes.push(`Verifique se a data de assinatura da declaração é compatível com o prazo regulamentar do evento.`)
+        } else if (doc.tipoDoc === "laudo_medico") {
+          partes.push(`INSTRUÇÃO: Extraia: diagnóstico, lesões identificadas, códigos CID, data do atendimento, médico responsável.`)
+          partes.push(`Verifique: (1) as lesões são fisicamente compatíveis com a dinâmica do sinistro declarado?`)
+          partes.push(`(ex: colisão traseira não gera fratura de costela sem cinto; queda de moto gera escoriações específicas)`)
+          partes.push(`(2) a data do atendimento é coerente com a data do evento?`)
+          partes.push(`(3) lesões antigas ou crônicas listadas junto às recentes são red flag de inflação de danos.`)
+        } else if (doc.tipoDoc === "outro") {
+          partes.push(`INSTRUÇÃO: Identifique o tipo de documento, extraia todas as informações relevantes (datas, nomes,`)
+          partes.push(`valores, números de protocolo) e avalie sua relevância para a análise do sinistro.`)
+          partes.push(`Se o documento não tiver relação clara com o evento, registre isso em "alertas_documentais".`)
         }
+      } else if (!doc.base64 && doc.erroSistema) {
+        partes.push(`⚠ ERRO DO SISTEMA: o arquivo "${doc.nome}" foi enviado pelo analista mas não pôde ser lido por falha técnica (não é ausência do associado).`)
+        partes.push(`Registre a integridade como "parcial" e nos próximos_passos oriente o analista a reenviar o arquivo para nova tentativa de leitura.`)
+        partes.push(`NÃO trate como documento pendente do associado — o problema é técnico, não documental.`)
       } else if (!doc.base64) {
-        partes.push(`⚠ PENDÊNCIA CRÍTICA: arquivo não pôde ser lido — registre como documento pendente.`)
+        partes.push(`⚠ PENDÊNCIA CRÍTICA: arquivo NÃO foi recebido — o documento não foi anexado. Registre como "ausente".`)
       } else {
-        partes.push(`⚠ Não foi possível extrair texto deste PDF (pode ser imagem escaneada).`)
-        partes.push(`Registre como pendência e solicite versão digital do documento.`)
+        partes.push(`✓ DOCUMENTO RECEBIDO como PDF escaneado — o arquivo foi anexado a esta mensagem para leitura visual direta.`)
+        partes.push(`INSTRUÇÃO CRÍTICA: Leia o PDF "${doc.nome}" anexado e extraia TODAS as informações visíveis nele.`)
+        if (doc.tipoDoc === "bo") {
+          partes.push(`Extraia: número do BO, delegacia, data/hora do registro, data/hora declarada do evento, narrativa completa dos fatos.`)
+          partes.push(`Compare a narrativa do BO com o relato do associado e registre qualquer divergência em "contradicoes".`)
+        } else if (doc.tipoDoc === "crlv") {
+          partes.push(`Extraia: proprietário, CPF/CNPJ, placa, chassi, RENAVAM, ano/modelo, município, restrições (alienação, furto, impedimento).`)
+          partes.push(`Verifique se o proprietário bate com o associado declarado — discrepância é RED FLAG CRÍTICO.`)
+        } else if (doc.tipoDoc === "cnh") {
+          partes.push(`Extraia: nome, CPF, data de validade, categoria. Verifique se a CNH está dentro da validade.`)
+        } else {
+          partes.push(`Extraia todas as informações relevantes visíveis no documento (datas, nomes, números, valores).`)
+        }
+        partes.push(`Registre a integridade como "ok" se o documento estiver legível, ou "parcial" se apenas parte estiver legível.`)
       }
       partes.push(``)
     }
