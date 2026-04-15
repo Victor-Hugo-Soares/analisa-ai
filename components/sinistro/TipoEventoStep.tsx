@@ -76,7 +76,7 @@ export default function TipoEventoStep({
               key={tipo.id}
               onClick={() => onSelect(tipo.id)}
               className={cn(
-                "flex flex-col items-start p-5 rounded-xl border-2 text-left transition-all hover:shadow-sm",
+                "flex flex-col items-start p-5 rounded-xl border-2 text-left transition-all hover:shadow-sm cursor-pointer",
                 isSelected
                   ? "border-[#1a2744] bg-[#1a2744]/5 shadow-sm"
                   : "border-[#e2e8f0] bg-white hover:border-[#cbd5e1]"
