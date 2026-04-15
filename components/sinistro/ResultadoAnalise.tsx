@@ -464,7 +464,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
           )}
 
           {/* Pontos Favoráveis */}
-          {analise.pontos_verdadeiros?.length > 0 && (
+          {(analise.pontos_verdadeiros?.length ?? 0) > 0 && (
             <CollapsibleSection
               title={`Pontos Favoráveis (${analise.pontos_verdadeiros.length})`}
               className="border-green-200 bg-green-50"
@@ -482,7 +482,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
           )}
 
           {/* Pontos de Atenção */}
-          {analise.pontos_atencao?.length > 0 && (
+          {(analise.pontos_atencao?.length ?? 0) > 0 && (
             <CollapsibleSection
               title={`Pontos de Atenção (${analise.pontos_atencao.length})`}
               className="border-amber-200 bg-amber-50"
@@ -500,7 +500,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
           )}
 
           {/* Contradições */}
-          {analise.contradicoes?.length > 0 && (
+          {(analise.contradicoes?.length ?? 0) > 0 && (
             <CollapsibleSection
               title={`Contradições Identificadas (${analise.contradicoes.length})`}
               className="border-red-200 bg-red-50"
@@ -626,7 +626,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 )}
 
                 {/* Padrões Suspeitos */}
-                {analise.analise_audio.padroes_suspeitos?.length > 0 && (
+                {(analise.analise_audio.padroes_suspeitos?.length ?? 0) > 0 && (
                   <>
                     <Separator className="bg-blue-200" />
                     <div>
@@ -671,7 +671,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 )}
 
                 {/* Contradições com Relato */}
-                {analise.analise_audio.contradicoes_com_relato?.length > 0 && (
+                {(analise.analise_audio.contradicoes_com_relato?.length ?? 0) > 0 && (
                   <>
                     <Separator className="bg-blue-200" />
                     <div>
@@ -772,7 +772,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                   </>
                 )}
 
-                {analise.analise_imagens.observacoes?.length > 0 && (
+                {(analise.analise_imagens.observacoes?.length ?? 0) > 0 && (
                   <>
                     <Separator className="bg-purple-200" />
                     <div>
