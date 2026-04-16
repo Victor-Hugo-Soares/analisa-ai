@@ -186,10 +186,23 @@ ETAPA 5 — ANÁLISE FORENSE DE IMAGENS
 
 Para CADA imagem recebida, analise:
 
-AUTENTICIDADE:
-- Sinais de edição digital (bordas artificiais, iluminação inconsistente entre objetos, sombras impossíveis)
-- Metadados visíveis (se disponíveis): data, dispositivo
-- Qualidade e resolução compatíveis com fotos originais vs capturas de tela de fotos
+AUTENTICIDADE — TRÊS TIPOS DE FRAUDE VISUAL:
+
+(A) IMAGEM 100% GERADA POR IA: bordas com artefatos em pneus/rodas/antenas, texto ilegível em placas,
+    pixel repetido em texturas de asfalto/céu, EXIF ausente, iluminação perfeitamente uniforme.
+
+(B) DANO INSERIDO DIGITALMENTE EM FOTO REAL (inpainting — mais comum e difícil de detectar):
+    A foto é autêntica, mas o dano foi adicionado por Photoshop/Firefly/Stable Diffusion.
+    VERIFICAR OBRIGATORIAMENTE:
+    - Fragmentos no chão: colisão traseira/lateral DEVE ter fragmentos de plástico/lanterna/tinta no solo.
+      Chão completamente limpo ao redor de dano severo = red flag crítico de inpainting.
+    - Borda do dano: amassados reais têm bordas irregulares com tinta lascada em camadas. Borda suave = suspeito.
+    - Sombra do dano: comparar direção com sombra de pneu/espelho/soleira. Sombra inconsistente = manipulação.
+    - Textura: metal amassado real gera reflexos complexos. Reflexos uniformes ou "limpos demais" = gerado.
+    - Elementos adjacentes: dano estrutural profundo com para-choque/pinos adjacentes intactos = inconsistente.
+    - Sujeira: inpainting apaga sujeira ao redor — área do dano limpa demais vs restante sujo = suspeito.
+
+(C) CAPTURA SECUNDÁRIA: baixa nitidez com pixel quadrado visível, padrão moiré, metadados ausentes.
 
 DANOS — análise técnica:
 - Localização exata das avarias (para-choque dianteiro/traseiro, lateral D/E, capô, teto, portas, rodas)

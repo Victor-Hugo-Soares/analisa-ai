@@ -494,6 +494,64 @@ TÉCNICAS DE ANÁLISE FORENSE DE IMAGENS VEICULARES:
   - Veículo em posição implausível para a dinâmica declarada.
   - Ausência de marcas de frenagem em colisão em alta velocidade.
   - Outros veículos ao fundo que contradizem o local declarado.
+
+──── FOTO ADULTERADA — DANO INSERIDO DIGITALMENTE (INPAINTING) ────
+
+Este é o vetor de fraude mais sofisticado em imagens: a foto é REAL, mas o dano foi
+adicionado via Photoshop, Adobe Firefly, DALL-E inpaint, Stable Diffusion ou similar.
+Diferente de imagem 100% sintética, aqui o veículo, a placa e o ambiente são autênticos —
+apenas a área do dano foi gerada artificialmente.
+
+INDICADORES PRIMÁRIOS (alta confiabilidade):
+
+• AUSÊNCIA DE FRAGMENTOS NO CHÃO:
+  - Colisão traseira/lateral → deve haver fragmentos de lanterna, plástico ou tinta no solo.
+  - Se o chão ao redor do dano declarado está limpo e intacto → fortíssimo indicador de inpainting.
+  - Vidro quebrado sem fragmentos visíveis no banco, chão ou soleira = red flag crítico.
+
+• BORDA DO DANO ARTIFICIALMENTE SUAVE:
+  - Amassados reais têm bordas irregulares com micro-fissuras, tinta lascada em camadas e
+    estilhaços de primer visíveis.
+  - Bordas de inpainting tendem a ser demasiado suaves ou com gradiente artificial.
+  - Transição abrupta entre área danificada e metal íntegro sem marcas de estresse = suspeito.
+
+• TEXTURA INCONSISTENTE NA ÁREA DO DANO:
+  - Metal amassado real gera reflexos complexos e irregulares.
+  - Inpainting frequentemente produz textura de metal "limpa demais" ou com reflexos
+    uniformes que não batem com a fonte de luz visível na cena.
+
+• SOMBRA DO DANO INCOMPATÍVEL COM A LUZ DA CENA:
+  - Verificar a direção da sombra projetada pelo dano versus a sombra de outros elementos
+    do veículo (pneu, espelho, soleira).
+  - Se o dano projetar sombra em direção diferente dos demais elementos = manipulação.
+
+• RUÍDO DIGITAL HETEROGÊNEO:
+  - Câmeras reais geram ruído (grain) uniforme em toda a imagem.
+  - Regiões editadas por IA tendem a ter padrão de ruído visivelmente diferente do entorno —
+    área do dano "mais limpa" ou "mais granulada" que o restante.
+
+• PLACA E CHASSIS ÍNTEGROS VERSUS DANO SEVERO:
+  - Em colisões com deformação estrutural profunda, elementos adjacentes (para-choque, faixa
+    reflexiva, pinos de montagem) também se deformam.
+  - Dano severo em painel traseiro com para-choque íntegro e parafusos no lugar = inconsistente.
+
+INDICADORES SECUNDÁRIOS (suporte ao diagnóstico):
+
+• Deformação do painel sem deformação correlata em elementos internos visíveis (p. ex., porta-
+  malas que deveria estar trancado, mas fundo interno aparece intacto mesmo com dano externo profundo).
+• Ausência de marca de tinta do veículo colisor no ponto de impacto declarado.
+• Sujeira e umidade distribuídas uniformemente no veículo, mas área do dano com aspecto seco
+  e limpo sem justificativa (inpainting apaga sujeira ao redor do dano gerado).
+• Reflexo do ambiente (céu, construções) visivelmente diferente na área do dano versus painéis adjacentes.
+
+PROTOCOLO RECOMENDADO PARA CASOS SUSPEITOS:
+1. Solicitar fotos adicionais do mesmo dano em ângulos diferentes (45°, lateral, rente ao chão).
+2. Solicitar foto mostrando o interior do compartimento (porta-malas, motor) para verificar
+   deformação interna compatível.
+3. Solicitar vídeo breve circulando o veículo — inpainting consistente em vídeo é muito mais difícil.
+4. Cruzar com foto da vistoria inicial: se o veículo entrou sem dano e agora tem dano
+   "pronto" sem perito vê-lo fisicamente, exigir inspeção presencial obrigatória.
+5. Em casos de alta suspeita, determinar vistoria presencial antes de qualquer aprovação.
 `
 
 // ─────────────────────────────────────────────────────────────────────────────
