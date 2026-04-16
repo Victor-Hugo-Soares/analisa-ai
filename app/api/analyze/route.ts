@@ -220,8 +220,8 @@ export async function POST(req: NextRequest) {
 
     if (ehFurtoRoubo && temAudio) {
       // ── FLUXO DE DUAS CHAMADAS: furto/roubo com áudio ─────────────────────
-      // Chamada 1: documentos + imagens (sem áudio) com gpt-4.1 — ~25K tokens
-      console.log("[Análise] Furto/roubo com áudio — iniciando fluxo de 2 chamadas com gpt-4.1")
+      // Chamada 1: documentos + imagens (sem áudio) com gpt-4.1-mini — Tier 1: 200K TPM
+      console.log("[Análise] Furto/roubo com áudio — iniciando fluxo de 2 chamadas com gpt-4.1-mini")
 
       const contextoDocs = buildContexto({
         tipoEvento,
@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
       console.log(`[Análise] Chamada 1 — system: ${systemCall1.length} chars, contexto: ${contextoDocs.length} chars`)
 
       const resp1 = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        model: "gpt-4.1-mini",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         messages: [
           { role: "system", content: systemCall1 },
@@ -250,7 +250,7 @@ export async function POST(req: NextRequest) {
       console.log(`[TPM] Chamada 1 — prompt: ${resp1.usage?.prompt_tokens ?? '?'} | completion: ${resp1.usage?.completion_tokens ?? '?'} | total: ${resp1.usage?.total_tokens ?? '?'} tokens`)
       console.log(`[Análise] Chamada 1 concluída (${analiseParcial.length} chars)`)
 
-      // Chamada 2: integração do áudio + veredicto final com gpt-4.1 — ~15K tokens
+      // Chamada 2: integração do áudio + veredicto final com gpt-4.1-mini — Tier 1: 200K TPM
       const contextoAudio = buildContextoAudio({ transcricoesComAnalise })
       const userCall2 = `ANÁLISE DOCUMENTAL PARCIAL (Chamada 1):
 ${analiseParcial}
@@ -262,7 +262,7 @@ ${contextoAudio}`
       console.log(`[Análise] Chamada 2 — contexto áudio: ${userCall2.length} chars`)
 
       const resp2 = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        model: "gpt-4.1-mini",
         messages: [
           { role: "system", content: PROMPT_INTEGRACAO_AUDIO },
           { role: "user", content: userCall2 },
