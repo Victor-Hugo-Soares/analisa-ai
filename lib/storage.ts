@@ -283,3 +283,26 @@ export function setAuthTokens(tokens: {
   if (typeof window === "undefined") return
   localStorage.setItem("ianalista_auth", JSON.stringify(tokens))
 }
+
+export async function refreshAuthTokens(): Promise<string | null> {
+  if (typeof window === "undefined") return null
+  const stored = localStorage.getItem("ianalista_auth")
+  if (!stored) return null
+  let parsed: { access_token: string; refresh_token: string }
+  try { parsed = JSON.parse(stored) } catch { return null }
+  if (!parsed.refresh_token) return null
+
+  try {
+    const res = await fetch("/api/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: parsed.refresh_token }),
+    })
+    if (!res.ok) return null
+    const data = await res.json() as { access_token: string; refresh_token: string }
+    setAuthTokens(data)
+    return data.access_token
+  } catch {
+    return null
+  }
+}

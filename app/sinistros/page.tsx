@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
 import SinistrosList from "@/components/dashboard/SinistrosList"
-import { getSession, getAccessToken } from "@/lib/storage"
+import { getSession, getAccessToken, refreshAuthTokens, clearSession } from "@/lib/storage"
 import type { EmpresaSession, Sinistro, StatusSinistro } from "@/lib/types"
 
 const statusOptions: { value: string; label: string }[] = [
@@ -37,10 +37,23 @@ export default function EventosPage() {
     setSession(s)
     const token = getAccessToken()
     if (token) {
-      fetch("/api/sinistros", { headers: { Authorization: `Bearer ${token}` } })
-        .then((r) => r.json())
-        .then((d) => { if (d.sinistros) setEventos(d.sinistros) })
-        .finally(() => setLoading(false))
+      const loadEventos = async (accessToken: string, retried = false) => {
+        try {
+          const r = await fetch("/api/sinistros", { headers: { Authorization: `Bearer ${accessToken}` } })
+          if (r.status === 401 && !retried) {
+            const newToken = await refreshAuthTokens()
+            if (newToken) { loadEventos(newToken, true); return }
+            clearSession()
+            router.push("/login")
+            return
+          }
+          const d = await r.json()
+          if (d.sinistros) setEventos(d.sinistros)
+        } finally {
+          setLoading(false)
+        }
+      }
+      loadEventos(token)
     } else {
       setLoading(false)
     }
