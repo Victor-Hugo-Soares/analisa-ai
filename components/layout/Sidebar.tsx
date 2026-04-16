@@ -11,9 +11,10 @@ import {
   Plus,
   ShieldCheck,
   ScanSearch,
+  Users,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { isMaster } from "@/lib/storage"
+import { isMaster, canManageUsers } from "@/lib/storage"
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -26,9 +27,11 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname()
   const [master, setMaster] = useState(false)
+  const [gestorOuMaster, setGestorOuMaster] = useState(false)
 
   useEffect(() => {
     setMaster(isMaster())
+    setGestorOuMaster(canManageUsers())
   }, [])
 
   return (
@@ -77,6 +80,29 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {gestorOuMaster && !master && (
+        <nav className="px-3 pb-2 mt-2">
+          <p className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider px-3 mb-2">
+            Gestão
+          </p>
+          <Link
+            href="/usuarios"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-0.5",
+              pathname === "/usuarios" ? "text-white" : "hover:bg-[#f0fdfc]"
+            )}
+            style={
+              pathname === "/usuarios"
+                ? { backgroundColor: "#00bcb6" }
+                : { color: "#00a89e" }
+            }
+          >
+            <Users className="w-4 h-4 flex-shrink-0" />
+            Usuários
+          </Link>
+        </nav>
+      )}
+
       {master && (
         <nav className="px-3 pb-2 mt-2">
           <p className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wider px-3 mb-2">
@@ -86,9 +112,7 @@ export default function Sidebar() {
             href="/admin"
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-0.5",
-              pathname === "/admin"
-                ? "text-white"
-                : "hover:bg-[#f0fdfc]"
+              pathname === "/admin" ? "text-white" : "hover:bg-[#f0fdfc]"
             )}
             style={
               pathname === "/admin"
@@ -98,6 +122,21 @@ export default function Sidebar() {
           >
             <ShieldCheck className="w-4 h-4 flex-shrink-0" />
             Painel Master
+          </Link>
+          <Link
+            href="/admin/usuarios"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-0.5",
+              pathname === "/admin/usuarios" ? "text-white" : "hover:bg-[#f0fdfc]"
+            )}
+            style={
+              pathname === "/admin/usuarios"
+                ? { backgroundColor: "#00bcb6" }
+                : { color: "#00a89e" }
+            }
+          >
+            <Users className="w-4 h-4 flex-shrink-0" />
+            Usuários
           </Link>
         </nav>
       )}

@@ -126,7 +126,7 @@ export interface AnaliseIA {
   proximos_passos: string[]
 }
 
-export type RoleUsuario = "master" | "admin" | "usuario"
+export type RoleUsuario = "master" | "gestor" | "admin" | "usuario"
 
 export type NivelAcesso = "basico" | "avancado" | "premium"
 

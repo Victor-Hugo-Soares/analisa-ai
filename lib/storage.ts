@@ -268,6 +268,15 @@ export function isMaster(): boolean {
   return getRole() === "master"
 }
 
+export function isGestor(): boolean {
+  return getRole() === "gestor"
+}
+
+export function canManageUsers(): boolean {
+  const role = getRole()
+  return role === "master" || role === "gestor"
+}
+
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null
   const stored = localStorage.getItem("ianalista_auth")
