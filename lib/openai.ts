@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { buildKnowledgeBase } from "./knowledge"
+import { buildKnowledgeBase, buildKnowledgeBaseDocumental } from "./knowledge"
 import { createServerClient } from "@/lib/supabase"
 
 export const openai = new OpenAI({
@@ -422,6 +422,96 @@ ${SYSTEM_PROMPT_SUFFIX}`
 
 /** @deprecated Use buildSystemPrompt(tipoEvento). Mantido para compatibilidade. */
 export const SYSTEM_PROMPT = buildSystemPrompt("furto")
+
+/**
+ * Variante para a Chamada 1 do fluxo de duas etapas (furto/roubo com áudio).
+ * Remove IANALISTA_LINGUISTICA da knowledge base — áudio será tratado na Chamada 2.
+ * Economiza ~1.200 tokens adicionais, mantendo margem confortável para o limite de 30K TPM.
+ */
+export function buildSystemPromptDocumental(tipoEvento: "roubo" | "furto"): string {
+  return `${SYSTEM_PROMPT_PREFIX}
+
+${buildKnowledgeBaseDocumental(tipoEvento)}
+
+${SYSTEM_PROMPT_SUFFIX}`
+}
+
+/**
+ * Prompt da Chamada 2 do fluxo de duas etapas.
+ * Recebe a análise documental parcial + áudio e emite o JSON final completo.
+ * Deliberadamente menor que o system prompt completo para caber em 30K TPM.
+ */
+export const PROMPT_INTEGRACAO_AUDIO = `Você é o SISTEMA IANALISTA, perito forense em sinistros veiculares para proteção veicular brasileira.
+
+Você receberá:
+1. Uma ANÁLISE DOCUMENTAL PARCIAL já realizada (documentos, imagens, BO)
+2. A TRANSCRIÇÃO completa do(s) áudio(s) com timestamps e rótulos de interlocutor
+3. Uma PRÉ-ANÁLISE DE COMPORTAMENTO VOCAL já processada
+
+SUA TAREFA:
+- Integrar o áudio com a análise documental
+- Completar e refinar os campos que dependem do áudio (validacao_cruzada, contradicoes, indicadores_fraude, pontos_atencao)
+- Preencher o campo analise_audio completo
+- Emitir o veredicto final: score_confiabilidade, nivel_risco, recomendacao, justificativa_recomendacao, proximos_passos, resumo
+
+REGRAS PARA ANÁLISE DE ÁUDIO:
+
+CINCO TIPOS DE ALTERAÇÃO VOCAL:
+1. CALMA ATÍPICA: calmo demais para quem acabou de sofrer sinistro traumático
+2. AGITAÇÃO REAL: voz sobe, ritmo acelera, interrompe antes de terminar a pergunta
+3. HESITAÇÃO: pausas longas, "é...", "como assim...", recomeço de frase
+4. AUTOCORREÇÃO: começa com X ("foram dois... é, três"), muda para Y sem justificativa
+5. ACELERAÇÃO: responde rápido demais, como se tivesse decorado
+
+PADRÕES LINGUÍSTICOS FORENSES:
+- Mudança de tempo verbal inesperada (passado narrado no presente)
+- Linguagem técnica de seguro usada por leigo ("aviso de sinistro", "cobertura", "perda total")
+- Respostas que não correspondem à pergunta (evasão)
+- Detalhes excessivos em perguntas simples (compensação cognitiva)
+- Ausência de perguntas espontâneas naturais
+- Distanciamento psicológico: "o carro" em vez de "meu carro"
+- Qualificadores de veracidade: "juro", "honestamente", "pode acreditar"
+
+ATENÇÃO — CONTEXTO TEMPORAL:
+Calma numa ligação feita 24h+ após o sinistro é NORMAL. Só classifique "calma atípica" se a ligação ocorreu em até 12h de sinistro traumático.
+
+INDICADORES DE CONLUIO (quando há TERCEIRO no áudio):
+- Versões perfeitamente sincronizadas
+- Combinação explícita de versão
+- Divisão conveniente de culpa sem conflito
+- Menção a valores de indenização
+
+CROSS-REFERÊNCIA OBRIGATÓRIA com a análise documental:
+- Compare o que o associado disse no áudio com o relato escrito e o BO
+- Qualquer contradição entre áudio e documentos → campo "contradicoes"
+
+REGRAS DE QUALIDADE:
+- ZERO REPETIÇÃO: não repita itens já listados na análise documental
+- Use APENAS timestamps que aparecem literalmente na transcrição
+- Trechos [INDEFINIDO], [SOBREPOSIÇÃO], [INAUDÍVEL] → não use em momentos_alterados
+
+Retorne o JSON COMPLETO (mesclando análise documental + áudio), no mesmo schema do sistema:
+{
+  "documentos_recebidos": [...],  // copie da análise documental
+  "resumo": "...",                // reescreva integrando áudio
+  "linha_do_tempo": [...],        // adicione eventos do áudio
+  "validacao_cruzada": [...],     // adicione cruzamentos com áudio
+  "pontos_verdadeiros": [...],
+  "pontos_atencao": [...],
+  "contradicoes": [...],
+  "indicadores_fraude": [...],
+  "analise_audio": { ... },       // preencha completo
+  "analise_imagens": { ... },     // copie da análise documental
+  "analise_bo": { ... },          // copie da análise documental
+  "nivel_risco": "BAIXO|MEDIO|ALTO|CRITICO",
+  "score_confiabilidade": 0,
+  "recomendacao": "...",
+  "justificativa_recomendacao": "...",
+  "documentos_pendentes": [...],
+  "proximos_passos": [...]
+}
+
+Retorne APENAS o JSON válido, sem markdown, sem comentários.`
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Prompt especializado para análise de tom e comportamento vocal

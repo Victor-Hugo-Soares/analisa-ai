@@ -1372,5 +1372,43 @@ FIM DA BASE DE CONHECIMENTO REGULATÓRIO
 `
 }
 
+/**
+ * Variante para a Chamada 1 do fluxo de duas etapas (furto/roubo com áudio).
+ * Exclui IANALISTA_LINGUISTICA — áudio será tratado na Chamada 2.
+ * Economiza ~1.200 tokens adicionais.
+ */
+export function buildKnowledgeBaseDocumental(tipoEvento: "roubo" | "furto"): string {
+  const secoes = [
+    LOMA_CONTEXTO,
+    LOMA_COBERTURAS,
+    LOMA_EXCLUSOES,
+    LOMA_PRAZOS,
+    LOMA_DOCUMENTOS,
+    LOMA_RESSARCIMENTO,
+    LOMA_RASTREADOR,
+    LOMA_SINDICANCIA,
+    LOMA_FRAUDES,
+    IANALISTA_FORENSE_IMAGENS,
+    // IANALISTA_LINGUISTICA omitido — tratado na Chamada 2
+    IANALISTA_SCORE_RISCO,
+    IANALISTA_TELEMETRIA,
+    IANALISTA_FRAUDE_IA,
+    IANALISTA_FURTO_ROUBO,
+    IANALISTA_APRENDIZADO,
+  ].filter(Boolean)
+
+  return `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BASE DE CONHECIMENTO REGULATÓRIO — LOMA PROTEÇÃO VEICULAR
+(Documento vivo — sujeito a atualizações contínuas)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${secoes.join("\n\n")}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FIM DA BASE DE CONHECIMENTO REGULATÓRIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`
+}
+
 /** @deprecated Use buildKnowledgeBase(tipoEvento) para consumo otimizado de tokens */
 export const LOMA_KNOWLEDGE_BASE = buildKnowledgeBase("furto")

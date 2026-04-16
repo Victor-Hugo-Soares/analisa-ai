@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { openai, buildSystemPrompt, AUDIO_TONE_PROMPT, DIARIZATION_PROMPT, fetchAprendizadosRegistrados } from "@/lib/openai"
+import { openai, buildSystemPrompt, buildSystemPromptDocumental, PROMPT_INTEGRACAO_AUDIO, AUDIO_TONE_PROMPT, DIARIZATION_PROMPT, fetchAprendizadosRegistrados } from "@/lib/openai"
 import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
@@ -188,61 +188,120 @@ export async function POST(req: NextRequest) {
 
     console.log(`[Análise] Enviando contexto ao GPT-4o (${contexto.length} chars, ${docsResolvidos.filter(d => d.base64).length} docs anexados)`)
 
-    // ─── 5. Análise final com GPT-4o ─────────────────────────────────────────
+    // ─── 5. Análise final ────────────────────────────────────────────────────
     const aprendizados = await fetchAprendizadosRegistrados()
-    const systemPromptFinal = buildSystemPrompt(tipoEvento) + aprendizados
-    console.log(`[Análise] System prompt final: ${systemPromptFinal.length} chars (aprendizados: ${aprendizados.length > 0 ? "sim" : "não"})`)
 
-    // Montar conteúdo do usuário: texto + PDFs escaneados como arquivo para visão
-    const userContentParts: Array<
-      | { type: "text"; text: string }
-      | { type: "file"; file: { filename: string; file_data: string } }
-    > = [{ type: "text", text: contexto }]
+    const ehFurtoRoubo = tipoEvento === "furto" || tipoEvento === "roubo"
+    const temAudio = transcricoesComAnalise.some(
+      (t) => !t.transcricao.startsWith("[ERRO") && !t.transcricao.startsWith("[PENDÊNCIA")
+    )
 
-    for (const doc of docsResolvidos) {
-      if (!doc.base64 || !doc.nome.toLowerCase().endsWith(".pdf")) continue
+    // Helper: monta userContentParts com PDFs escaneados anexados para visão
+    function montarUserContent(textoContexto: string) {
+      const parts: Array<
+        | { type: "text"; text: string }
+        | { type: "file"; file: { filename: string; file_data: string } }
+      > = [{ type: "text", text: textoContexto }]
 
-      // Fotos em PDF: sempre envia para visão, independente de ter texto
-      const eFotosPdf = doc.tipoDoc === "fotos_pdf"
-      // PDFs escaneados (sem texto extraível): envia para visão
-      const eEscaneado = !doc.textoPdf || doc.textoPdf.length <= 10
-
-      if (eFotosPdf || eEscaneado) {
-        const raw = doc.base64.includes(",") ? doc.base64.split(",")[1] : doc.base64
-        userContentParts.push({
-          type: "file",
-          file: {
-            filename: doc.nome,
-            file_data: `data:application/pdf;base64,${raw}`,
-          },
-        })
-        const motivo = eFotosPdf ? "classificado como fotos" : "escaneado sem texto"
-        console.log(`[Análise] PDF "${doc.nome}" (${motivo}) enviado ao GPT-4o para leitura visual`)
+      for (const doc of docsResolvidos) {
+        if (!doc.base64 || !doc.nome.toLowerCase().endsWith(".pdf")) continue
+        const eFotosPdf = doc.tipoDoc === "fotos_pdf"
+        const eEscaneado = !doc.textoPdf || doc.textoPdf.length <= 10
+        if (eFotosPdf || eEscaneado) {
+          const raw = doc.base64.includes(",") ? doc.base64.split(",")[1] : doc.base64
+          parts.push({ type: "file", file: { filename: doc.nome, file_data: `data:application/pdf;base64,${raw}` } })
+          console.log(`[Análise] PDF "${doc.nome}" (${eFotosPdf ? "fotos" : "escaneado"}) enviado para visão`)
+        }
       }
+      return parts
     }
 
-    const analiseResponse = await openai.chat.completions.create({
-      model: "gpt-4.1-mini",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      messages: [
-        { role: "system", content: systemPromptFinal },
-        { role: "user", content: userContentParts as any },
-      ],
-      temperature: 0.15,
-      max_tokens: 5000,
-      response_format: { type: "json_object" },
-    })
+    let analise: Record<string, unknown>
 
-    const analiseText = analiseResponse.choices[0]?.message?.content ?? "{}"
-    console.log(`[Análise] Resposta recebida (${analiseText.length} chars)`)
+    if (ehFurtoRoubo && temAudio) {
+      // ── FLUXO DE DUAS CHAMADAS: furto/roubo com áudio ─────────────────────
+      // Chamada 1: documentos + imagens (sem áudio) com gpt-4.1 — ~25K tokens
+      console.log("[Análise] Furto/roubo com áudio — iniciando fluxo de 2 chamadas com gpt-4.1")
 
-    const analise = JSON.parse(analiseText)
+      const contextoDocs = buildContexto({
+        tipoEvento,
+        dados,
+        transcricoesComAnalise: [], // sem áudio nesta chamada
+        descricoesImagens,
+        docsResolvidos,
+      })
+
+      const systemCall1 = buildSystemPromptDocumental(tipoEvento) + aprendizados
+      console.log(`[Análise] Chamada 1 — system: ${systemCall1.length} chars, contexto: ${contextoDocs.length} chars`)
+
+      const resp1 = await openai.chat.completions.create({
+        model: "gpt-4.1",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        messages: [
+          { role: "system", content: systemCall1 },
+          { role: "user", content: montarUserContent(contextoDocs) as any },
+        ],
+        temperature: 0.15,
+        max_tokens: 4000,
+        response_format: { type: "json_object" },
+      })
+
+      const analiseParcial = resp1.choices[0]?.message?.content ?? "{}"
+      console.log(`[Análise] Chamada 1 concluída (${analiseParcial.length} chars)`)
+
+      // Chamada 2: integração do áudio + veredicto final com gpt-4.1 — ~15K tokens
+      const contextoAudio = buildContextoAudio({ transcricoesComAnalise })
+      const userCall2 = `ANÁLISE DOCUMENTAL PARCIAL (Chamada 1):
+${analiseParcial}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÁUDIO PARA INTEGRAÇÃO:
+${contextoAudio}`
+
+      console.log(`[Análise] Chamada 2 — contexto áudio: ${userCall2.length} chars`)
+
+      const resp2 = await openai.chat.completions.create({
+        model: "gpt-4.1",
+        messages: [
+          { role: "system", content: PROMPT_INTEGRACAO_AUDIO },
+          { role: "user", content: userCall2 },
+        ],
+        temperature: 0.15,
+        max_tokens: 4000,
+        response_format: { type: "json_object" },
+      })
+
+      const analiseText2 = resp2.choices[0]?.message?.content ?? "{}"
+      console.log(`[Análise] Chamada 2 concluída (${analiseText2.length} chars)`)
+      analise = JSON.parse(analiseText2)
+
+    } else {
+      // ── FLUXO ÚNICO: todos os outros casos com gpt-4.1-mini ───────────────
+      const systemPromptFinal = buildSystemPrompt(tipoEvento) + aprendizados
+      console.log(`[Análise] Fluxo único gpt-4.1-mini — system: ${systemPromptFinal.length} chars`)
+
+      const resp = await openai.chat.completions.create({
+        model: "gpt-4.1-mini",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        messages: [
+          { role: "system", content: systemPromptFinal },
+          { role: "user", content: montarUserContent(contexto) as any },
+        ],
+        temperature: 0.15,
+        max_tokens: 4000,
+        response_format: { type: "json_object" },
+      })
+
+      const analiseText = resp.choices[0]?.message?.content ?? "{}"
+      console.log(`[Análise] Resposta recebida (${analiseText.length} chars)`)
+      analise = JSON.parse(analiseText)
+    }
 
     // Injetar transcrição completa na analise_audio se houver
     // Se havia áudio mas a IA retornou analise_audio: null, cria o objeto mínimo
     if (transcricoesComAnalise.length > 0 && !analise.analise_audio) {
       console.warn("[Análise] analise_audio retornou null apesar de haver transcrição — criando objeto mínimo")
-      analise.analise_audio = { transcricao_completa: null }
+      analise.analise_audio = { transcricao_completa: null } as Record<string, unknown>
     }
     if (transcricoesComAnalise.length > 0 && analise.analise_audio) {
       const LIMITE_CHARS = 50000
@@ -250,7 +309,8 @@ export async function POST(req: NextRequest) {
         .map((t) => `=== ${t.arquivo} ===\n${t.transcricao}`)
         .join("\n\n")
 
-      analise.analise_audio.transcricao_completa =
+      const audioObj = analise.analise_audio as Record<string, unknown>
+      audioObj.transcricao_completa =
         transcricaoFull.length > LIMITE_CHARS
           ? transcricaoFull.substring(0, LIMITE_CHARS) +
             `\n\n[... transcrição truncada — ${transcricaoFull.length.toLocaleString("pt-BR")} caracteres no total, exibindo os primeiros ${LIMITE_CHARS.toLocaleString("pt-BR")}]`
@@ -589,6 +649,33 @@ interface ContextoParams {
   transcricoesComAnalise: TranscricaoComAnalise[]
   descricoesImagens: Array<{ arquivo: string; descricao: string }>
   docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null; textoPdf: string | null; erroSistema: boolean }>
+}
+
+/**
+ * Monta apenas a seção de áudio para a Chamada 2 do fluxo de duas etapas.
+ * Inclui transcrição completa + pré-análise de tom para cada arquivo.
+ */
+function buildContextoAudio({ transcricoesComAnalise }: { transcricoesComAnalise: TranscricaoComAnalise[] }): string {
+  const partes: string[] = []
+  for (const t of transcricoesComAnalise) {
+    const timestampsReais = extractTimestamps(t.transcricao)
+    partes.push(`ARQUIVO: ${t.arquivo}`)
+    partes.push(``)
+    partes.push(`── TRANSCRIÇÃO COMPLETA COM TIMESTAMPS ──`)
+    partes.push(`(Os timestamps abaixo são os ÚNICOS válidos para referência)`)
+    partes.push(t.transcricao)
+    partes.push(``)
+    partes.push(`── TIMESTAMPS DISPONÍVEIS ──`)
+    partes.push(timestampsReais.length > 0 ? timestampsReais.join("  |  ") : "(Sem timestamps)")
+    if (t.analise_tom) {
+      partes.push(``)
+      partes.push(`── PRÉ-ANÁLISE DE COMPORTAMENTO VOCAL ──`)
+      partes.push(`Use como referência. Valide com a transcrição acima.`)
+      partes.push(JSON.stringify(t.analise_tom, null, 2))
+    }
+    partes.push(``)
+  }
+  return partes.join("\n")
 }
 
 function buildContexto({
