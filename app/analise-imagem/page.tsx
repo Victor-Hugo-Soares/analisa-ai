@@ -45,33 +45,57 @@ const MAX_TAMANHO_MB = 10    // image limit
 const MAX_VIDEO_MB = 100     // video limit
 const FRAMES_POR_VIDEO = 3   // frames extracted per video
 
+// ─── Helpers para detecção de tipo de arquivo ────────────────────────────────
+
+const IMAGE_EXTS = /\.(jpe?g|png|webp|gif|bmp|avif)$/i
+const VIDEO_EXTS = /\.(mp4|mov|webm|avi|mkv|m4v|3gp)$/i
+
+function isImageFile(file: File) {
+  return file.type.startsWith("image/") || IMAGE_EXTS.test(file.name)
+}
+function isVideoFile(file: File) {
+  return file.type.startsWith("video/") || VIDEO_EXTS.test(file.name)
+}
+
 // ─── Video frame extraction (client-side) ─────────────────────────────────────
 
 async function extractVideoFrames(file: File, count = FRAMES_POR_VIDEO): Promise<VideoFrame[]> {
   return new Promise((resolve) => {
-    const video = document.createElement("video")
     const url = URL.createObjectURL(file)
+    const video = document.createElement("video")
     video.src = url
     video.muted = true
-    video.crossOrigin = "anonymous"
     video.playsInline = true
+    video.preload = "metadata"
 
     const frames: VideoFrame[] = []
     let times: number[] = []
     let idx = 0
+    let done = false
 
-    video.onerror = () => {
+    function finish() {
+      if (done) return
+      done = true
+      clearTimeout(watchdog)
+      video.pause()
+      video.src = ""
       URL.revokeObjectURL(url)
       resolve(frames)
     }
 
+    // Safety: if nothing happens in 30 s, give up
+    const watchdog = setTimeout(finish, 30_000)
+
+    video.onerror = finish
+
     video.onloadedmetadata = () => {
       const d = video.duration
-      // Spread frames between 10% and 90% of the video to avoid black frames
+      if (!isFinite(d) || d <= 0) { finish(); return }
+      // Distribute between 10% and 90% of the video to avoid black/transition frames
       times = Array.from({ length: count }, (_, i) =>
         d * (0.1 + (0.8 * i) / Math.max(count - 1, 1))
       )
-      captureNext()
+      seekNext()
     }
 
     video.onseeked = () => {
@@ -100,19 +124,14 @@ async function extractVideoFrames(file: File, count = FRAMES_POR_VIDEO): Promise
         })
       }
       idx++
-      captureNext()
+      if (idx >= times.length) finish()
+      else seekNext()
     }
 
-    function captureNext() {
-      if (idx >= times.length) {
-        URL.revokeObjectURL(url)
-        resolve(frames)
-        return
-      }
-      video.currentTime = times[idx]
+    function seekNext() {
+      // Small delay to let the browser process the seek request
+      setTimeout(() => { video.currentTime = times[idx] }, 50)
     }
-
-    video.load()
   })
 }
 
@@ -186,7 +205,7 @@ export default function AnaliseImagemPage() {
     for (const file of lista) {
       if (itens.length + novos.length >= MAX_IMAGENS) break
 
-      if (file.type.startsWith("image/") && file.size <= MAX_TAMANHO_MB * 1024 * 1024) {
+      if (isImageFile(file) && file.size <= MAX_TAMANHO_MB * 1024 * 1024) {
         const base64 = await new Promise<string>((resolve) => {
           const reader = new FileReader()
           reader.onload = (e) => resolve(e.target?.result as string)
@@ -200,7 +219,9 @@ export default function AnaliseImagemPage() {
           tamanho: file.size,
           tipo: "imagem",
         })
-      } else if (file.type.startsWith("video/") && file.size <= MAX_VIDEO_MB * 1024 * 1024) {
+      } else if (isVideoFile(file) && file.size > MAX_VIDEO_MB * 1024 * 1024) {
+        setErro(`O vídeo "${file.name}" excede o limite de ${MAX_VIDEO_MB} MB.`)
+      } else if (isVideoFile(file)) {
         setExtraindoVideo(true)
         try {
           const frames = await extractVideoFrames(file)
@@ -215,14 +236,12 @@ export default function AnaliseImagemPage() {
               frames,
             })
           } else {
-            setErro(`Não foi possível extrair frames do vídeo "${file.name}".`)
+            setErro(`Não foi possível extrair frames do vídeo "${file.name}". Tente converter para MP4 H.264.`)
           }
         } catch {
           setErro(`Erro ao processar vídeo "${file.name}".`)
         }
         setExtraindoVideo(false)
-      } else if (file.type.startsWith("video/") && file.size > MAX_VIDEO_MB * 1024 * 1024) {
-        setErro(`O vídeo "${file.name}" excede o limite de ${MAX_VIDEO_MB} MB.`)
       }
     }
 
