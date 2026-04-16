@@ -211,7 +211,7 @@ async function analyzeIndividual(
   textoParts.push(`\nArquivo em análise: ${nome}`)
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4.1-mini",
     messages: [{
       role: "user",
       content: [
@@ -268,7 +268,7 @@ async function analyzeComparacao(
   textoParts.push(`\nIMAGEM 1 (original): ${nomeOriginal}\nIMAGEM 2 (suspeita): ${nomeSuspeita}`)
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4.1-mini",
     messages: [{
       role: "user",
       content: [

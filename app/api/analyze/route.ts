@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
     }
 
     const analiseResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4.1-mini",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: [
         { role: "system", content: systemPromptFinal },
@@ -465,7 +465,7 @@ function formatTimestamp(seconds: number): string {
 async function diarizeTranscription(transcricaoBruta: string): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4.1-mini",
       messages: [
         { role: "system", content: DIARIZATION_PROMPT },
         {
@@ -497,7 +497,7 @@ async function analyzeAudioTone(
 ): Promise<Record<string, unknown> | null> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4.1-mini",
       messages: [
         { role: "system", content: AUDIO_TONE_PROMPT },
         {
@@ -541,7 +541,7 @@ async function analyzeImage(
   const imageUrl = base64.startsWith("data:") ? base64 : `data:image/jpeg;base64,${base64}`
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4.1-mini",
     messages: [
       {
         role: "user",
