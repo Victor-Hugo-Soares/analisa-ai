@@ -10,6 +10,16 @@ import { setSession, setAuthTokens } from "@/lib/storage"
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
+
+  // Login sempre em modo claro — preserva a preferência para restaurar ao sair
+  useEffect(() => {
+    const html = document.documentElement
+    html.classList.remove("dark")
+    return () => {
+      const stored = localStorage.getItem("ianalista_theme")
+      if (stored === "dark") html.classList.add("dark")
+    }
+  }, [])
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
