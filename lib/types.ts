@@ -58,8 +58,9 @@ export interface ArquivoAnexo {
   tipo: "audio" | "documento" | "imagem"
   tipoDoc?: TipoDocumento  // classificação manual para documentos PDF
   tamanho: number
-  base64?: string       // usado apenas para arquivos pequenos inline
-  storagePath?: string  // path no Supabase Storage (preferido para arquivos grandes)
+  base64?: string        // usado apenas para arquivos pequenos inline
+  storagePath?: string   // path no Supabase Storage (preferido para arquivos grandes)
+  uploadFailed?: boolean // true = arquivo foi selecionado mas falhou no upload e é grande demais para base64
 }
 
 export interface DadosSinistro {

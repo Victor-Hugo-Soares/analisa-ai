@@ -34,8 +34,12 @@ function AudioDropzone({ arquivos, onDrop, onRemove }: AudioDropzoneProps) {
     accept: {
       "audio/mpeg": [".mp3"],
       "audio/wav": [".wav"],
-      "audio/mp4": [".m4a"],
+      "audio/mp4": [".m4a", ".mp4"],
       "audio/x-m4a": [".m4a"],
+      "audio/ogg": [".ogg", ".opus"],
+      "audio/webm": [".webm"],
+      "audio/flac": [".flac"],
+      "audio/*": [],
     },
     maxSize: 25 * 1024 * 1024,
   })
@@ -59,7 +63,7 @@ function AudioDropzone({ arquivos, onDrop, onRemove }: AudioDropzoneProps) {
             <Mic className="w-7 h-7 text-blue-600" />
           </div>
           <p className="font-semibold text-[#0f172a] text-sm mb-1">Ligação do Associado</p>
-          <p className="text-xs text-[#64748b] mb-2">MP3, WAV, M4A — até 25MB</p>
+          <p className="text-xs text-[#64748b] mb-2">MP3, WAV, M4A, OGG, WEBM — até 25MB</p>
           <div className="flex items-center gap-1.5 text-xs text-[#94a3b8]">
             <Upload className="w-3 h-3" />
             <span>{isDragActive ? "Solte os arquivos aqui" : "Arraste ou clique para selecionar"}</span>

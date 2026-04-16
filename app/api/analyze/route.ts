@@ -408,7 +408,8 @@ async function resolveArquivoBase64(arquivo: ArquivoPayload): Promise<string | n
 function getMimeType(nome: string): string {
   const ext = nome.split(".").pop()?.toLowerCase() ?? ""
   const map: Record<string, string> = {
-    mp3: "audio/mpeg", wav: "audio/wav", m4a: "audio/mp4",
+    mp3: "audio/mpeg", wav: "audio/wav", m4a: "audio/mp4", mp4: "audio/mp4",
+    ogg: "audio/ogg", opus: "audio/ogg", webm: "audio/webm", flac: "audio/flac",
     jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
     pdf: "application/pdf",
   }

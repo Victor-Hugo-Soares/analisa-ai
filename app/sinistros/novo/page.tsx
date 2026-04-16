@@ -141,13 +141,15 @@ export default function NovoEventoPage() {
         }
       }
 
-      // Fallback: base64 (apenas para arquivos pequenos < 2MB)
+      // Fallback: base64 — até 4 MB (cobre a maioria das ligações curtas)
+      // Para arquivos maiores, marca uploadFailed para bloquear a análise com aviso claro
       if (!uploadedToStorage) {
-        if (file.size < 2 * 1024 * 1024) {
+        if (file.size < 4 * 1024 * 1024) {
           const base64 = await fileToBase64(file)
           updated[idx] = { ...updated[idx], base64 }
         } else {
-          console.warn(`[Storage] Arquivo ${nome} é grande demais para fallback base64 (${(file.size / 1024 / 1024).toFixed(1)}MB)`)
+          console.warn(`[Storage] Arquivo ${nome} (${(file.size / 1024 / 1024).toFixed(1)} MB) falhou no upload e é grande demais para base64`)
+          updated[idx] = { ...updated[idx], uploadFailed: true }
         }
       }
     }
@@ -167,6 +169,15 @@ export default function NovoEventoPage() {
   async function runAnalise() {
     try {
       const arquivosComPath = await uploadArquivos()
+
+      // Bloqueia se algum arquivo falhou no upload (tamanho > fallback base64)
+      const falhos = arquivosComPath.filter((a) => a.uploadFailed)
+      if (falhos.length > 0) {
+        const nomes = falhos.map((a) => `"${a.nome}"`).join(", ")
+        throw new Error(
+          `Falha no envio dos seguintes arquivos: ${nomes}.\n\nIsso geralmente ocorre por instabilidade de rede. Verifique sua conexão e tente novamente.`
+        )
+      }
 
       const payload = {
         tipoEvento,
