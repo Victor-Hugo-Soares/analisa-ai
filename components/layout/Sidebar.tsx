@@ -10,6 +10,7 @@ import {
   Settings,
   Plus,
   ShieldCheck,
+  ScanSearch,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { isMaster } from "@/lib/storage"
@@ -17,6 +18,7 @@ import { isMaster } from "@/lib/storage"
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Eventos", href: "/sinistros", icon: FileText },
+  { label: "Análise de Imagem", href: "/analise-imagem", icon: ScanSearch },
   { label: "Relatórios", href: "/relatorios", icon: BarChart3 },
   { label: "Configurações", href: "/configuracoes", icon: Settings },
 ]
