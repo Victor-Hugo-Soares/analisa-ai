@@ -348,6 +348,9 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
     router.push("/dashboard")
   }
 
+  // Ícone do modal — definido aqui para ser válido como componente JSX (letra maiúscula)
+  const ModalIcon = modalDecisao?.icon ?? CheckCircle2
+
   const temLinhaDoTempo =
     Array.isArray(analise.linha_do_tempo) && analise.linha_do_tempo.length > 0
   const temIndicadoresFraude =
@@ -950,9 +953,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
     </div>
 
     {/* Modal de decisão com motivo obrigatório */}
-    {modalDecisao && (() => {
-      const ModalIcon = modalDecisao.icon
-      return (
+    {modalDecisao && (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
           {/* Header */}
@@ -1012,7 +1013,6 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
           </div>
         </div>
       </div>
-      )
-    })()}
+    )}
   )
 }
