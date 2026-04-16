@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
   CheckCircle2,
@@ -28,7 +28,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { saveSinistro, fetchWithAuth } from "@/lib/storage"
+import { saveSinistro, fetchWithAuth, getAccessToken } from "@/lib/storage"
 import type { Sinistro, StatusSinistro, Recomendacao, TipoEvento } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -248,10 +248,46 @@ const tipoIcone = {
   imagem: ImageIcon,
 }
 
+type DecisaoConfig = {
+  status: StatusSinistro
+  label: string
+  placeholder: string
+  cor: string
+  icon: React.ElementType
+}
+
+const decisaoConfig: Record<string, DecisaoConfig> = {
+  concluido: {
+    status: "concluido",
+    label: "Aprovar Evento",
+    placeholder: "Ex: Documentação completa, danos consistentes com o relato, sem indícios de fraude. Score da IA alinhado com minha avaliação.",
+    cor: "bg-green-600",
+    icon: CheckCircle2,
+  },
+  em_analise: {
+    status: "em_analise",
+    label: "Solicitar Informações",
+    placeholder: "Ex: Faltam fotos do local do sinistro. O BO foi registrado 48h após o evento sem justificativa. Aguardando laudo pericial.",
+    cor: "bg-amber-500",
+    icon: AlertTriangle,
+  },
+  suspeito: {
+    status: "suspeito",
+    label: "Recusar Evento",
+    placeholder: "Ex: Rastreador inativo 3 dias antes do furto. Histórico de 2 sinistros similares nos últimos 12 meses. Relato inconsistente com o BO.",
+    cor: "bg-red-600",
+    icon: XCircle,
+  },
+}
+
 export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
   const router = useRouter()
   const analise = sinistro.analise
   const [transcricaoExpandida, setTranscricaoExpandida] = useState(false)
+  const [modalDecisao, setModalDecisao] = useState<DecisaoConfig | null>(null)
+  const [motivoDecisao, setMotivoDecisao] = useState("")
+  const [salvando, setSalvando] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   if (!analise) {
     return (
@@ -264,11 +300,22 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
   const rec = recomendacaoConfig[analise.recomendacao]
   const RecIcon = rec.icon
 
-  async function handleDecisao(status: StatusSinistro) {
+  function abrirModalDecisao(chave: string) {
+    setMotivoDecisao("")
+    setModalDecisao(decisaoConfig[chave])
+    // foca o textarea após render
+    setTimeout(() => textareaRef.current?.focus(), 50)
+  }
+
+  async function confirmarDecisao() {
+    if (!modalDecisao || !motivoDecisao.trim()) return
+    setSalvando(true)
+
+    const { status } = modalDecisao
+
+    // 1. Salva decisão localmente e no banco
     const updated: Sinistro = { ...sinistro, status }
     saveSinistro(updated)
-
-    // Persiste a decisão no Supabase
     try {
       await fetchWithAuth(`/api/sinistros/${sinistro.id}`, {
         method: "PATCH",
@@ -279,6 +326,25 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
       console.error("Erro ao atualizar status no banco:", e)
     }
 
+    // 2. Cria aprendizado pendente automaticamente com o motivo
+    try {
+      const token = getAccessToken()
+      const statusLabel = modalDecisao.label
+      const conteudo = `[DECISÃO: ${statusLabel}] ${motivoDecisao.trim()}`
+      await fetch("/api/aprendizados", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ sinistro_id: sinistro.id, conteudo }),
+      })
+    } catch (e) {
+      console.error("Erro ao salvar aprendizado:", e)
+    }
+
+    setSalvando(false)
+    setModalDecisao(null)
     router.push("/dashboard")
   }
 
@@ -849,21 +915,21 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
               <Button
-                onClick={() => handleDecisao("concluido")}
+                onClick={() => abrirModalDecisao("concluido")}
                 className="bg-green-600 hover:bg-green-700 text-white gap-2 flex-1"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 Aprovar Evento
               </Button>
               <Button
-                onClick={() => handleDecisao("em_analise")}
+                onClick={() => abrirModalDecisao("em_analise")}
                 className="bg-amber-500 hover:bg-amber-600 text-white gap-2 flex-1"
               >
                 <AlertTriangle className="w-4 h-4" />
                 Solicitar Informações
               </Button>
               <Button
-                onClick={() => handleDecisao("suspeito")}
+                onClick={() => abrirModalDecisao("suspeito")}
                 className="bg-red-600 hover:bg-red-700 text-white gap-2 flex-1"
               >
                 <XCircle className="w-4 h-4" />
@@ -882,5 +948,71 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
         </div>
       </div>
     </div>
+
+    {/* Modal de decisão com motivo obrigatório */}
+    {modalDecisao && (() => {
+      const ModalIcon = modalDecisao.icon
+      return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+          {/* Header */}
+          <div className={cn("rounded-t-2xl px-6 py-4 flex items-center gap-3", modalDecisao.cor)}>
+            <ModalIcon className="w-5 h-5 text-white flex-shrink-0" />
+            <h2 className="text-white font-semibold text-base">{modalDecisao.label}</h2>
+          </div>
+
+          {/* Body */}
+          <div className="px-6 py-5">
+            <p className="text-sm text-[#0f172a] font-medium mb-1">
+              Qual o motivo desta decisão?
+            </p>
+            <p className="text-xs text-[#64748b] mb-3">
+              Sua justificativa será usada para treinar a IA e melhorar futuras análises.
+            </p>
+            <textarea
+              ref={textareaRef}
+              value={motivoDecisao}
+              onChange={e => setMotivoDecisao(e.target.value)}
+              placeholder={modalDecisao.placeholder}
+              rows={4}
+              className="w-full text-sm border border-[#e2e8f0] rounded-lg px-3 py-2.5 text-[#0f172a] placeholder:text-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#1a2744]/20 focus:border-[#1a2744] resize-none"
+            />
+            <p className="text-xs text-[#94a3b8] mt-1.5">
+              {motivoDecisao.trim().length}/500 caracteres
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 pb-5 flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              className="border-[#e2e8f0] text-[#64748b]"
+              onClick={() => setModalDecisao(null)}
+              disabled={salvando}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={confirmarDecisao}
+              disabled={!motivoDecisao.trim() || salvando}
+              className={cn("text-white gap-2", modalDecisao.cor, "hover:opacity-90")}
+            >
+              {salvando ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <ModalIcon className="w-4 h-4" />
+                  Confirmar {modalDecisao.label}
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+      )
+    })()}
   )
 }
