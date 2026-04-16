@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Car, MapPin, Calendar, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { Sinistro, StatusSinistro, TipoEvento } from "@/lib/types"
+import { useDarkMode } from "@/lib/useTheme"
 
 interface SinistrosListProps {
   sinistros: Sinistro[]
@@ -51,6 +52,8 @@ function formatDate(dateStr: string) {
 }
 
 export default function SinistrosList({ sinistros }: SinistrosListProps) {
+  const isDark = useDarkMode()
+
   if (sinistros.length === 0) {
     return (
       <div className="text-center py-12">
@@ -73,8 +76,11 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
             href={`/sinistros/${sinistro.id}`}
             className="flex items-center gap-4 p-4 hover:bg-[#f0fdfc] transition-colors group"
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#ccf7f5" }}>
-              <Car className="w-5 h-5" style={{ color: "#00a89e" }} />
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: isDark ? "#0c2020" : "#ccf7f5" }}
+            >
+              <Car className="w-5 h-5" style={{ color: isDark ? "#2dd4bf" : "#00a89e" }} />
             </div>
 
             <div className="flex-1 min-w-0">
@@ -112,7 +118,11 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
               <Badge
                 className={`${status.className} border text-xs font-medium px-2.5 py-0.5`}
                 variant="outline"
-                style={status.style}
+                style={
+                  sinistro.status === "pendente" && isDark
+                    ? { backgroundColor: "#0c2020", color: "#2dd4bf", borderColor: "#0f766e" }
+                    : status.style
+                }
               >
                 {status.label}
               </Badge>

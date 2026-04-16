@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { LogOut, Bell, X, BookOpen } from "lucide-react"
+import { LogOut, Bell, X, BookOpen, Moon, Sun } from "lucide-react"
 import { clearSession, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession } from "@/lib/types"
 import AprendizadoModal from "@/components/AprendizadoModal"
@@ -28,7 +28,25 @@ export default function Header({ session }: HeaderProps) {
   const [showAprendizadoModal, setShowAprendizadoModal] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
+  const [dark, setDark] = useState(false)
   const naoLidas = notificacoes.filter((n) => !n.lida).length
+
+  // Inicializa tema a partir do localStorage ou preferência do sistema
+  useEffect(() => {
+    const stored = localStorage.getItem("ianalista_theme")
+    const shouldDark =
+      stored === "dark" ||
+      (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    setDark(shouldDark)
+    document.documentElement.classList.toggle("dark", shouldDark)
+  }, [])
+
+  function toggleTheme() {
+    const next = !dark
+    setDark(next)
+    document.documentElement.classList.toggle("dark", next)
+    localStorage.setItem("ianalista_theme", next ? "dark" : "light")
+  }
 
   function handleLogout() {
     clearSession()
@@ -95,6 +113,15 @@ export default function Header({ session }: HeaderProps) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-3">
+        {/* Modo escuro / claro */}
+        <button
+          onClick={toggleTheme}
+          title={dark ? "Mudar para modo claro" : "Mudar para modo escuro"}
+          className="p-2 text-[#94a3b8] hover:text-[#1a2744] hover:bg-[#f1f5f9] rounded-lg transition-colors"
+        >
+          {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+
         {/* Relatar aprendizado */}
         <button
           onClick={() => setShowAprendizadoModal(true)}

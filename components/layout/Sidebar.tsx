@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { isMaster, canManageUsers } from "@/lib/storage"
+import { useDarkMode } from "@/lib/useTheme"
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -26,6 +27,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const isDark = useDarkMode()
   const [master, setMaster] = useState(false)
   const [gestorOuMaster, setGestorOuMaster] = useState(false)
 
@@ -69,7 +71,11 @@ export default function Sidebar() {
               )}
               style={
                 isActive
-                  ? { backgroundColor: "#f0fdfc", color: "#00a89e", borderColor: "#00bcb6" }
+                  ? {
+                      backgroundColor: isDark ? "#0c2020" : "#f0fdfc",
+                      color: isDark ? "#2dd4bf" : "#00a89e",
+                      borderColor: "#00bcb6",
+                    }
                   : undefined
               }
             >
@@ -141,9 +147,15 @@ export default function Sidebar() {
         </nav>
       )}
 
-      <div className="mx-3 mb-4 p-3 rounded-lg" style={{ backgroundColor: "#f0fdfc", border: "1px solid #99ede9" }}>
-        <p className="text-xs font-semibold mb-1" style={{ color: "#2e9c8f" }}>Plano Profissional</p>
-        <p className="text-xs" style={{ color: "#00a89e" }}>Análises ilimitadas ativas</p>
+      <div
+        className="mx-3 mb-4 p-3 rounded-lg"
+        style={{
+          backgroundColor: isDark ? "#0c2020" : "#f0fdfc",
+          border: isDark ? "1px solid #0f766e" : "1px solid #99ede9",
+        }}
+      >
+        <p className="text-xs font-semibold mb-1" style={{ color: isDark ? "#5eead4" : "#2e9c8f" }}>Plano Profissional</p>
+        <p className="text-xs" style={{ color: isDark ? "#2dd4bf" : "#00a89e" }}>Análises ilimitadas ativas</p>
       </div>
     </aside>
   )
