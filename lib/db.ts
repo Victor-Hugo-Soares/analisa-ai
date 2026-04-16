@@ -109,11 +109,18 @@ export async function updateSinistroStatusDB(
 
 export async function generateSinistroId(empresaId: string): Promise<string> {
   const supabase = createServerClient()
-  const { count } = await supabase
-    .from('sinistros')
-    .select('*', { count: 'exact', head: true })
-    .eq('empresa_id', empresaId)
 
-  const num = (count ?? 0) + 1
-  return `EVT-${String(num).padStart(3, '0')}`
+  // Incremento atômico via upsert — PostgreSQL garante que dois requests
+  // simultâneos nunca recebem o mesmo número (operação única sem race condition)
+  const { data, error } = await supabase.rpc('increment_sinistro_counter', {
+    p_empresa_id: empresaId,
+  })
+
+  if (error || data == null) {
+    // Fallback: usa timestamp para não travar o fluxo se a função não existir ainda
+    console.error('[generateSinistroId] Erro no contador atômico:', error?.message)
+    return `EVT-${Date.now().toString(36).toUpperCase().slice(-6)}`
+  }
+
+  return `EVT-${String(data as number).padStart(3, '0')}`
 }
