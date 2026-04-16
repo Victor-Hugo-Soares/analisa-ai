@@ -89,54 +89,70 @@ POSTURA OBRIGATÓRIA: assuma que a imagem PODE ter sido manipulada. Seu trabalho
 
 AVALIE CADA INDICADOR ABAIXO COM RIGOR:
 
-1. BORDAS DO DANO
+1. LOCAL E CONTEXTO DA CENA
+   - Onde o veículo está fotografado? Quintal residencial, garagem, estacionamento privado?
+   - Dano severo de colisão (amassado profundo, destruição de para-choque, lanterna quebrada) fotografado em local privado e sem qualquer elemento típico de cena de acidente (escombros, pista, outro veículo, serviço de emergência) é ALTAMENTE SUSPEITO.
+   - Acidente real geralmente é registrado no local do ocorrido, não em casa.
+   - Veículo com dano grave estacionado em posição organizada, sem marcas no chão = suspeito de staging ou edição digital.
+   Resultado: OK / SUSPEITO / ADULTERADO / N/A
+
+2. COMPOSIÇÃO E STAGING DA FOTO
+   - A foto foi tirada de forma deliberada para documentar o dano (enquadramento central, distância ideal, boa iluminação)? Isso pode indicar preparação prévia.
+   - Foto tirada em local próprio com fundo neutro idêntico ao que seria o fundo original do veículo (parede, muro, piso de garagem) = fortíssimo indício de que o dano foi adicionado digitalmente sobre uma foto original.
+   - Ausência total de contexto acidental (sem testemunhos visuais, sem marcas de freada, sem debris) em imagem de dano severo = suspeito.
+   Resultado: OK / SUSPEITO / ADULTERADO / N/A
+
+3. BORDAS DO DANO
    - Amassados reais têm bordas irregulares com micro-fissuras, tinta lascada em camadas e estilhaços de primer visíveis.
    - Inpainting gera bordas suaves, com gradiente artificial ou transição abrupta demais.
    Resultado: OK / SUSPEITO / ADULTERADO / N/A
 
-2. SOMBRAS E ILUMINAÇÃO NO DANO
+4. SOMBRAS E ILUMINAÇÃO NO DANO
    - Compare a sombra projetada pelo dano com as sombras de outros elementos do veículo (pneus, espelhos, soleira, emblemas).
    - A fonte de luz deve ser única e consistente. Sombra do dano em direção diferente = manipulação.
    Resultado: OK / SUSPEITO / ADULTERADO / N/A
 
-3. TEXTURA E REFLEXOS NA ÁREA DO DANO
+5. TEXTURA E REFLEXOS NA ÁREA DO DANO
    - Metal amassado real gera reflexos complexos, variados e fragmentados.
    - Inpainting gera reflexos uniformes, "limpos demais" ou com brilho artificial na região editada.
    Resultado: OK / SUSPEITO / ADULTERADO / N/A
 
-4. CONSISTÊNCIA DO RUÍDO DIGITAL (GRAIN)
+6. CONSISTÊNCIA DO RUÍDO DIGITAL (GRAIN)
    - A câmera gera ruído uniforme em toda a imagem.
    - Regiões editadas por IA têm padrão de noise visivelmente diferente — a área do dano pode parecer "mais limpa" ou "mais processada" que o entorno.
    Resultado: OK / SUSPEITO / ADULTERADO / N/A
 
-5. ELEMENTOS ADJACENTES AO DANO
+7. ELEMENTOS ADJACENTES AO DANO
    - Dano estrutural profundo implica deformação em elementos físicos vizinhos (para-choque, pinos, molduras, dobradiças, aba de metal).
    - Dano profundo com tudo ao redor intacto e perfeito = fisicamente inconsistente.
    Resultado: OK / SUSPEITO / ADULTERADO / N/A
 
-6. SUJEIRA E ACÚMULO AO REDOR DO DANO
+8. SUJEIRA E ACÚMULO AO REDOR DO DANO
    - Inpainting frequentemente apaga sujeira, poeira ou marcas de uso ao redor da área editada.
    - Se o restante do veículo está sujo/usado e a área do dano está estranhamente limpa = suspeito.
    Resultado: OK / SUSPEITO / ADULTERADO / N/A
 
-7. COERÊNCIA FÍSICA DO DANO COM O VEÍCULO
+9. COERÊNCIA FÍSICA DO DANO COM O VEÍCULO
    - O dano faz sentido para a física da colisão declarada? A direção da força, a profundidade e a extensão são coerentes?
    - Dano que parece "colado" sem integração com a estrutura do veículo = gerado artificialmente.
    Resultado: OK / SUSPEITO / ADULTERADO / N/A
 
-8. ARTEFATOS DE GERAÇÃO POR IA
-   - Verifique elementos próximos ao dano: placa, emblema, faróis, grade. Distorções, texto borrado ou geometria estranha nessas áreas indicam geração por IA.
-   Resultado: OK / SUSPEITO / ADULTERADO / N/A
+10. ARTEFATOS DE GERAÇÃO POR IA
+    - Verifique elementos próximos ao dano: placa, emblema, faróis, grade. Distorções, texto borrado ou geometria estranha nessas áreas indicam geração por IA.
+    Resultado: OK / SUSPEITO / ADULTERADO / N/A
 
 REGRA DE VEREDICTO:
 - 1+ indicador ADULTERADO → veredicto ADULTERADA
-- 2+ indicadores SUSPEITO → veredicto SUSPEITA
+- 1+ indicador SUSPEITO nos itens 1 ou 2 (LOCAL, STAGING) → veredicto mínimo SUSPEITA, independente dos demais
+- 2+ indicadores SUSPEITO em qualquer item → veredicto SUSPEITA
 - Todos OK ou N/A → veredicto AUTENTICA
 - Confiança: ALTA se 3+ indicadores convergem, MEDIA se 1-2 convergem, BAIXA se apenas 1 com dúvida.
 
 RESPONDA OBRIGATORIAMENTE em JSON exato (sem markdown):
 {
   "checklist": [
+    { "indicador": "LOCAL E CONTEXTO DA CENA", "resultado": "OK|SUSPEITO|ADULTERADO|N/A", "detalhe": "..." },
+    { "indicador": "COMPOSIÇÃO E STAGING", "resultado": "OK|SUSPEITO|ADULTERADO|N/A", "detalhe": "..." },
     { "indicador": "BORDAS DO DANO", "resultado": "OK|SUSPEITO|ADULTERADO|N/A", "detalhe": "..." },
     { "indicador": "SOMBRAS E ILUMINAÇÃO", "resultado": "OK|SUSPEITO|ADULTERADO|N/A", "detalhe": "..." },
     { "indicador": "TEXTURA E REFLEXOS", "resultado": "OK|SUSPEITO|ADULTERADO|N/A", "detalhe": "..." },
