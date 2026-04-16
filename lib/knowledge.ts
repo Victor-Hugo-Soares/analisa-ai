@@ -883,6 +883,27 @@ fraude no setor de proteção veicular. Use estas informações como base técni
 a plausibilidade do relato, identificar inconsistências e orientar a investigação.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+0. REGRA FUNDAMENTAL — FOTOS EM FURTO E ROUBO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AUSÊNCIA DE FOTOS DO VEÍCULO É NORMAL E ESPERADA EM FURTO E ROUBO.
+
+Em eventos de furto ou roubo, o associado NÃO tem mais o veículo — ele foi subtraído.
+Portanto:
+- NÃO cobrar fotos do dano no veículo (não há dano visível, o veículo foi levado inteiro).
+- NÃO cobrar fotos do local do sinistro com o veículo presente (o veículo não está lá).
+- NÃO considerar ausência de fotos do veículo como pendência crítica ou suspeita.
+
+Se houver fotos do veículo no processo, elas são:
+  a) Da VISTORIA INICIAL de entrada na associação (foto do veículo quando foi cadastrado) — NORMAL.
+  b) Do VEÍCULO RECUPERADO após o furto/roubo, tiradas pela polícia ou pelo associado
+     ao recuperá-lo — NORMAL; analise estas fotos para verificar danos na recuperação.
+
+JAMAIS sinalize como suspeito, pendente ou problema a ausência de fotos do veículo
+sinistrado em eventos de furto ou roubo. Isso não é omissão do associado — é a
+natureza intrínseca deste tipo de sinistro.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. DIFERENÇA TÉCNICA ENTRE ROUBO E FURTO
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

@@ -295,6 +295,10 @@ REGRAS ABSOLUTAS DE QUALIDADE
 6. AUSÊNCIA DE DOCUMENTOS: Se um documento importante não foi fornecido (ex: BO não anexado), registre como "pendência crítica" nos próximos passos.
 7. AUSÊNCIA DE TESTEMUNHAS OU CÂMERAS NUNCA É PONTO FAVORÁVEL: Afirmar que "o relato é coerente com a ausência de testemunhas" ou "a falta de câmeras é consistente com o local" é um ERRO ANALÍTICO GRAVE. A ausência de testemunhas ou câmeras é, na melhor hipótese, um fator neutro e, frequentemente, um RED FLAG listado explicitamente nas etapas de análise. NUNCA coloque ausência de testemunhas, câmeras ou registros como item em "pontos_verdadeiros". Se precisar mencionar esse aspecto, use "pontos_atencao".
 8. DOCUMENTO RECEBIDO ≠ DOCUMENTO ILEGÍVEL ≠ DOCUMENTO AUSENTE: Use as definições de integridade EXATAMENTE conforme especificado no schema JSON acima. Resumo prático: "✓ DOCUMENTO RECEBIDO" no contexto = integridade "parcial" (escaneado). "PENDÊNCIA CRÍTICA: arquivo NÃO foi recebido" no contexto = integridade "ausente". NUNCA use "ausente" para documento que foi recebido, mesmo que escaneado. NUNCA use "ilegível" para PDF escaneado de boa qualidade — "ilegível" é reservado para documentos tão danificados que não é possível identificar nem o tipo.
+9. CONTRADIÇÕES DE ÁUDIO — LIMIAR DE CERTEZA OBRIGATÓRIO: Só registre uma contradição baseada em áudio quando houver certeza de transcrição. Em caso de dúvida entre duas leituras do áudio, escolha a que gera MENOS contradição. Regras específicas:
+   a) MOTORIZAÇÃO vs MODELO: "2.0", "1.8", "1.6", "turbo" são designações de motor/versão — NUNCA confundir com nome de modelo. Se o associado disse "2.0" e o CRLV registra modelo "Golf 2.0" → sem contradição.
+   b) RESPOSTAS PARCIALMENTE INAUDÍVEIS: avalie o dado fornecido pelo que foi identificável. Se a resposta termina em "@gmail.com" → é um e-mail, independentemente do trecho inaudível no meio. Não classifique como "confusão" ou "telefone fornecido no lugar de e-mail" quando o fim da resposta confirma o tipo correto.
+   c) ÁUDIO RUIM NÃO SUSTENTA CONTRADIÇÃO GRAVE: trechos com [INAUDÍVEL], ruído ou baixa qualidade não podem ser base para contradições no campo "contradicoes" ou "indicadores_fraude".
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 FORMATO DE SAÍDA — JSON OBRIGATÓRIO
@@ -484,6 +488,26 @@ INDICADORES DE CONLUIO (quando há TERCEIRO no áudio):
 CROSS-REFERÊNCIA OBRIGATÓRIA com a análise documental:
 - Compare o que o associado disse no áudio com o relato escrito e o BO
 - Qualquer contradição entre áudio e documentos → campo "contradicoes"
+
+REGRAS ANTI-FALSO POSITIVO — LEIA COM ATENÇÃO:
+
+1. ESPECIFICAÇÕES DO VEÍCULO — NUNCA confunda motorização/versão com modelo.
+   Exemplos de confusão proibida:
+   - "2.0" ou "1.8" ou "1.6" são designações de motorização (cilindrada), NÃO modelos.
+   - Se o associado disse "2.0" e o CRLV registra modelo "Golf" → sem contradição.
+   - Se parecer ter dito "280" e pode ter sido "2.0" com sotaque ou áudio ruim → interprete como "2.0", não como modelo.
+   - Só aponte contradição de modelo se houver clareza absoluta de que ele disse um modelo diferente do documentado.
+
+2. RESPOSTAS PARCIALMENTE INAUDÍVEIS — use o contexto da resposta inteira.
+   - Se parte da resposta é inaudível mas o final é conclusivo (ex: termina em "@gmail.com"),
+     classifique a resposta pelo que foi identificável: é um e-mail, não um telefone.
+   - Não classifique como "confusão" ou "evasão" uma resposta cujo final confirma o tipo de dado pedido.
+   - Só sinalize evasão se o final da resposta for incompatível com o que foi perguntado.
+
+3. LIMIAR DE CERTEZA PARA CONTRADIÇÕES:
+   - Só inclua em "contradicoes_com_relato" o que você tem certeza de ter ouvido corretamente.
+   - Em caso de dúvida entre duas interpretações do áudio, escolha a que gera MENOS contradição.
+   - Áudio com ruído/corte/sobreposição não pode sustentar contradição grave.
 
 REGRAS DE QUALIDADE:
 - ZERO REPETIÇÃO: não repita itens já listados na análise documental
