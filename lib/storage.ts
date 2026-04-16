@@ -284,6 +284,29 @@ export function setAuthTokens(tokens: {
   localStorage.setItem("ianalista_auth", JSON.stringify(tokens))
 }
 
+// Wrapper de fetch com renovação automática de token em caso de 401
+export async function fetchWithAuth(
+  url: string,
+  options: RequestInit = {},
+  router?: { push: (path: string) => void }
+): Promise<Response> {
+  const token = getAccessToken()
+  const headers = { ...(options.headers ?? {}), Authorization: `Bearer ${token}` }
+  const res = await fetch(url, { ...options, headers })
+
+  if (res.status === 401) {
+    const newToken = await refreshAuthTokens()
+    if (newToken) {
+      const headers2 = { ...(options.headers ?? {}), Authorization: `Bearer ${newToken}` }
+      return fetch(url, { ...options, headers: headers2 })
+    }
+    clearSession()
+    router?.push("/login")
+  }
+
+  return res
+}
+
 export async function refreshAuthTokens(): Promise<string | null> {
   if (typeof window === "undefined") return null
   const stored = localStorage.getItem("ianalista_auth")

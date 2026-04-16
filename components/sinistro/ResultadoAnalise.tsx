@@ -28,7 +28,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { saveSinistro, getAccessToken } from "@/lib/storage"
+import { saveSinistro, fetchWithAuth } from "@/lib/storage"
 import type { Sinistro, StatusSinistro, Recomendacao, TipoEvento } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -269,20 +269,14 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
     saveSinistro(updated)
 
     // Persiste a decisão no Supabase
-    const token = getAccessToken()
-    if (token) {
-      try {
-        await fetch(`/api/sinistros/${sinistro.id}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ status }),
-        })
-      } catch (e) {
-        console.error("Erro ao atualizar status no banco:", e)
-      }
+    try {
+      await fetchWithAuth(`/api/sinistros/${sinistro.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      }, router)
+    } catch (e) {
+      console.error("Erro ao atualizar status no banco:", e)
     }
 
     router.push("/dashboard")

@@ -17,6 +17,7 @@ import {
   generateId,
   getAccessToken,
   getEmpresaIdFromSession,
+  fetchWithAuth,
 } from "@/lib/storage"
 import { createClient } from "@/lib/supabase"
 import type {
@@ -205,18 +206,14 @@ export default function NovoEventoPage() {
       saveSinistro(sinistro)
 
       // Persiste no Supabase de forma síncrona antes de redirecionar
-      const token = getAccessToken()
       const empresaId = getEmpresaIdFromSession()
-      if (token && empresaId) {
+      if (getAccessToken() && empresaId) {
         try {
-          await fetch("/api/sinistros/save", {
+          await fetchWithAuth("/api/sinistros/save", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ sinistro, empresaId }),
-          })
+          }, router)
         } catch (e) {
           console.error("Erro ao salvar no banco:", e)
         }
