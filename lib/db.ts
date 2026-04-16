@@ -115,5 +115,5 @@ export async function generateSinistroId(empresaId: string): Promise<string> {
     .eq('empresa_id', empresaId)
 
   const num = (count ?? 0) + 1
-  return `SIN-${String(num).padStart(3, '0')}`
+  return `EVT-${String(num).padStart(3, '0')}`
 }

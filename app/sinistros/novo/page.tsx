@@ -14,7 +14,6 @@ import AnaliseStep from "@/components/sinistro/AnaliseStep"
 import {
   getSession,
   saveSinistro,
-  generateId,
   getAccessToken,
   getEmpresaIdFromSession,
   fetchWithAuth,
@@ -63,7 +62,22 @@ export default function NovoEventoPage() {
       return
     }
     setSession(s)
-    setEventoId(generateId())
+
+    // Gera ID sequencial no servidor (EVT-001, EVT-002...) — sem colisão entre usuários
+    const token = getAccessToken()
+    if (token) {
+      fetch("/api/sinistros/generate-id", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then(r => r.json())
+        .then(data => { if (data.id) setEventoId(data.id) })
+        .catch(() => {
+          // Fallback local se offline
+          setEventoId(`EVT-${Date.now().toString(36).toUpperCase().slice(-5)}`)
+        })
+    } else {
+      setEventoId(`EVT-${Date.now().toString(36).toUpperCase().slice(-5)}`)
+    }
   }, [router])
 
   function canProceed(): boolean {
