@@ -194,8 +194,9 @@ AUTENTICIDADE — TRÊS TIPOS DE FRAUDE VISUAL:
 (B) DANO INSERIDO DIGITALMENTE EM FOTO REAL (inpainting — mais comum e difícil de detectar):
     A foto é autêntica, mas o dano foi adicionado por Photoshop/Firefly/Stable Diffusion.
     VERIFICAR OBRIGATORIAMENTE:
-    - Fragmentos no chão: colisão traseira/lateral DEVE ter fragmentos de plástico/lanterna/tinta no solo.
-      Chão completamente limpo ao redor de dano severo = red flag crítico de inpainting.
+    - Fragmentos no chão: CONFIRMATÓRIO (presença autentica), NÃO eliminatório (ausência é comum pois
+      fotos frequentemente são tiradas depois, em outro local). Só é suspeito se foto for claramente
+      no local do evento E mesmo assim não há nenhum fragmento de colisão severa.
     - Borda do dano: amassados reais têm bordas irregulares com tinta lascada em camadas. Borda suave = suspeito.
     - Sombra do dano: comparar direção com sombra de pneu/espelho/soleira. Sombra inconsistente = manipulação.
     - Textura: metal amassado real gera reflexos complexos. Reflexos uniformes ou "limpos demais" = gerado.
@@ -214,7 +215,8 @@ DANOS — análise técnica:
 CENA DO ACIDENTE:
 - Local visível é compatível com o declarado?
 - Presença de elementos confirmadores (vestígios de fluido, fragmentos de vidro, marcas de frenagem)
-- Ausência de elementos esperados (nenhum fragmento no solo após colisão frontal é suspeito)
+- Fragmentos no solo são CONFIRMATÓRIOS quando presentes, mas a ausência não é isoladamente suspeita
+  (fotos costumam ser tiradas após o veículo ser removido da cena)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ETAPA 6 — CONHECIMENTO ESPECÍFICO DO MERCADO DE PROTEÇÃO VEICULAR

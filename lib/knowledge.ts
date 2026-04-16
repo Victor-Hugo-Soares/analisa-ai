@@ -462,10 +462,12 @@ TÉCNICAS DE ANÁLISE FORENSE DE IMAGENS VEICULARES:
   - Moiré (padrão de interferência) → foto de foto impressa ou de tela.
   - Metadados ausentes ou inconsistentes (EXIF) → possível edição ou captura secundária.
 
-• AUSÊNCIA DE FRAGMENTOS ESPERADOS:
-  - Colisão frontal sem fragmentos de plástico, vidro ou tinta no solo → suspeito.
-  - Para-choque traseiro amassado sem vestígios de tinta do veículo colisor → suspeito.
-  - Vidro quebrado sem fragmentos no banco ou no chão → suspeito.
+• FRAGMENTOS — INDICADOR CONFIRMATÓRIO, NÃO ELIMINATÓRIO:
+  - REGRA: fotos são frequentemente tiradas horas/dias depois, com veículo já removido da cena.
+    A AUSÊNCIA de fragmentos no chão NÃO é isoladamente suspeita.
+  - Fragmentos PRESENTES (plástico, vidro, tinta do veículo colisor) → confirmam autenticidade.
+  - A ausência só reforça suspeita quando combinada com outros indicadores de adulteração.
+  - Vidro quebrado sem fragmentos no banco/chão é relevante apenas se a foto for interior imediata.
 
 ──── COMPATIBILIDADE FÍSICA: DANO vs. DINÂMICA DECLARADA ────
 
@@ -504,10 +506,15 @@ apenas a área do dano foi gerada artificialmente.
 
 INDICADORES PRIMÁRIOS (alta confiabilidade):
 
-• AUSÊNCIA DE FRAGMENTOS NO CHÃO:
-  - Colisão traseira/lateral → deve haver fragmentos de lanterna, plástico ou tinta no solo.
-  - Se o chão ao redor do dano declarado está limpo e intacto → fortíssimo indicador de inpainting.
-  - Vidro quebrado sem fragmentos visíveis no banco, chão ou soleira = red flag crítico.
+• FRAGMENTOS NO CHÃO (indicador CONFIRMATÓRIO, não eliminatório):
+  - IMPORTANTE: é muito comum que o associado tire as fotos horas ou dias após o ocorrido,
+    já em casa, garagem ou oficina. O veículo pode ter sido movido, limpo ou estacionado
+    em outro local. A AUSÊNCIA de fragmentos isoladamente NÃO é red flag.
+  - Fragmentos PRESENTES (lanterna, plástico, tinta no solo) → confirmam autenticidade da cena.
+  - Ausência de fragmentos só é suspeita quando COMBINADA com outros indicadores de inpainting.
+  - Exceção: se a foto for claramente tirada no local do evento (marcas de frenagem visíveis,
+    outros veículos envolvidos ao fundo, BO registrado no local) e mesmo assim não há nenhum
+    fragmento de colisão severa → aí sim é relevante questionar.
 
 • BORDA DO DANO ARTIFICIALMENTE SUAVE:
   - Amassados reais têm bordas irregulares com micro-fissuras, tinta lascada em camadas e
