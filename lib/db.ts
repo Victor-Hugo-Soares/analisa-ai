@@ -98,10 +98,13 @@ export async function saveSinistroDB(
 
 export async function updateSinistroStatusDB(
   id: string,
-  status: StatusSinistro
+  status: StatusSinistro,
+  empresaId?: string
 ): Promise<void> {
   const supabase = createServerClient()
-  await supabase.from('sinistros').update({ status }).eq('id', id)
+  const query = supabase.from('sinistros').update({ status }).eq('id', id)
+  if (empresaId) query.eq('empresa_id', empresaId)
+  await query
 }
 
 export async function generateSinistroId(empresaId: string): Promise<string> {

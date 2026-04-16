@@ -3,7 +3,7 @@ import { openai, buildSystemPrompt, buildSystemPromptDocumental, PROMPT_INTEGRAC
 import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
-export const maxDuration = 300
+export const maxDuration = 600
 export const dynamic = "force-dynamic"
 
 interface ArquivoPayload {
@@ -276,7 +276,12 @@ ${contextoAudio}`
       console.log(`[TPM] Chamada 2 — prompt: ${resp2.usage?.prompt_tokens ?? '?'} | completion: ${resp2.usage?.completion_tokens ?? '?'} | total: ${resp2.usage?.total_tokens ?? '?'} tokens`)
       console.log(`[TPM] Total 2 chamadas — ${(resp1.usage?.total_tokens ?? 0) + (resp2.usage?.total_tokens ?? 0)} tokens`)
       console.log(`[Análise] Chamada 2 concluída (${analiseText2.length} chars)`)
-      analise = JSON.parse(analiseText2)
+      try {
+        analise = JSON.parse(analiseText2)
+      } catch {
+        console.error("[Análise] JSON inválido na Chamada 2 — resposta bruta:", analiseText2.slice(0, 300))
+        return NextResponse.json({ error: "A IA retornou uma resposta em formato inválido. Tente novamente." }, { status: 500 })
+      }
 
     } else {
       // ── FLUXO ÚNICO: todos os outros casos com gpt-4.1-mini ───────────────
@@ -303,7 +308,12 @@ ${contextoAudio}`
       const analiseText = resp.choices[0]?.message?.content ?? "{}"
       console.log(`[TPM] Fluxo único — prompt: ${resp.usage?.prompt_tokens ?? '?'} | completion: ${resp.usage?.completion_tokens ?? '?'} | total: ${resp.usage?.total_tokens ?? '?'} tokens`)
       console.log(`[Análise] Resposta recebida (${analiseText.length} chars)`)
-      analise = JSON.parse(analiseText)
+      try {
+        analise = JSON.parse(analiseText)
+      } catch {
+        console.error("[Análise] JSON inválido no fluxo único — resposta bruta:", analiseText.slice(0, 300))
+        return NextResponse.json({ error: "A IA retornou uma resposta em formato inválido. Tente novamente." }, { status: 500 })
+      }
     }
 
     // Injetar transcrição completa na analise_audio se houver

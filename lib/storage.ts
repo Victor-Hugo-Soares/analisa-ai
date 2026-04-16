@@ -225,9 +225,12 @@ export function saveSinistro(sinistro: Sinistro): void {
 }
 
 export function generateId(): string {
-  const sinistros = getSinistros()
-  const num = sinistros.length + 1
-  return `SIN-${String(num).padStart(3, "0")}`
+  // Usa crypto.randomUUID() para evitar colisão entre usuários simultâneos
+  // (contador localStorage não é compartilhado entre dispositivos)
+  const uid = typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()
+    : Date.now().toString(36).toUpperCase().slice(-8)
+  return `SIN-${uid}`
 }
 
 export function getSession(): EmpresaSession | null {
