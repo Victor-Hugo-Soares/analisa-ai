@@ -1409,8 +1409,8 @@ export function buildKnowledgeBaseDocumental(tipoEvento: "roubo" | "furto"): str
     LOMA_RASTREADOR,
     LOMA_SINDICANCIA,
     LOMA_FRAUDES,
-    IANALISTA_FORENSE_IMAGENS,
-    // IANALISTA_LINGUISTICA omitido — tratado na Chamada 2
+    // IANALISTA_FORENSE_IMAGENS omitido — cruzamento forense de imagens ocorre na Chamada 2
+    // IANALISTA_LINGUISTICA omitido — análise vocal ocorre na Chamada 2
     IANALISTA_SCORE_RISCO,
     IANALISTA_TELEMETRIA,
     IANALISTA_FRAUDE_IA,

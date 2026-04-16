@@ -277,7 +277,12 @@ ${contextoAudio}`
 
     } else {
       // ── FLUXO ÚNICO: todos os outros casos com gpt-4.1-mini ───────────────
-      const systemPromptFinal = buildSystemPrompt(tipoEvento) + aprendizados
+      // Furto/roubo sem áudio: usa prompt documental (sem IANALISTA_LINGUISTICA)
+      // pois não há análise vocal a fazer — economiza ~1.400 tokens
+      const systemPromptFinal = (ehFurtoRoubo
+        ? buildSystemPromptDocumental(tipoEvento as "furto" | "roubo")
+        : buildSystemPrompt(tipoEvento)
+      ) + aprendizados
       console.log(`[Análise] Fluxo único gpt-4.1-mini — system: ${systemPromptFinal.length} chars`)
 
       const resp = await openai.chat.completions.create({
