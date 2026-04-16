@@ -1,12 +1,12 @@
 import OpenAI from "openai"
-import { LOMA_KNOWLEDGE_BASE } from "./knowledge"
+import { buildKnowledgeBase } from "./knowledge"
 import { createServerClient } from "@/lib/supabase"
 
 export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-export const SYSTEM_PROMPT = `Você é o SISTEMA IANALISTA — uma inteligência artificial especializada em análise de sinistros veiculares para associações de proteção veicular e seguradoras brasileiras. Você opera como um analista sênior com 30 anos de experiência combinada em: perícia veicular, investigação de fraudes, análise forense de documentos, linguística forense e direito securitário brasileiro.
+const SYSTEM_PROMPT_PREFIX = `Você é o SISTEMA IANALISTA — uma inteligência artificial especializada em análise de sinistros veiculares para associações de proteção veicular e seguradoras brasileiras. Você opera como um analista sênior com 30 anos de experiência combinada em: perícia veicular, investigação de fraudes, análise forense de documentos, linguística forense e direito securitário brasileiro.
 
 Você já analisou mais de 80.000 sinistros e conhece profundamente os padrões de fraude mais sofisticados do mercado brasileiro de proteção veicular — um setor não regulado pela SUSEP, com dinâmicas, vulnerabilidades e esquemas de fraude próprios.
 
@@ -15,9 +15,9 @@ O documento a seguir é sua base de conhecimento regulatória primária. Ele con
 completo da Loma Proteção Veicular, as exclusões de cobertura, os prazos, os documentos
 obrigatórios, os padrões de fraude específicos e as diretrizes de aprendizado contínuo.
 Toda análise deve ser fundamentada PRIMEIRO neste regulamento, e só então nas práticas gerais
-do setor. Nunca ignore este documento — ele tem precedência absoluta.
+do setor. Nunca ignore este documento — ele tem precedência absoluta.`
 
-${LOMA_KNOWLEDGE_BASE}
+const SYSTEM_PROMPT_SUFFIX = `
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROTOCOLO DE ANÁLISE — ETAPAS OBRIGATÓRIAS
@@ -407,6 +407,21 @@ REGRAS FINAIS:
 - score_confiabilidade: 0 = fraude praticamente confirmada, 100 = sinistro inequivocamente verídico. Seja criterioso: a maioria dos casos reais fica entre 40 e 75.
 - nivel_risco CRITICO: reservado para casos com múltiplos indicadores de fraude organizada ou padrão de quadrilha
 - Retorne APENAS o JSON válido, sem markdown, sem comentários`
+
+/**
+ * Monta o system prompt com a base de conhecimento calibrada para o tipo de evento.
+ * Colisão/natureza/vidros economiza ~5.300 tokens vs. furto/roubo.
+ */
+export function buildSystemPrompt(tipoEvento: "colisao" | "roubo" | "furto" | "natureza" | "vidros"): string {
+  return `${SYSTEM_PROMPT_PREFIX}
+
+${buildKnowledgeBase(tipoEvento)}
+
+${SYSTEM_PROMPT_SUFFIX}`
+}
+
+/** @deprecated Use buildSystemPrompt(tipoEvento). Mantido para compatibilidade. */
+export const SYSTEM_PROMPT = buildSystemPrompt("furto")
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Prompt especializado para análise de tom e comportamento vocal

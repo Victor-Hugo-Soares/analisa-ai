@@ -1321,47 +1321,56 @@ incorporar novos conhecimentos:
 `
 
 // ─────────────────────────────────────────────────────────────────────────────
-// EXPORTAÇÃO CONSOLIDADA
+// EXPORTAÇÃO CONSOLIDADA — dinâmica por tipo de evento
+//
+// Seções por tamanho (aprox. tokens):
+//   IANALISTA_FURTO_ROUBO  ≈ 5.300 tokens  → só furto/roubo
+//   IANALISTA_FORENSE_IMAGENS ≈ 1.900 tokens → colisão/natureza/vidros
+//   IANALISTA_LINGUISTICA  ≈ 1.200 tokens  → eventos com áudio
+//   LOMA_RASTREADOR        ≈ 275  tokens   → furto/roubo
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const LOMA_KNOWLEDGE_BASE = `
+type TipoEventoKB = "colisao" | "roubo" | "furto" | "natureza" | "vidros"
+
+/**
+ * Retorna a base de conhecimento calibrada para o tipo de evento.
+ * Evita carregar ~5K tokens de IANALISTA_FURTO_ROUBO em eventos sem relevância.
+ */
+export function buildKnowledgeBase(tipoEvento: TipoEventoKB): string {
+  const ehFurtoRoubo = tipoEvento === "furto" || tipoEvento === "roubo"
+  const temImagens = tipoEvento !== "vidros" // vidros raramente envia fotos do dano
+
+  const secoes = [
+    LOMA_CONTEXTO,
+    LOMA_COBERTURAS,
+    LOMA_EXCLUSOES,
+    LOMA_PRAZOS,
+    LOMA_DOCUMENTOS,
+    LOMA_RESSARCIMENTO,
+    ehFurtoRoubo ? LOMA_RASTREADOR : "",
+    LOMA_SINDICANCIA,
+    LOMA_FRAUDES,
+    temImagens ? IANALISTA_FORENSE_IMAGENS : "",
+    IANALISTA_LINGUISTICA,
+    IANALISTA_SCORE_RISCO,
+    ehFurtoRoubo ? IANALISTA_TELEMETRIA : "",
+    IANALISTA_FRAUDE_IA,
+    ehFurtoRoubo ? IANALISTA_FURTO_ROUBO : "",
+    IANALISTA_APRENDIZADO,
+  ].filter(Boolean)
+
+  return `
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BASE DE CONHECIMENTO REGULATÓRIO — LOMA PROTEÇÃO VEICULAR
 (Documento vivo — sujeito a atualizações contínuas)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-${LOMA_CONTEXTO}
-
-${LOMA_COBERTURAS}
-
-${LOMA_EXCLUSOES}
-
-${LOMA_PRAZOS}
-
-${LOMA_DOCUMENTOS}
-
-${LOMA_RESSARCIMENTO}
-
-${LOMA_RASTREADOR}
-
-${LOMA_SINDICANCIA}
-
-${LOMA_FRAUDES}
-
-${IANALISTA_FORENSE_IMAGENS}
-
-${IANALISTA_LINGUISTICA}
-
-${IANALISTA_SCORE_RISCO}
-
-${IANALISTA_TELEMETRIA}
-
-${IANALISTA_FRAUDE_IA}
-
-${IANALISTA_FURTO_ROUBO}
-
-${IANALISTA_APRENDIZADO}
+${secoes.join("\n\n")}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 FIM DA BASE DE CONHECIMENTO REGULATÓRIO
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `
+}
+
+/** @deprecated Use buildKnowledgeBase(tipoEvento) para consumo otimizado de tokens */
+export const LOMA_KNOWLEDGE_BASE = buildKnowledgeBase("furto")

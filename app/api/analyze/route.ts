@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { openai, SYSTEM_PROMPT, AUDIO_TONE_PROMPT, DIARIZATION_PROMPT, fetchAprendizadosRegistrados } from "@/lib/openai"
+import { openai, buildSystemPrompt, AUDIO_TONE_PROMPT, DIARIZATION_PROMPT, fetchAprendizadosRegistrados } from "@/lib/openai"
 import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
 
     // ─── 5. Análise final com GPT-4o ─────────────────────────────────────────
     const aprendizados = await fetchAprendizadosRegistrados()
-    const systemPromptFinal = SYSTEM_PROMPT + aprendizados
+    const systemPromptFinal = buildSystemPrompt(tipoEvento) + aprendizados
     console.log(`[Análise] System prompt final: ${systemPromptFinal.length} chars (aprendizados: ${aprendizados.length > 0 ? "sim" : "não"})`)
 
     // Montar conteúdo do usuário: texto + PDFs escaneados como arquivo para visão
