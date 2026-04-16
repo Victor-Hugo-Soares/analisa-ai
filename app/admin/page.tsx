@@ -215,6 +215,14 @@ export default function AdminPage() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm transition-colors"
+            >
+              <LogOut className="w-4 h-4 rotate-180" />
+              Dashboard
+            </button>
+            <span className="text-slate-600">|</span>
             <span className="text-slate-400 text-sm hidden sm:block">vsoareslins452@gmail.com</span>
             <button
               onClick={handleLogout}

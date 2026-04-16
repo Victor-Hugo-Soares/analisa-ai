@@ -50,7 +50,7 @@ export default function LoginPage() {
           cnpj: data.usuario.empresa_cnpj,
           role: data.usuario.role ?? "usuario",
         })
-        router.push(data.usuario.role === "master" ? "/admin" : "/dashboard")
+        router.push("/dashboard")
         return
       }
 
