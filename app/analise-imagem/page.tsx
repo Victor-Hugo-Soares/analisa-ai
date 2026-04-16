@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   Upload, X, ScanSearch, ShieldCheck, ShieldAlert, ShieldX,
   ChevronDown, ChevronUp, ImageIcon, AlertTriangle,
-  CheckCircle2, XCircle, MinusCircle, Microscope, Info, Sliders,
+  CheckCircle2, XCircle, MinusCircle, Microscope, Info, Sliders, Video,
 } from "lucide-react"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
@@ -18,12 +18,20 @@ import type {
 } from "@/app/api/analyze-image/route"
 import { computeEla, type ElaResult } from "@/lib/ela"
 
+interface VideoFrame {
+  base64: string   // data:image/jpeg;base64,…
+  time: number     // seconds in the video
+  nome: string     // e.g. "video_frame_01_00m05s.jpg"
+}
+
 interface ImagemLocal {
   id: string
   nome: string
-  base64: string
-  previewUrl: string
+  base64: string       // for images: full image; for videos: first frame (thumbnail)
+  previewUrl: string   // for images: blob URL; for videos: blob URL of the video file
   tamanho: number
+  tipo: "imagem" | "video"
+  frames?: VideoFrame[]  // only for video items
 }
 
 interface ElaState {
@@ -32,8 +40,81 @@ interface ElaState {
   error: string | null
 }
 
-const MAX_IMAGENS = 10
-const MAX_TAMANHO_MB = 10
+const MAX_IMAGENS = 10       // max media items in the upload list
+const MAX_TAMANHO_MB = 10    // image limit
+const MAX_VIDEO_MB = 100     // video limit
+const FRAMES_POR_VIDEO = 3   // frames extracted per video
+
+// ─── Video frame extraction (client-side) ─────────────────────────────────────
+
+async function extractVideoFrames(file: File, count = FRAMES_POR_VIDEO): Promise<VideoFrame[]> {
+  return new Promise((resolve) => {
+    const video = document.createElement("video")
+    const url = URL.createObjectURL(file)
+    video.src = url
+    video.muted = true
+    video.crossOrigin = "anonymous"
+    video.playsInline = true
+
+    const frames: VideoFrame[] = []
+    let times: number[] = []
+    let idx = 0
+
+    video.onerror = () => {
+      URL.revokeObjectURL(url)
+      resolve(frames)
+    }
+
+    video.onloadedmetadata = () => {
+      const d = video.duration
+      // Spread frames between 10% and 90% of the video to avoid black frames
+      times = Array.from({ length: count }, (_, i) =>
+        d * (0.1 + (0.8 * i) / Math.max(count - 1, 1))
+      )
+      captureNext()
+    }
+
+    video.onseeked = () => {
+      const canvas = document.createElement("canvas")
+      const maxDim = 1280
+      let w = video.videoWidth || 1280
+      let h = video.videoHeight || 720
+      if (w > maxDim || h > maxDim) {
+        const r = Math.min(maxDim / w, maxDim / h)
+        w = Math.round(w * r)
+        h = Math.round(h * r)
+      }
+      canvas.width = w
+      canvas.height = h
+      const ctx = canvas.getContext("2d")
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, w, h)
+        const t = times[idx]
+        const mins = Math.floor(t / 60).toString().padStart(2, "0")
+        const secs = Math.floor(t % 60).toString().padStart(2, "0")
+        const base = file.name.replace(/\.[^.]+$/, "")
+        frames.push({
+          base64: canvas.toDataURL("image/jpeg", 0.85),
+          time: t,
+          nome: `${base}_frame${String(idx + 1).padStart(2, "0")}_${mins}m${secs}s.jpg`,
+        })
+      }
+      idx++
+      captureNext()
+    }
+
+    function captureNext() {
+      if (idx >= times.length) {
+        URL.revokeObjectURL(url)
+        resolve(frames)
+        return
+      }
+      video.currentTime = times[idx]
+    }
+
+    video.load()
+  })
+}
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
@@ -41,15 +122,16 @@ export default function AnaliseImagemPage() {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const [session, setSession] = useState<EmpresaSession | null>(null)
-  const [imagens, setImagens] = useState<ImagemLocal[]>([])
+  const [itens, setItens] = useState<ImagemLocal[]>([])
   const [contexto, setContexto] = useState("")
   const [analisando, setAnalisando] = useState(false)
   const [resultado, setResultado] = useState<ResultadoAnaliseImagem | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [dragOver, setDragOver] = useState(false)
+  const [extraindoVideo, setExtraindoVideo] = useState(false)
 
-  // ELA state
+  // ELA state (images only)
   const [modoEla, setModoEla] = useState(false)
   const [elaScale, setElaScale] = useState(15)
   const [elaQuality, setElaQuality] = useState(75)
@@ -62,42 +144,31 @@ export default function AnaliseImagemPage() {
     setSession(s)
   }, [router])
 
-  // Auto-select first image when entering ELA mode
+  // Auto-select first image (not video) when entering ELA mode
   useEffect(() => {
-    if (modoEla && imagens.length > 0 && !elaSelectedId) {
-      setElaSelectedId(imagens[0].id)
+    if (modoEla && !elaSelectedId) {
+      const primeiraImagem = itens.find((i) => i.tipo === "imagem")
+      if (primeiraImagem) setElaSelectedId(primeiraImagem.id)
     }
-    if (!modoEla) {
-      setElaSelectedId(null)
-    }
-  }, [modoEla, imagens.length, elaSelectedId])
+    if (!modoEla) setElaSelectedId(null)
+  }, [modoEla, itens, elaSelectedId])
 
-  // Recompute ELA when selected image or params change
   const runEla = useCallback(async (img: ImagemLocal, scale: number, quality: number) => {
-    setElaStates((prev) => ({
-      ...prev,
-      [img.id]: { computing: true, result: null, error: null },
-    }))
+    setElaStates((prev) => ({ ...prev, [img.id]: { computing: true, result: null, error: null } }))
     try {
       const result = await computeEla(img.previewUrl, { scale, quality: quality / 100 })
-      setElaStates((prev) => ({
-        ...prev,
-        [img.id]: { computing: false, result, error: null },
-      }))
+      setElaStates((prev) => ({ ...prev, [img.id]: { computing: false, result, error: null } }))
     } catch {
-      setElaStates((prev) => ({
-        ...prev,
-        [img.id]: { computing: false, result: null, error: "Falha ao processar ELA." },
-      }))
+      setElaStates((prev) => ({ ...prev, [img.id]: { computing: false, result: null, error: "Falha ao processar ELA." } }))
     }
   }, [])
 
   useEffect(() => {
     if (!modoEla || !elaSelectedId) return
-    const img = imagens.find((i) => i.id === elaSelectedId)
-    if (!img) return
+    const img = itens.find((i) => i.id === elaSelectedId)
+    if (!img || img.tipo !== "imagem") return
     runEla(img, elaScale, elaQuality)
-  }, [modoEla, elaSelectedId, elaScale, elaQuality, imagens, runEla])
+  }, [modoEla, elaSelectedId, elaScale, elaQuality, itens, runEla])
 
   function toggleExpandido(chave: string) {
     setExpandidos((prev) => {
@@ -109,35 +180,63 @@ export default function AnaliseImagemPage() {
   }
 
   async function processarArquivos(files: FileList | File[]) {
-    const lista = Array.from(files).filter(
-      (f) => f.type.startsWith("image/") && f.size <= MAX_TAMANHO_MB * 1024 * 1024
-    )
-    const novas: ImagemLocal[] = []
+    const novos: ImagemLocal[] = []
+    const lista = Array.from(files)
+
     for (const file of lista) {
-      if (imagens.length + novas.length >= MAX_IMAGENS) break
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader()
-        reader.onload = (e) => resolve(e.target?.result as string)
-        reader.readAsDataURL(file)
-      })
-      novas.push({
-        id: crypto.randomUUID(),
-        nome: file.name,
-        base64,
-        previewUrl: URL.createObjectURL(file),
-        tamanho: file.size,
-      })
+      if (itens.length + novos.length >= MAX_IMAGENS) break
+
+      if (file.type.startsWith("image/") && file.size <= MAX_TAMANHO_MB * 1024 * 1024) {
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.readAsDataURL(file)
+        })
+        novos.push({
+          id: crypto.randomUUID(),
+          nome: file.name,
+          base64,
+          previewUrl: URL.createObjectURL(file),
+          tamanho: file.size,
+          tipo: "imagem",
+        })
+      } else if (file.type.startsWith("video/") && file.size <= MAX_VIDEO_MB * 1024 * 1024) {
+        setExtraindoVideo(true)
+        try {
+          const frames = await extractVideoFrames(file)
+          if (frames.length > 0) {
+            novos.push({
+              id: crypto.randomUUID(),
+              nome: file.name,
+              base64: frames[0].base64,
+              previewUrl: URL.createObjectURL(file),
+              tamanho: file.size,
+              tipo: "video",
+              frames,
+            })
+          } else {
+            setErro(`Não foi possível extrair frames do vídeo "${file.name}".`)
+          }
+        } catch {
+          setErro(`Erro ao processar vídeo "${file.name}".`)
+        }
+        setExtraindoVideo(false)
+      } else if (file.type.startsWith("video/") && file.size > MAX_VIDEO_MB * 1024 * 1024) {
+        setErro(`O vídeo "${file.name}" excede o limite de ${MAX_VIDEO_MB} MB.`)
+      }
     }
-    setImagens((prev) => [...prev, ...novas])
-    if (modoEla && novas.length > 0 && !elaSelectedId) {
-      setElaSelectedId(novas[0].id)
+
+    setItens((prev) => [...prev, ...novos])
+    if (modoEla && novos.some((n) => n.tipo === "imagem") && !elaSelectedId) {
+      const primeira = novos.find((n) => n.tipo === "imagem")
+      if (primeira) setElaSelectedId(primeira.id)
     }
   }
 
-  function removerImagem(id: string) {
-    setImagens((prev) => {
-      const img = prev.find((i) => i.id === id)
-      if (img) URL.revokeObjectURL(img.previewUrl)
+  function removerItem(id: string) {
+    setItens((prev) => {
+      const item = prev.find((i) => i.id === id)
+      if (item) URL.revokeObjectURL(item.previewUrl)
       return prev.filter((i) => i.id !== id)
     })
     setElaStates((prev) => {
@@ -149,16 +248,38 @@ export default function AnaliseImagemPage() {
   }
 
   async function analisar() {
-    if (imagens.length === 0) return
+    if (itens.length === 0) return
     setAnalisando(true)
     setErro(null)
     setResultado(null)
 
     try {
       const token = getAccessToken()
+
+      // Expand videos into frames
+      const todasImagens: Array<{ nome: string; base64: string }> = []
+      for (const item of itens) {
+        if (item.tipo === "imagem") {
+          todasImagens.push({ nome: item.nome, base64: item.base64 })
+        } else if (item.frames && item.frames.length > 0) {
+          for (const frame of item.frames) {
+            todasImagens.push({ nome: frame.nome, base64: frame.base64 })
+          }
+        }
+      }
+
+      // Cap at 10 (API limit)
+      const imagensPayload = todasImagens.slice(0, 10)
+
+      const temVideo = itens.some((i) => i.tipo === "video")
+      const contextoFinal = [
+        contexto.trim(),
+        temVideo ? "Algumas imagens são frames extraídos de vídeos enviados pelo associado." : "",
+      ].filter(Boolean).join(" ") || undefined
+
       const payload = {
-        imagens: imagens.map((img) => ({ nome: img.nome, base64: img.base64 })),
-        contexto: contexto.trim() || undefined,
+        imagens: imagensPayload,
+        contexto: contextoFinal,
         modo_comparacao: false,
       }
 
@@ -170,7 +291,7 @@ export default function AnaliseImagemPage() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        throw new Error((err as { error?: string }).error ?? "Erro ao analisar imagens.")
+        throw new Error((err as { error?: string }).error ?? "Erro ao analisar.")
       }
 
       const data = (await res.json()) as ResultadoAnaliseImagem
@@ -184,8 +305,8 @@ export default function AnaliseImagemPage() {
   }
 
   function limpar() {
-    imagens.forEach((img) => URL.revokeObjectURL(img.previewUrl))
-    setImagens([])
+    itens.forEach((i) => URL.revokeObjectURL(i.previewUrl))
+    setItens([])
     setContexto("")
     setResultado(null)
     setErro(null)
@@ -195,8 +316,21 @@ export default function AnaliseImagemPage() {
     setElaSelectedId(null)
   }
 
+  // Counts for UI
+  const nImagens = itens.filter((i) => i.tipo === "imagem").length
+  const nVideos = itens.filter((i) => i.tipo === "video").length
+  const totalFrames = itens.filter((i) => i.tipo === "video").reduce((acc, i) => acc + (i.frames?.length ?? 0), 0)
+
+  const botaoLabel = () => {
+    if (itens.length === 0) return "Analisar com IA"
+    const partes: string[] = []
+    if (nImagens > 0) partes.push(`${nImagens} imagem${nImagens > 1 ? "ns" : ""}`)
+    if (nVideos > 0) partes.push(`${nVideos} vídeo${nVideos > 1 ? "s" : ""} (${totalFrames} frames)`)
+    return `Analisar ${partes.join(" + ")} com IA`
+  }
+
   const elaAtual = elaSelectedId ? elaStates[elaSelectedId] : null
-  const imagemElaAtual = elaSelectedId ? imagens.find((i) => i.id === elaSelectedId) : null
+  const imagemElaAtual = elaSelectedId ? itens.find((i) => i.id === elaSelectedId) : null
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
@@ -210,7 +344,7 @@ export default function AnaliseImagemPage() {
               <h1 className="text-2xl font-bold" style={{ color: "#0f172a" }}>Análise de Imagem</h1>
             </div>
             <p className="text-sm" style={{ color: "#64748b" }}>
-              Verifique se uma imagem foi adulterada digitalmente antes de processar um evento.
+              Verifique se uma imagem ou vídeo foi adulterado digitalmente antes de processar um evento.
             </p>
           </div>
 
@@ -221,8 +355,9 @@ export default function AnaliseImagemPage() {
                 <div className="flex items-start gap-3">
                   <button
                     onClick={() => {
-                      if (!modoEla && imagens.length === 0) {
-                        setErro("Adicione ao menos uma imagem para usar a análise ELA.")
+                      const temImagens = itens.some((i) => i.tipo === "imagem")
+                      if (!modoEla && !temImagens) {
+                        setErro("Adicione ao menos uma imagem para usar a análise ELA. (ELA não é aplicável a vídeos.)")
                         return
                       }
                       setErro(null)
@@ -239,7 +374,7 @@ export default function AnaliseImagemPage() {
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f0fdfc] text-[#00a89e] border border-[#b2f0ed]">FORENSE</span>
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
-                      Mapa de erro de compressão JPEG — áreas editadas ficam brilhantes no mapa térmico.
+                      Mapa de erro de compressão JPEG — áreas editadas ficam brilhantes no mapa térmico. Aplica-se apenas a imagens.
                     </p>
                   </div>
                 </div>
@@ -253,48 +388,86 @@ export default function AnaliseImagemPage() {
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); processarArquivos(e.dataTransfer.files) }}
                 onClick={() => inputRef.current?.click()}
               >
-                <input ref={inputRef} type="file" accept="image/*" multiple className="hidden"
-                  onChange={(e) => e.target.files && processarArquivos(e.target.files)} />
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept="image/*,video/mp4,video/quicktime,video/webm,video/x-msvideo,video/avi,video/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => e.target.files && processarArquivos(e.target.files)}
+                />
                 <Upload className="w-10 h-10 mx-auto mb-3" style={{ color: "#00bcb6" }} />
                 <p className="font-medium text-sm" style={{ color: "#0f172a" }}>
-                  Arraste as imagens aqui ou clique para selecionar
+                  Arraste imagens ou vídeos aqui, ou clique para selecionar
                 </p>
                 <p className="text-xs mt-1" style={{ color: "#94a3b8" }}>
-                  JPG, PNG, WEBP · máx. {MAX_TAMANHO_MB} MB · até {MAX_IMAGENS} imagens
+                  Imagens: JPG, PNG, WEBP · máx. {MAX_TAMANHO_MB} MB
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>
+                  Vídeos: MP4, MOV, WEBM · máx. {MAX_VIDEO_MB} MB · {FRAMES_POR_VIDEO} frames extraídos por vídeo
                 </p>
               </div>
 
+              {/* Extracting indicator */}
+              {extraindoVideo && (
+                <div className="flex items-center gap-2 p-3 bg-[#f0fdfc] border border-[#b2f0ed] rounded-lg text-sm text-[#00a89e]">
+                  <div className="w-4 h-4 border-2 border-[#00bcb6] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                  Extraindo frames do vídeo…
+                </div>
+              )}
+
               {/* Thumbnails */}
-              {imagens.length > 0 && (
+              {itens.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {imagens.map((img) => (
-                    <div
-                      key={img.id}
-                      className={`relative group rounded-lg overflow-hidden border bg-white aspect-square cursor-pointer transition-all ${modoEla && elaSelectedId === img.id ? "border-[#00bcb6] ring-2 ring-[#00bcb6]/40" : "border-[#e2e8f0]"}`}
-                      onClick={() => { if (modoEla) setElaSelectedId(img.id) }}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img.previewUrl} alt={img.nome} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                      <button
-                        onClick={(e) => { e.stopPropagation(); removerImagem(img.id) }}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  {itens.map((item) => {
+                    const thumbnailSrc = item.tipo === "video" ? item.base64 : item.previewUrl
+                    const isElaSelected = modoEla && elaSelectedId === item.id
+                    const elaClickable = modoEla && item.tipo === "imagem"
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={`relative group rounded-lg overflow-hidden border bg-white aspect-square transition-all ${
+                          isElaSelected
+                            ? "border-[#00bcb6] ring-2 ring-[#00bcb6]/40"
+                            : "border-[#e2e8f0]"
+                        } ${elaClickable ? "cursor-pointer" : "cursor-default"}`}
+                        onClick={() => { if (elaClickable) setElaSelectedId(item.id) }}
                       >
-                        <X className="w-3 h-3" />
-                      </button>
-                      {modoEla && elaSelectedId === img.id && (
-                        <div className="absolute top-1 left-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#00bcb6] text-white">
-                          ELA
-                        </div>
-                      )}
-                      <p className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] px-1.5 py-0.5 truncate">{img.nome}</p>
-                    </div>
-                  ))}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={thumbnailSrc} alt={item.nome} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removerItem(item.id) }}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+
+                        {/* Video badge */}
+                        {item.tipo === "video" && (
+                          <div className="absolute top-1 left-1 flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/70 text-white">
+                            <Video className="w-2.5 h-2.5" />
+                            {item.frames?.length ?? 0} frames
+                          </div>
+                        )}
+
+                        {/* ELA selected badge */}
+                        {isElaSelected && (
+                          <div className="absolute top-1 left-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#00bcb6] text-white">
+                            ELA
+                          </div>
+                        )}
+
+                        <p className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] px-1.5 py-0.5 truncate">{item.nome}</p>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
 
               {/* ELA Panel */}
-              {modoEla && imagemElaAtual && (
+              {modoEla && imagemElaAtual && imagemElaAtual.tipo === "imagem" && (
                 <ElaPanel
                   imagem={imagemElaAtual}
                   elaState={elaAtual}
@@ -326,23 +499,23 @@ export default function AnaliseImagemPage() {
 
               <button
                 onClick={analisar}
-                disabled={imagens.length === 0 || analisando}
+                disabled={itens.length === 0 || analisando || extraindoVideo}
                 className="w-full py-3 rounded-xl font-semibold text-sm text-white transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
                 style={{ backgroundColor: "#00bcb6" }}
               >
                 {analisando ? (
                   <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Analisando {imagens.length} imagem{imagens.length > 1 ? "ns" : ""}...</>
+                    Analisando…</>
                 ) : (
                   <><ScanSearch className="w-4 h-4" />
-                    Analisar {imagens.length > 0 ? `${imagens.length} imagem${imagens.length > 1 ? "ns" : ""}` : "Imagens"} com IA</>
+                    {botaoLabel()}</>
                 )}
               </button>
             </div>
           ) : (
             <ResultadoView
               resultado={resultado}
-              imagens={imagens}
+              itens={itens}
               expandidos={expandidos}
               onToggle={toggleExpandido}
               onLimpar={limpar}
@@ -392,7 +565,6 @@ function ElaPanel({
 
   return (
     <div className="bg-white rounded-xl border border-[#00bcb6]/40 overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#f0fdfc] border-b border-[#b2f0ed]">
         <div className="flex items-center gap-2">
           <Microscope className="w-4 h-4" style={{ color: "#00a89e" }} />
@@ -400,11 +572,7 @@ function ElaPanel({
             Error Level Analysis — <span className="font-normal text-slate-500">{imagem.nome}</span>
           </span>
         </div>
-        <button
-          onClick={() => setShowInfo((v) => !v)}
-          className="text-slate-400 hover:text-slate-600 transition-colors"
-          title="O que é ELA?"
-        >
+        <button onClick={() => setShowInfo((v) => !v)} className="text-slate-400 hover:text-slate-600 transition-colors" title="O que é ELA?">
           <Info className="w-4 h-4" />
         </button>
       </div>
@@ -418,55 +586,40 @@ function ElaPanel({
         </div>
       )}
 
-      {/* Controls */}
       <div className="px-4 py-3 border-b border-[#f1f5f9] flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <label className="text-xs font-medium text-slate-500 flex items-center gap-1.5 mb-1.5">
             <Sliders className="w-3.5 h-3.5" />
             Amplificação <span className="text-[#00a89e] font-bold">×{scale}</span>
           </label>
-          <input
-            type="range" min={5} max={40} step={1} value={scale}
+          <input type="range" min={5} max={40} step={1} value={scale}
             onChange={(e) => onScaleChange(Number(e.target.value))}
-            className="w-full accent-[#00bcb6] h-1.5"
-          />
-          <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-            <span>Sutil</span><span>Máximo</span>
-          </div>
+            className="w-full accent-[#00bcb6] h-1.5" />
+          <div className="flex justify-between text-[10px] text-slate-400 mt-0.5"><span>Sutil</span><span>Máximo</span></div>
         </div>
         <div className="flex-1">
           <label className="text-xs font-medium text-slate-500 flex items-center gap-1.5 mb-1.5">
             <Sliders className="w-3.5 h-3.5" />
             Qualidade de re-save <span className="text-[#00a89e] font-bold">{quality}%</span>
           </label>
-          <input
-            type="range" min={50} max={95} step={5} value={quality}
+          <input type="range" min={50} max={95} step={5} value={quality}
             onChange={(e) => onQualityChange(Number(e.target.value))}
-            className="w-full accent-[#00bcb6] h-1.5"
-          />
-          <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-            <span>+ sensível</span><span>– sensível</span>
-          </div>
+            className="w-full accent-[#00bcb6] h-1.5" />
+          <div className="flex justify-between text-[10px] text-slate-400 mt-0.5"><span>+ sensível</span><span>– sensível</span></div>
         </div>
       </div>
 
-      {/* View toggle */}
       <div className="px-4 pt-3 flex gap-2">
-        <button
-          onClick={() => setView("ela")}
-          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${view === "ela" ? "bg-[#00bcb6] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}
-        >
+        <button onClick={() => setView("ela")}
+          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${view === "ela" ? "bg-[#00bcb6] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
           Mapa ELA
         </button>
-        <button
-          onClick={() => setView("original")}
-          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${view === "original" ? "bg-[#00bcb6] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}
-        >
+        <button onClick={() => setView("original")}
+          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${view === "original" ? "bg-[#00bcb6] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
           Imagem original
         </button>
       </div>
 
-      {/* Image */}
       <div className="px-4 pb-4 pt-3">
         {elaState?.computing ? (
           <div className="flex flex-col items-center justify-center h-48 gap-3">
@@ -486,8 +639,6 @@ function ElaPanel({
               className="w-full rounded-lg border border-[#e2e8f0] object-contain max-h-[420px]"
               style={{ backgroundColor: "#0d1117" }}
             />
-
-            {/* Metrics */}
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-lg bg-slate-50 border border-[#e2e8f0] px-3 py-2 text-center">
                 <p className="text-[10px] text-slate-400 uppercase tracking-wide">Erro médio</p>
@@ -502,8 +653,6 @@ function ElaPanel({
                 <p className="text-sm font-bold text-slate-700">{anomalyPct}%</p>
               </div>
             </div>
-
-            {/* Risk badge */}
             {riskLevel && (
               <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold ${riskColor[riskLevel as keyof typeof riskColor]}`}>
                 {riskLevel === "ALTO" ? <ShieldX className="w-3.5 h-3.5" /> : riskLevel === "MÉDIO" ? <ShieldAlert className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
@@ -513,15 +662,11 @@ function ElaPanel({
                 </span>
               </div>
             )}
-
-            {/* Color legend */}
             <div className="flex items-center gap-3">
               <p className="text-[10px] text-slate-400 flex-shrink-0">Legenda:</p>
               <div className="flex-1 h-2 rounded-full" style={{ background: "linear-gradient(to right, #0d1117, #0ea5e9, #facc15, #ef4444)" }} />
               <div className="flex justify-between w-full max-w-[160px] text-[10px] text-slate-400">
-                <span>Original</span>
-                <span>Suspeito</span>
-                <span>Adulterado</span>
+                <span>Original</span><span>Suspeito</span><span>Adulterado</span>
               </div>
             </div>
           </div>
@@ -572,14 +717,24 @@ function ChecklistItemRow({ item }: { item: ChecklistItem }) {
 
 interface ResultadoViewProps {
   resultado: ResultadoAnaliseImagem
-  imagens: ImagemLocal[]
+  itens: ImagemLocal[]
   expandidos: Set<string>
   onToggle: (chave: string) => void
   onLimpar: () => void
 }
 
-function ResultadoView({ resultado, imagens, expandidos, onToggle, onLimpar }: ResultadoViewProps) {
-  const previewMap = Object.fromEntries(imagens.map((img) => [img.nome, img.previewUrl]))
+function ResultadoView({ resultado, itens, expandidos, onToggle, onLimpar }: ResultadoViewProps) {
+  // Build preview map: image name → thumbnail src
+  const previewMap: Record<string, string> = {}
+  for (const item of itens) {
+    if (item.tipo === "imagem") {
+      previewMap[item.nome] = item.previewUrl
+    } else if (item.frames) {
+      for (const frame of item.frames) {
+        previewMap[frame.nome] = frame.base64
+      }
+    }
+  }
 
   const bgGeral = { AUTENTICA: "bg-green-50 border-green-200", SUSPEITA: "bg-yellow-50 border-yellow-200", ADULTERADA: "bg-red-50 border-red-200" }[resultado.veredicto_geral]
   const iconGeral = {
@@ -637,17 +792,24 @@ function IndividualCard({ resultado, preview, expanded, onToggle }: {
   expanded: boolean
   onToggle: () => void
 }) {
+  const isVideoFrame = resultado.arquivo.includes("_frame")
+
   return (
     <div className="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden">
       <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#f8fafc] transition-colors text-left" onClick={onToggle}>
         {preview
           // eslint-disable-next-line @next/next/no-img-element
           ? <img src={preview} alt={resultado.arquivo} className="w-12 h-12 rounded-lg object-cover border border-[#e2e8f0] flex-shrink-0" />
-          : <div className="w-12 h-12 rounded-lg bg-[#f0fdfc] border border-[#e2e8f0] flex items-center justify-center flex-shrink-0"><ImageIcon className="w-5 h-5" style={{ color: "#00bcb6" }} /></div>
+          : <div className="w-12 h-12 rounded-lg bg-[#f0fdfc] border border-[#e2e8f0] flex items-center justify-center flex-shrink-0">
+              <ImageIcon className="w-5 h-5" style={{ color: "#00bcb6" }} />
+            </div>
         }
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate" style={{ color: "#0f172a" }}>{resultado.arquivo}</p>
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            {isVideoFrame && <Video className="w-3 h-3 text-slate-400 flex-shrink-0" />}
+            <p className="text-sm font-medium truncate" style={{ color: "#0f172a" }}>{resultado.arquivo}</p>
+          </div>
+          <div className="flex items-center gap-2">
             <VeredictoBadge veredicto={resultado.veredicto} />
             <ConfiancaBadge confianca={resultado.confianca} />
           </div>
