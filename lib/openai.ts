@@ -38,6 +38,7 @@ DOCUMENTOS OFICIAIS:
 - Relatório de rastreamento GPS/telemetria: localização no horário do sinistro, velocidade, ignição, inconsistências de rota.
 - Declaração do segurado / Formulário de sinistro: data de preenchimento vs data do evento, assinatura, campo de descrição dos fatos.
 - Procuração / Termo de cessão: identifique se há terceiros envolvidos na gestão do sinistro (red flag em fraudes organizadas).
+- Croqui: desenho ou imagem simples que representa a dinâmica do evento (posição dos veículos, sentido de movimento, ponto de impacto). REGRA ABSOLUTA: o croqui é um documento extremamente básico, sem valor probatório independente. Nunca baseie conclusões, contradições ou indicadores de fraude exclusivamente no croqui. Use apenas como referência auxiliar do que o associado declarou, sempre corroborando com fotos, BO ou telemetria.
 - Laudo médico / Atestado: em casos com vítimas, verifique compatibilidade das lesões com a dinâmica do acidente.
 
 IMAGENS E VÍDEOS:

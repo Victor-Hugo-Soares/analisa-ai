@@ -731,6 +731,11 @@ function buildContexto({
           partes.push(`INSTRUÇÃO: Extraia valor total e itens. Compare o valor com 75% da FIPE para avaliar perda total.`)
         } else if (doc.tipoDoc === "procuracao") {
           partes.push(`INSTRUÇÃO: Procuração em sinistros é RED FLAG de fraude organizada. Identifique outorgante e poderes.`)
+        } else if (doc.tipoDoc === "croqui") {
+          partes.push(`INSTRUÇÃO: Este é um croqui — desenho ou imagem simples que tenta representar a dinâmica do evento (posição dos veículos, sentido de movimento, ponto de impacto).`)
+          partes.push(`REGRA CRÍTICA: O croqui é um documento extremamente básico, feito pelo próprio associado ou atendente sem valor probatório independente. NUNCA baseie conclusões, contradições ou indicadores de fraude exclusivamente no croqui.`)
+          partes.push(`Use o croqui apenas como referência visual auxiliar para entender o que o associado declarou. Qualquer informação do croqui deve ser corroborada por outras fontes (fotos, BO, relato, telemetria) para ter peso analítico.`)
+          partes.push(`Registre o croqui como "completo" se estiver legível, "parcial" se estiver incompleto ou confuso. Não exija detalhamento técnico de um croqui — ele é por natureza uma representação simplificada.`)
         } else if (doc.tipoDoc === "crv") {
           partes.push(`INSTRUÇÃO: Extraia proprietário, CPF, chassi, placa, ano/modelo.`)
           partes.push(`Verifique se o proprietário bate com o associado. Em caso de perda total, o CRV deve estar preenchido`)
