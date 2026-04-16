@@ -247,6 +247,7 @@ export async function POST(req: NextRequest) {
       })
 
       const analiseParcial = resp1.choices[0]?.message?.content ?? "{}"
+      console.log(`[TPM] Chamada 1 — prompt: ${resp1.usage?.prompt_tokens ?? '?'} | completion: ${resp1.usage?.completion_tokens ?? '?'} | total: ${resp1.usage?.total_tokens ?? '?'} tokens`)
       console.log(`[Análise] Chamada 1 concluída (${analiseParcial.length} chars)`)
 
       // Chamada 2: integração do áudio + veredicto final com gpt-4.1 — ~15K tokens
@@ -272,6 +273,8 @@ ${contextoAudio}`
       })
 
       const analiseText2 = resp2.choices[0]?.message?.content ?? "{}"
+      console.log(`[TPM] Chamada 2 — prompt: ${resp2.usage?.prompt_tokens ?? '?'} | completion: ${resp2.usage?.completion_tokens ?? '?'} | total: ${resp2.usage?.total_tokens ?? '?'} tokens`)
+      console.log(`[TPM] Total 2 chamadas — ${(resp1.usage?.total_tokens ?? 0) + (resp2.usage?.total_tokens ?? 0)} tokens`)
       console.log(`[Análise] Chamada 2 concluída (${analiseText2.length} chars)`)
       analise = JSON.parse(analiseText2)
 
@@ -298,6 +301,7 @@ ${contextoAudio}`
       })
 
       const analiseText = resp.choices[0]?.message?.content ?? "{}"
+      console.log(`[TPM] Fluxo único — prompt: ${resp.usage?.prompt_tokens ?? '?'} | completion: ${resp.usage?.completion_tokens ?? '?'} | total: ${resp.usage?.total_tokens ?? '?'} tokens`)
       console.log(`[Análise] Resposta recebida (${analiseText.length} chars)`)
       analise = JSON.parse(analiseText)
     }
@@ -544,6 +548,7 @@ async function diarizeTranscription(transcricaoBruta: string): Promise<string> {
     })
 
     const content = response.choices[0]?.message?.content
+    console.log(`[TPM] Diarização — prompt: ${response.usage?.prompt_tokens ?? '?'} | completion: ${response.usage?.completion_tokens ?? '?'} | total: ${response.usage?.total_tokens ?? '?'} tokens`)
     if (!content || content.length < 20) {
       console.warn("[Diarização] Resposta vazia — usando transcrição bruta")
       return transcricaoBruta
@@ -577,6 +582,7 @@ async function analyzeAudioTone(
     })
 
     const content = response.choices[0]?.message?.content
+    console.log(`[TPM] Tom de Voz — prompt: ${response.usage?.prompt_tokens ?? '?'} | completion: ${response.usage?.completion_tokens ?? '?'} | total: ${response.usage?.total_tokens ?? '?'} tokens`)
     if (!content) return null
     return JSON.parse(content)
   } catch (e) {
@@ -637,6 +643,7 @@ Seja objetivo, técnico e específico.`,
     max_tokens: 1200,
   })
 
+  console.log(`[TPM] Vision imagem — prompt: ${response.usage?.prompt_tokens ?? '?'} | completion: ${response.usage?.completion_tokens ?? '?'} | total: ${response.usage?.total_tokens ?? '?'} tokens`)
   return response.choices[0]?.message?.content ?? "Não foi possível analisar a imagem."
 }
 
