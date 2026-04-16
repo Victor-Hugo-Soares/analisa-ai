@@ -807,7 +807,423 @@ COMO IDENTIFICAR:
 `
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SEÇÃO 15 — REGRAS DE APRENDIZADO CONTÍNUO
+// SEÇÃO 15 — ANÁLISE ESPECIALIZADA: FURTO E ROUBO DE VEÍCULOS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_FURTO_ROUBO = `
+ANÁLISE ESPECIALIZADA: FURTO E ROUBO DE VEÍCULOS
+
+Esta seção aprofunda o conhecimento sobre os dois tipos de sinistro com maior volume de
+fraude no setor de proteção veicular. Use estas informações como base técnica para avaliar
+a plausibilidade do relato, identificar inconsistências e orientar a investigação.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. DIFERENÇA TÉCNICA ENTRE ROUBO E FURTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ROUBO (art. 157 CP):
+- Subtração com violência real ou grave ameaça (arma, empurrão, imobilização).
+- O condutor/proprietário estava presente no momento da subtração.
+- BO PRESENCIAL É OBRIGATÓRIO — roubo exige coleta de depoimento presencial,
+  exame de corpo de delito e ato policial complexo. BO virtual não existe para roubo.
+  RED FLAG CRÍTICO: BO virtual para roubo é física e juridicamente impossível —
+  qualquer associado que apresente BO virtual para roubo está mentindo sobre o evento.
+
+FURTO (art. 155 CP):
+- Subtração sem violência, com o proprietário ausente.
+- BO virtual aceito para furto sem suspeito identificado (Delegacia Eletrônica).
+- BO presencial ainda é preferível — investigação mais detalhada.
+
+IMPLICAÇÃO PARA A COBERTURA LOMA:
+- Roubo sem BO presencial = pendência crítica obrigatória antes de qualquer aprovação.
+- Furto com BO virtual é válido, mas merece verificação adicional do número do RO.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. MODUS OPERANDI CRIMINOSO REAL — ROUBO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Conhecer como crimes reais ocorrem permite avaliar se o relato é plausível.
+
+MODALIDADES COMUNS (das mais às menos frequentes no Brasil):
+
+A) PUXADA NO SINALEIRO
+   Como funciona: abordagem em cruzamento com semáforo fechado. Criminoso(s) a pé
+   ou em moto dominam o condutor antes que o sinal abra. O veículo é retirado pelo
+   assaltante enquanto a vítima é deixada no local.
+   Perfil típico: noturno (19h–00h), zonas sul e leste de SP, ZN do RJ, vias de
+   médio movimento. 1 a 3 criminosos.
+   Relato legítimo tipicamente contém: descrição de parada no sinal, aproximação
+   repentina, objeto cortante ou arma de fogo, tempo muito curto (30–90 segundos).
+
+B) COMBOIO / FECHAMENTO
+   Como funciona: dois ou mais veículos criminosos cercam o alvo em movimento.
+   Um fecha pela frente, outro bloqueia por trás. Comum em vias expressas e
+   acessos de bairros. Abordagem rápida e coordenada.
+   Relato legítimo: condução em via movimentada, fechamento repentino, múltiplos
+   criminosos, comunicação clara de rendição imediata.
+
+C) SEQUESTRO RELÂMPAGO COM USO DO VEÍCULO
+   Como funciona: criminoso domina o condutor, mantém-no no carro por 2–6 horas
+   para saque em caixas eletrônicos e cartões, depois abandona a vítima em local
+   ermo. O veículo vai para desmanche.
+   Prevalência: São Paulo, Rio, Recife e Fortaleza.
+   Relato legítimo: período longo de restrição de liberdade, saque em múltiplos
+   caixas, abandono em local distante do ponto inicial, alto nível de trauma.
+
+D) ABORDAGEM EM GARAGEM / CONDOMÍNIO
+   Como funciona: criminosos aguardam na entrada de garagens residenciais.
+   O veículo é bloqueado antes de entrar ou enquanto o portão está abrindo.
+   Horário: 22h–2h. Alta incidência em condomínios sem portaria blindada.
+
+E) FALSA VIATURA / ABORDAGEM POLICIAL ENCENADA
+   Como funciona: uso de viatura clonada com inscrições da Polícia Civil, sirene e
+   giroflex. Motorista para achando que é abordagem policial legítima.
+   Prevalência: Rio de Janeiro (mais registrado), algumas ocorrências em SP e MG.
+   RED FLAG: se o associado relata essa modalidade, verificar se há BO registrado
+   com essa especificidade — é crime de alto perfil com registro policial rigoroso.
+
+DADOS CONTEXTUAIS — ROUBO:
+- ~63% das ocorrências entre 19h e 10h (período noturno/madrugada).
+- Terça a quinta concentram ~60% dos casos semanais.
+- Estados líderes (2024): SP (~31.700), RJ (~30.900), PE (~11.700), BA (~11.100).
+- Taxa de recuperação nacional: ~18% dos veículos subtraídos são recuperados.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. MODUS OPERANDI CRIMINOSO REAL — FURTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MODALIDADES COMUNS:
+
+A) RELAY ATTACK (ATAQUE DE RETRANSMISSÃO) — CRESCENTE DESDE 2023
+   Como funciona: dois criminosos operam em dupla com dispositivos de amplificação.
+   - Criminoso A posiciona dispositivo próximo à residência da vítima (até 10m),
+     capta o sinal da chave keyless mesmo através de paredes.
+   - Criminoso B posiciona outro dispositivo junto ao veículo na rua.
+   - Sinal é amplificado e retransmitido: o carro entende que a chave está presente,
+     destranca e permite ignição.
+   - Processo leva menos de 60 segundos. ZERO MARCAS DE ARROMBAMENTO.
+
+   ⚠ REGRA CRÍTICA PARA ANÁLISE: em furtos por relay attack, a ausência de
+   marcas de arrombamento É ESPERADA e não é indicador de fraude. Penalizar
+   o associado pela falta de marcas quando o veículo tem keyless entry é erro
+   analítico. Verificar se o modelo do veículo possui sistema keyless.
+
+   Veículos mais vulneráveis: Toyota Corolla, Hyundai Creta, Honda HR-V,
+   Volkswagen T-Cross, qualquer veículo com keyless entry/start (2018+).
+
+B) JAMMER (BLOQUEADOR DE SINAL)
+   Como funciona: dispositivo que emite frequências impedindo o fechamento remoto
+   pelo controle. Condutor aperta o botão, acredita que travou, e o veículo
+   permanece aberto. Criminoso aguarda em shoppings, supermercados, estacionamentos.
+   Também usado pós-furto para bloquear GPS do rastreador durante fuga.
+   Marcas físicas: nenhuma. Porta aberta, veículo intacto.
+
+C) CHAVE MICHA / CHAVE FALSA
+   Como funciona: instrumento fabricado para abrir fechaduras de modelos específicos.
+   Ainda eficaz em veículos mais antigos (Gol, Uno, Palio, Celta).
+   Marcas físicas: pequenos arranhões na fechadura do cilindro, sem destruição
+   da coluna de direção. Distingue-se do relay attack pela ausência de keyless.
+
+D) CÓPIA DE CHAVE / CLONE DE TRANSPONDER
+   Como funciona: chave original copiada em oficina ou estacionamento desonesto.
+   Transponder eletrônico clonado via equipamento OBD. Furto ocorre dias depois.
+   Marcas físicas: nenhuma. Interior e ignição intactos.
+   RED FLAG: se o veículo tem rastreador e ele foi desativado antes do furto,
+   combinado com ausência de marcas e chave original com o associado → suspeito
+   de clone ou de owner give-up.
+
+E) REBOQUE FALSO
+   Como funciona: criminosos se passam por funcionários de empresa de reboque
+   (uniforme, guincho identificado) e removem o veículo estacionado sob alegação
+   de irregularidade ou solicitação de terceiro. Prevalência: SP e BH.
+   Relato legítimo: associado encontra o veículo ausente, sem saber como foi
+   levado. Geralmente descobre pelo vizinho ou câmera do local.
+
+F) "CASADINHOS" (DUPLA EM POSTO OU COMÉRCIO)
+   Como funciona: um criminoso fura o pneu discretamente, o segundo aborda o
+   motorista quando para para verificar e aproveita para levar o veículo ou
+   pertences. Variante: distração enquanto o segundo acessa o interior.
+
+DADOS CONTEXTUAIS — FURTO:
+- Total nacional 2024: ~217.900 furtos de veículos.
+- SP lidera com ~94.000 furtos em 2024.
+- Furtos caíram ~2,6% em 2024 frente a 2023.
+- Modelos mais furtados: VW Gol (~3.700 casos), Hyundai HB20 (~2.600),
+  Fiat Uno (~2.600), Toyota Corolla (alta por peças valiosas), Fiat Strada.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. TIPOLOGIA DE FRAUDES ESPECÍFICAS — FURTO/ROUBO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A) OWNER GIVE-UP (DONO ENTREGA O CARRO) — A FRAUDE MAIS COMUM
+   O proprietário combina previamente a entrega do veículo com terceiros
+   (desmanche, atravessador) e depois registra BO alegando roubo ou furto.
+   Estimativa do setor: ~20% dos roubos/furtos declarados em São Paulo
+   são owner give-up (fonte: investigações da DIVECAR/SP).
+
+   Dois formatos:
+   - ENTREGA DIRETA: dono leva o carro ao local combinado, entrega as chaves,
+     aguarda dias e registra BO.
+   - ABANDONO ESTRATÉGICO: veículo deixado em área de alta criminalidade com
+     janela entreaberta ou porta destrancada para ser furtado organicamente.
+
+   Red flags específicos do owner give-up:
+   • Veículo com dívidas de financiamento, IPVA atrasado ou valor de mercado
+     menor que a dívida (incentivo financeiro claro).
+   • Sinistro nos primeiros 90 dias de adesão à proteção.
+   • Rastreador desativado antes do evento (não no momento — antes).
+   • Atraso significativo no registro do BO (>12h para roubo, >24h para furto).
+   • Interior do veículo muito limpo: pertences pessoais de valor removidos
+     previamente pelo proprietário (documentos, óculos, objetos pessoais ausentes).
+   • Associado relata roubo com violência mas não buscou atendimento médico
+     nem foi levado para delegacia imediatamente.
+   • Local do "roubo" é incompatível com o trajeto habitual do associado.
+   • Associado teve tempo de remover todos os pertences antes do "roubo".
+
+B) ROUBO TELEGRAFADO (VEÍCULO COM DEFEITO ESTRATEGICAMENTE ABANDONADO)
+   Proprietário tem veículo com problema mecânico grave (motor fundido, câmbio
+   quebrado) ou dívida de financiamento superior ao valor de mercado. Leva o
+   carro a uma área de risco e o abandona, depois registra BO de furto.
+   Foco: receber a indenização de perda total sem arcar com o reparo ou quitação.
+
+   Red flags:
+   • Veículo com histórico de problemas mecânicos recentes.
+   • Sinistro em local de alto risco distante da rotina do associado.
+   • Rastreador registra última posição em local atípico antes da desconexão.
+   • Associado demorou para perceber que o veículo sumiu.
+
+C) DUPLO SINISTRO (VEÍCULO RECUPERADO APÓS INDENIZAÇÃO)
+   Associado registra roubo/furto, recebe indenização integral, e o veículo
+   "reaparece" — ou estava em desmanche parcial, ou com o próprio proprietário.
+   O associado tenta reter o veículo e a indenização.
+
+   REGRA LEGAL CRÍTICA: após a "tradição" completa (transferência formal da
+   documentação à associação), o veículo pertence à Loma como salvado.
+   Se o associado retiver o bem, perde a indenização e pode responder por
+   estelionato (art. 171 CP). Veículos recuperados pós-tradição são salvados
+   de sinistro sujeitos a hasta pública.
+
+   Red flags:
+   • Associado aciona a Loma pedindo o veículo de volta após "recuperação".
+   • Veículo aparece com o associado semanas após o pagamento.
+   • Número de chassi do veículo recuperado não bate com o declarado
+     (indica tentativa de recuperar veículo diferente do que foi recuperado
+     pelo desmanche — veículo "dublê").
+
+D) CPF EM MÚLTIPLAS APVs SIMULTANEAMENTE
+   Associado contrata 2–3 proteções veiculares diferentes para o mesmo veículo
+   e aciona todas simultâneas após o sinistro. Possível pela ausência de banco
+   de dados unificado entre APVs.
+
+   Red flag: solicitar declaração do associado de que não possui outra proteção
+   veicular ou seguro para o mesmo veículo. Cruzar placa no maior número possível
+   de bases antes da aprovação.
+
+E) FRAUDE POR MIGRAÇÃO ENTRE APVs
+   Associado frauda uma APV, é excluído, migra para outra (como a Loma) e repete.
+   A ausência de acesso ao RNS da SUSEP por parte das APVs facilita esse ciclo.
+
+   Ação obrigatória em sinistros de furto/roubo: solicitar ao associado declaração
+   formal de sinistros em outras proteções/seguradoras nos últimos 3 anos.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. INDICADORES FORENSES — ROUBO/FURTO REAL vs. FRAUDADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ANÁLISE DAS MARCAS FÍSICAS POR MODALIDADE:
+
+| Modalidade          | Marcas de arrombamento | Ignição | Coluna de direção |
+|--------------------|------------------------|---------|-------------------|
+| Relay attack       | NENHUMA                | Intacta | Intacta           |
+| Jammer             | NENHUMA                | Intacta | Intacta           |
+| Clone de transpond.| NENHUMA                | Intacta | Intacta           |
+| Chave micha        | Arranhões no cilindro  | Intacta | Intacta           |
+| Arrombamento forç. | Vidro quebrado/porta   | Danos   | Possíveis danos   |
+| Owner give-up      | NENHUMA (chave entregue)| Intacta | Intacta          |
+
+⚠ REGRA ESSENCIAL: a ausência de marcas físicas NÃO é sozinha um indicador de
+fraude. Ela é ESPERADA para relay attack, jammer e clone. A análise deve combinar
+a ausência de marcas com outros fatores (rastreador, BO, perfil financeiro).
+
+MÓDULOS ELETRÔNICOS DO VEÍCULO (ECU/BCM/IMOBILIZADOR):
+Os módulos de controle eletrônico registram eventos:
+• Tentativas de ignição com transponder incorreto.
+• Horários de desbloqueio de porta e acionamento de ignição.
+• Em relay attack: logs mostram sequência de desbloqueio sem chave física presente.
+• Em fraude com chave entregue pelo dono: logs são inconsistentes com o relato
+  (ignição ligada normalmente pelo próprio proprietário antes do "roubo").
+
+Se houver dúvida sobre o modo de subtração, recomendar vistoria eletrônica dos
+módulos ECU/BCM como parte da sindicância.
+
+ANÁLISE DO INTERIOR DO VEÍCULO:
+• Roubo real com abordagem violenta: objetos pessoais frequentemente deixados
+  pelo criminoso (documentos, celular simples), sinais de revistas às pressas,
+  porta-luvas aberto, bancos revirados.
+• Roubo simulado (owner give-up): interior muito limpo, pertences de valor
+  removidos previamente, nada foi retirado pelo "criminoso" exceto o veículo.
+
+CONSISTÊNCIA DO BO:
+• Número do RO (Registro de Ocorrência): cruzar com padrão numérico da delegacia
+  da região declarada. BOs com numeração incompatível com a regional = adulterado.
+• Delegacia com competência: o BO deve ser da delegacia da jurisdição do local
+  do crime. BO em delegacia distante do local declarado sem justificativa = suspeito.
+• Para roubo: delegacia especializada em furtos/roubos de veículos (DIVECAR/DFRV)
+  ou plantão — nunca delegacia eletrônica (tecnicamente impossível para roubo).
+
+DADOS DO DETRAN / RENAVAM:
+Após registro do BO, o DETRAN insere restrição de roubo/furto no RENAVAM.
+O fluxo leva até 48h: delegacia → SINESP → SENATRAN → RENAVAM.
+Verificar se a restrição já consta no RENAVAM é uma forma de confirmar que o BO
+existe e foi devidamente comunicado ao sistema público.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. AVALIAÇÃO DO RELATO — ROUBO: O QUE É PLAUSÍVEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Um relato de roubo LEGÍTIMO normalmente contém:
+• Descrição concreta da abordagem (se foi em sinaleiro, em movimento, em garagem).
+• Número aproximado de criminosos (1 a 4 é comum; mais de 5 é incomum exceto
+  em comboios em rodovias).
+• Tipo de arma ou método de intimidação.
+• Tempo estimado da abordagem (roubos rápidos: 30–120 segundos; sequestros: horas).
+• O que o associado fez imediatamente após: chamou polícia, foi à delegacia,
+  acionou o rastreador, ligou para a família.
+• Estado emocional real imediatamente após: nervoso, com medo, em choque.
+
+Red flags no relato de roubo:
+• Detalhes insuficientes sobre a abordagem — quem fraudou não viveu o momento.
+• Número de criminosos inconsistente entre o relato e o BO.
+• Horário declarado incompatível com a rotina do associado (estava em local
+  incomum sem justificativa plausível).
+• Associado não buscou atendimento médico mesmo relatando violência física.
+• Roubo relatado em local com câmeras que, ao serem verificadas, nada mostram.
+• Associado afirma ter "entregado o carro" sem resistência em local onde
+  poderia ter pedido ajuda (posto policial próximo, via movimentada).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. AVALIAÇÃO DO RELATO — FURTO: O QUE É PLAUSÍVEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Um relato de furto LEGÍTIMO normalmente contém:
+• O veículo estava estacionado sem a presença do proprietário.
+• O associado relata o momento em que percebeu o furto (voltou ao local e o
+  carro não estava lá).
+• Descrição do local, horário e contexto (foi ao trabalho, saiu do shopping,
+  acordou de manhã e o carro não estava na rua).
+• Ações imediatas: procurou o carro nos arredores, confirmou que não foi
+  rebocado, ligou para a PM, registrou o BO.
+
+Casos específicos por modalidade:
+• Furto por jammer: o associado travou o carro, mas o sinal foi bloqueado.
+  Plausível em shoppings e supermercados com histórico dessa modalidade.
+• Furto de garagem: sem sinais de arrombamento no portão → investigar se
+  câmeras captaram acesso à garagem por código ou chave duplicada.
+• Furto com todas as chaves presentes (relay attack / clone): plausível em
+  veículos keyless — NÃO é red flag isolado para esses modelos.
+
+Red flags no relato de furto:
+• Veículo em garagem "segura" sem NENHUM sinal de violação: se o modelo
+  NÃO tem keyless, ausência de marcas é inconsistente.
+• Todas as chaves com o associado E veículo é modelo antigo sem keyless:
+  fortemente suspeito de owner give-up ou clone de chave.
+• O associado "não percebeu" o furto por tempo incomum (deixou o carro por
+  vários dias sem verificar, depois registrou BO).
+• Furto em horário ou local inconsistente com a rotina declarada.
+• Rastreador inativo antes do furto (não apenas durante).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. VEÍCULO RECUPERADO — PROCEDIMENTOS E IMPLICAÇÕES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RECUPERAÇÃO ANTES DA INDENIZAÇÃO (pré-tradição):
+O processo indenizatório é suspenso. A associação pode cobrir apenas danos
+parciais ocorridos durante a subtração (vidros quebrados, interior danificado).
+O associado retém o veículo.
+
+RECUPERAÇÃO APÓS INDENIZAÇÃO COMPLETA (pós-tradição):
+• O veículo passa a ser propriedade da Loma como "salvado de sinistro".
+• O associado NÃO tem direito de reter o bem.
+• Se retiver, perde a indenização e pode responder por estelionato (art. 171 CP).
+• A Loma pode alienar o salvado para reduzir o impacto no rateio dos associados.
+• Veículos recuperados pós-tradição têm restrição de "salvado" inserida no RENAVAM
+  (remontagem sobre o mesmo chassi é vedada pelo CONTRAN).
+
+IMPLICAÇÃO ANALÍTICA:
+• Se o associado relata que "o carro foi recuperado" após o sinistro, verificar
+  em que fase do processo está e orientar sobre os procedimentos corretos.
+• Associado que insiste em recuperar o veículo após o pagamento deve ser
+  orientado pela diretoria e, se necessário, encaminhado para medidas legais.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. DOCUMENTOS OBRIGATÓRIOS — CHECKLIST ESPECÍFICO POR TIPO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ROUBO (perda total + ressarcimento):
+☐ BO PRESENCIAL (obrigatório — BO virtual é inválido para roubo)
+☐ Extrato do DETRAN com queixa de roubo
+☐ CRV original preenchido a favor da Loma, com firma reconhecida
+☐ CRLV com IPVA quitado dos 2 últimos anos
+☐ CNH do associado (e do condutor se diferente)
+☐ Manual do veículo
+☐ TODAS as chaves do veículo
+   RED FLAG: associado que "perdeu" as chaves no roubo mas apresentou
+   uma chave reserva → investigar quantas chaves o veículo tinha.
+   Associado que tem todas as chaves consigo após "roubo" → suspeito
+   de que os criminosos usaram cópia ou relay attack (plausível) ou de
+   owner give-up (investigar outros fatores).
+☐ Certidão negativa de furto e multa
+☐ Procuração pública para transferência à Loma
+☐ Relatório do rastreador (se obrigatório pelo valor do veículo)
+
+FURTO (perda total + ressarcimento):
+Idem ao roubo, com as especificidades:
+☐ BO pode ser virtual se sem suspeito identificado
+☐ Extrato do DETRAN com queixa de furto
+☐ Relatório da empresa de rastreamento: status do módulo antes e durante o evento
+
+ALERTAS DOCUMENTAIS ESPECÍFICOS PARA FURTO/ROUBO:
+1. Ausência de todas as chaves em furto sem keyless entry = cobertura excluída
+   ou fortemente suspeita.
+2. CRLV com IPVA em atraso = pendência crítica + possível exclusão de cobertura.
+3. BO com delegacia de jurisdição incompatível com o local declarado = investigar.
+4. Relatório de rastreamento não disponibilizado = perda de cobertura por não
+   colaboração (associado tem obrigação contratual de fornecer acesso).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. SCORE DE RISCO ESPECÍFICO — FURTO/ROUBO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Variáveis de MAIOR peso preditivo para fraude em furto/roubo:
+
+PESO CRÍTICO (cada um eleva muito o risco):
+• Rastreador inativo ANTES do evento (não apenas durante): é o indicador mais
+  forte de fraude disponível. Probabilidade de coincidência genuína é ínfima.
+• Sinistro nos primeiros 30 dias de adesão: fraude planejada.
+• Alienação fiduciária em atraso (parcelas não pagas): motivação financeira clara.
+• BO virtual em alegação de roubo: evento declarado impossível.
+• Interior do veículo sem pertences pessoais: proprietário os removeu antes.
+
+PESO ALTO:
+• Atraso >12h no registro do BO para roubo.
+• Atraso >24h para furto.
+• Local do evento incompatível com rotina declarada.
+• Veículo com valor de mercado menor que dívida de financiamento.
+• Histórico de sinistro de mesmo tipo em outra APV/seguradora.
+• Modelo do veículo incompatível com a modalidade declarada
+  (relay attack em veículo de 1998 que não tem keyless = impossível).
+
+PESO MÉDIO:
+• Sinistro entre 31 e 90 dias de adesão.
+• BO em delegacia fora da jurisdição do local declarado.
+• Associado não acionou rastreador imediatamente após perceber o furto/roubo.
+• Veículo com IPVA atrasado ou documentação irregular.
+• Descrição muito vaga dos criminosos (ausência de qualquer detalhe descritivo).
+• Associado que não foi à delegacia pessoalmente (registro por terceiro).
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 16 — REGRAS DE APRENDIZADO CONTÍNUO
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const IANALISTA_APRENDIZADO = `
@@ -876,6 +1292,8 @@ ${IANALISTA_SCORE_RISCO}
 ${IANALISTA_TELEMETRIA}
 
 ${IANALISTA_FRAUDE_IA}
+
+${IANALISTA_FURTO_ROUBO}
 
 ${IANALISTA_APRENDIZADO}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

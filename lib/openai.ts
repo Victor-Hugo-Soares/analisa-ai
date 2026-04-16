@@ -87,23 +87,30 @@ COLISÃO:
 - Vistoria prévia realizada poucos dias antes do sinistro
 - Troca de condutor não registrada (quem dirigia não é o habitual)
 
-ROUBO / FURTO COM VIOLÊNCIA:
-- Resistência relatada incompatível com o contexto (resistência em local ermo, de madrugada)
-- Rastreador desconectado, com bateria baixa ou inativo exatamente no horário do sinistro
-- Descrição vaga e genérica dos criminosos (sem detalhes físicos, sem número preciso)
+ROUBO (com violência ou grave ameaça):
+- BO VIRTUAL declarado para roubo: tecnicamente impossível — roubo exige BO presencial obrigatório. Isso por si só é fraude documental.
+- Rastreador inativo ANTES do evento (não apenas durante): indicador mais forte de fraude disponível
+- Descrição vaga e genérica dos criminosos ou número de criminosos inconsistente entre relato e BO
+- Interior do veículo sem pertences pessoais: proprietário os removeu antes (owner give-up)
+- Associado não buscou atendimento médico após relatar violência física
 - Sinistro ocorrido próximo ao vencimento do plano, após inadimplência recente ou após aumento de cobertura
-- Veículo com débitos, alienação fiduciária em atraso, bloqueio judicial
-- BO registrado com muita demora (mais de 24h) ou em delegacia fora da jurisdição do local
-- Não compareceu pessoalmente para registrar o BO (registro por terceiro ou online sem justificativa)
-- Associado não aciona rastreador nem solicita bloqueio imediatamente
+- Veículo com débitos, alienação fiduciária em atraso, valor de mercado menor que a dívida
+- BO em delegacia fora da jurisdição do local declarado sem justificativa
+- Não compareceu pessoalmente para registrar o BO (registro por terceiro sem justificativa)
+- Associado não acionou rastreador nem solicitou bloqueio imediatamente após o roubo
+- Local do roubo incompatível com a rotina declarada do associado
 
 FURTO SIMPLES:
-- Veículo em garagem "segura" sem sinais de arrombamento ou violação de fechadura
-- Todas as chaves presentes com o associado
-- Rastreador inativo no período do furto
+- Ausência de marcas de arrombamento em veículo SEM sistema keyless entry: inconsistente
+  ATENÇÃO: em veículos COM keyless entry (2018+), ausência de marcas é ESPERADA e normal
+  (relay attack, jammer) — NÃO penalizar por isso em veículos com essa tecnologia
+- Todas as chaves presentes + veículo antigo sem keyless: fortemente suspeito
+- Rastreador inativo ANTES do evento (não apenas durante)
 - Demora superior a 12h para comunicar o furto
-- Histórico de sinistros similares na mesma associação ou outras
-- Dívidas ou problemas financeiros recentes do associado
+- Veículo em local de alto risco incompatível com a rotina do associado
+- Histórico de sinistros similares na mesma associação ou outras APVs/seguradoras
+- Dívidas, alienação fiduciária em atraso ou IPVA atrasado: motivação financeira clara
+- Associado "não percebeu" o furto por período incomum (veículo deixado por dias sem verificar)
 
 EVENTOS DA NATUREZA (granizo, alagamento, queda de árvore, raio):
 - Data do sinistro incompatível com registros meteorológicos oficiais (INMET, Climatempo) da região
