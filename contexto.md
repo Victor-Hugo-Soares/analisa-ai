@@ -2,10 +2,10 @@
 
 ## Identidade
 - **Produto**: SaaS B2B de análise de sinistros veiculares com IA
-- **Público-alvo**: Seguradoras e proteções veiculares
-- **Repo**: `https://github.com/VictorHugo-7/analisa-ai`
-- **Deploy**: `https://ianalista.com`
-- **Diretório**: `C:/Users/Victor Hugo/OneDrive/Documentos/Victor/analisa-ai`
+- **Público-alvo**: Seguradoras e proteções veiculares (APVs)
+- **Repo**: `https://github.com/Victor-Hugo-Soares/analisa-ai`
+- **Deploy**: Vercel (Hobby) — `analisa-ai-git-main-victor-hugo-soares-projects.vercel.app`
+- **Diretório**: `C:/Users/Victor Hugo/Documents/victor/analisa-ai`
 
 ---
 
@@ -13,12 +13,12 @@
 
 | Camada | Tecnologia |
 |---|---|
-| Framework | Next.js 16.2.3 (App Router), React 19, TypeScript |
+| Framework | Next.js 16.2.3 (App Router, Turbopack), React 19, TypeScript |
 | UI | Tailwind CSS v4 + shadcn/ui (New York, Zinc, radix-ui v1) |
-| IA | OpenAI SDK v6 — GPT-4o, Whisper, Vision |
+| IA | OpenAI SDK v6 — gpt-4.1-mini (200K TPM), gpt-4.1 (30K TPM), Whisper-1 |
 | Banco | Supabase (Postgres + Auth + Storage + RLS) |
-| Cache local | localStorage (demo/fallback) |
-| Upload | react-dropzone → Supabase Storage (signed URL) |
+| Cache local | localStorage (fallback offline) |
+| Upload | react-dropzone → Supabase Storage (signed URL direto browser→Storage) |
 | Outros | framer-motion, react-markdown, lucide-react, clsx, tailwind-merge |
 
 ---
@@ -38,26 +38,39 @@
 ```
 analisa-ai/
 ├── app/
-│   ├── admin/page.tsx                    ← Painel master (role=master)
+│   ├── admin/
+│   │   ├── page.tsx                          ← Painel master (role=master)
+│   │   └── aprendizados/page.tsx             ← Gerenciar aprendizados da IA
 │   ├── api/
-│   │   ├── analyze/route.ts              ← Pipeline IA (maxDuration=300)
-│   │   ├── auth/signin/route.ts          ← Login Supabase → retorna role
-│   │   ├── auth/signup/route.ts          ← Cadastro empresa + usuário
-│   │   ├── admin/empresas/route.ts       ← GET todas empresas (master only)
-│   │   ├── admin/empresas/[id]/route.ts  ← PATCH configurações empresa
-│   │   ├── sinistros/route.ts            ← GET lista (Bearer token)
-│   │   ├── sinistros/[id]/route.ts       ← GET single + PATCH status
-│   │   ├── sinistros/save/route.ts       ← POST persiste após análise
-│   │   └── sinistros/upload-url/route.ts ← POST gera signed upload URL
+│   │   ├── analyze/route.ts                  ← Pipeline IA (maxDuration=300)
+│   │   ├── auth/signin/route.ts              ← Login Supabase → retorna role
+│   │   ├── auth/signup/route.ts              ← Cadastro empresa + usuário
+│   │   ├── admin/empresas/route.ts           ← GET todas empresas (master only)
+│   │   ├── admin/empresas/[id]/route.ts      ← PATCH configurações empresa
+│   │   ├── admin/aprendizados/route.ts       ← GET lista aprendizados (master)
+│   │   ├── admin/aprendizados/[id]/route.ts  ← PATCH status aprendizado
+│   │   ├── admin/aprendizados/[id]/registrar ← POST registra aprendizado na IA
+│   │   ├── admin/backfill-storage-paths      ← POST recupera storage_path existentes
+│   │   ├── aprendizados/route.ts             ← POST cria aprendizado pendente
+│   │   ├── sinistros/route.ts                ← GET lista (Bearer token)
+│   │   ├── sinistros/[id]/route.ts           ← GET single + PATCH status (auth)
+│   │   ├── sinistros/[id]/download-url       ← GET signed download URL (5 min)
+│   │   ├── sinistros/generate-id/route.ts    ← GET próximo EVT-XXX atômico
+│   │   ├── sinistros/save/route.ts           ← POST persiste após análise
+│   │   └── sinistros/upload-url/route.ts     ← POST gera signed upload URL
 ├── components/sinistro/
-│   └── ResultadoAnalise.tsx
+│   ├── ResultadoAnalise.tsx                  ← UI resultado + modal de decisão
+│   ├── AnaliseStep.tsx                       ← Step 4 — oculta nomes de vendors
+│   └── ChatSinistro.tsx                      ← Badge "IA online" (não "GPT-4o")
 ├── lib/
-│   ├── types.ts      ← Todos os tipos TypeScript
-│   ├── openai.ts     ← SYSTEM_PROMPT + AUDIO_TONE_PROMPT
-│   ├── supabase.ts   ← createClient() browser + createServerClient() service_role
-│   ├── db.ts         ← CRUD server-side Supabase
-│   └── storage.ts    ← localStorage CRUD + helpers auth + isMaster()
-└── .env.local
+│   ├── types.ts        ← Todos os tipos TypeScript
+│   ├── openai.ts       ← buildSystemPrompt + AUDIO_TONE_PROMPT + fetchAprendizados
+│   ├── knowledge.ts    ← Base de conhecimento separada por tipo de evento
+│   ├── supabase.ts     ← createClient() browser + createServerClient() service_role
+│   ├── db.ts           ← CRUD server-side Supabase + generateSinistroId
+│   └── storage.ts      ← localStorage CRUD + helpers auth + isMaster()
+└── supabase/migrations/
+    └── 20260417_sinistro_counters.sql        ← Tabela + função RPC contador atômico
 ```
 
 ---
@@ -87,47 +100,74 @@ analisa-ai/
 - `isMaster()` → boolean
 - `getAccessToken()` / `setAuthTokens()`
 - `getEmpresaIdFromSession()` → `session.id`
+- `fetchWithAuth(url, options, router)` — fetch com token + auto-logout em 401
 
 ---
 
 ## Banco de Dados (Supabase)
 
 ### Tabelas
-- `empresas` — id, nome, cnpj, email, plano, ativo, **limite_usuarios**, **nivel_acesso**, criado_em
-- `usuarios` — id, empresa_id, nome, email, **role**, criado_em
+- `empresas` — id, nome, cnpj, email, plano, ativo, limite_usuarios, nivel_acesso, criado_em
+- `usuarios` — id, empresa_id, nome, email, role, criado_em
 - `sinistros` — id, empresa_id, usuario_id, tipo_evento, status, nome_segurado, cpf, placa, data_hora_sinistro, local, relato, analise (jsonb), criado_em, atualizado_em
-- `arquivos` — id, sinistro_id, nome, tipo, tamanho, storage_path, criado_em
+- `arquivos` — id, sinistro_id, nome, tipo, tamanho, **storage_path**, criado_em
+- `aprendizados` — id, empresa_id, sinistro_id, conteudo, status (pendente/aprovado/registrado), criado_em
+- `sinistro_counters` — empresa_id (PK), contador — **criada via migration 20260417**
 
 ### Storage
 - Bucket: `sinistros-arquivos` (privado)
-- Políticas RLS: INSERT/SELECT/DELETE para `auth.uid() IS NOT NULL`
 - Upload via **signed URL** (browser → Supabase direto, não passa pela Vercel)
+- Download via `/api/sinistros/[id]/download-url` (signed URL de 5 min)
 
 ### RLS
 - `get_empresa_id()` → empresa_id do user autenticado
-- Políticas por empresa_id
+- Políticas por empresa_id em todas as tabelas
+- `sinistro_counters`: policy `service_role acesso total`
+
+### RPC Functions
+- `increment_sinistro_counter(p_empresa_id UUID) → INTEGER` — atômico, sem race condition
+  - `INSERT ... ON CONFLICT DO UPDATE RETURNING contador`
+  - Garante que 4 usuários simultâneos nunca recebem o mesmo EVT-XXX
 
 ---
 
 ## Pipeline IA (`/api/analyze`)
 
-- `export const maxDuration = 300` — evita timeout na Vercel
-- **Fluxo de arquivos**: signed URL → upload direto browser→Storage → server baixa via signed download URL
-- **Transcrição**: Whisper `verbose_json` com timestamps de segmento
-- **Tom de voz**: GPT-4o (`AUDIO_TONE_PROMPT`, max 2500 tokens)
-- **Imagens**: GPT-4o Vision (forense, consistência com relato)
-- **Análise final**: GPT-4o `json_object`, temperature 0.15, max_tokens 5000
+- `export const maxDuration = 300` — limite máximo do plano Hobby da Vercel
+- **Modelos em uso**:
+  - `gpt-4.1-mini` (200K TPM) — análise de colisão, natureza, vidros, transcrição cruzada furto/roubo
+  - `gpt-4.1` (30K TPM) — **não usado** (mesmo limite que gpt-4o, evitar)
+  - `whisper-1` — transcrição de áudio com timestamps
+- **Fluxo padrão** (colisão, natureza, vidros): 1 chamada `gpt-4.1-mini`
+- **Fluxo 2-call** (furto/roubo com áudio):
+  - Call 1: Whisper transcrição + GPT tom de voz (paralelo)
+  - Call 2: `gpt-4.1-mini` análise cruzada (texto + áudio + docs)
+  - Omite seções da KB irrelevantes para economizar tokens
+- **Furto/roubo sem áudio**: usa `buildSystemPromptDocumental` (sem análise linguística)
+- Todos os logs de uso incluem `[TPM]` para monitoramento
 
-### Bug crítico já corrigido — File.name read-only
-```typescript
-// ERRADO: Object.assign(file, { name: 'audio.mp3' })
-// CORRETO:
-new File([buffer], fileName, { type: mimeType })
-```
+### IDs de Evento
+- Formato: `EVT-001`, `EVT-002`, ... (por empresa, sem colisão)
+- Gerado em `/api/sinistros/generate-id` (GET autenticado)
+- Atomicidade garantida pelo PostgreSQL via `sinistro_counters` + RPC
+- Fallback local em caso de erro: `EVT-${Date.now().toString(36).toUpperCase().slice(-5)}`
+
+### Sistema de Aprendizado
+- Ao tomar decisão (Aprovar/Recusar/Solicitar Informações), modal obriga o analista a escrever o motivo
+- Motivo salvo como `aprendizado` com status `pendente`
+- Formato: `[DECISÃO: Aprovar Evento] motivo do analista`
+- Master aprova no `/admin/aprendizados` → status `aprovado` → master registra → status `registrado`
+- Aprendizados registrados são injetados no system prompt de todas as análises futuras (`fetchAprendizadosRegistrados`)
 
 ---
 
 ## Observações Críticas
+
+### Turbopack / Next.js 16
+- **Sem IIFE dentro de JSX** — Turbopack rejeita `{(() => { return <div /> })()}`
+- Componentes JSX devem ter nome com **letra maiúscula** (`const ModalIcon = ...` antes do `return`)
+- Siblings no `return` devem ser envoltos em Fragment `<>...</>`
+- Params de route handlers **devem ser awaited**: `const { id } = await params`
 
 ### Tailwind v4
 - **Sem** `tailwind.config.ts` — cores em CSS variables no `globals.css` via `@theme inline {}`
@@ -137,18 +177,28 @@ new File([buffer], fileName, { type: mimeType })
 - Usa `radix-ui` (pacote unificado), **não** `@radix-ui/react-*` individuais
 - Import: `import { Slot } from "radix-ui"`
 
-### Next.js App Router — Breaking Changes
-- Params de route handlers **devem ser awaited**: `const { id } = await params`
-- Antes de qualquer código de rota, ler `node_modules/next/dist/docs/`
-
 ### Vercel — Limites
 - Body limit: **4.5MB** — nunca enviar base64 de arquivos grandes via JSON
-- Função serverless padrão: timeout baixo → sempre declarar `export const maxDuration`
-- Solução: upload direto browser→Supabase Storage via signed URL
+- `maxDuration` máximo no plano **Hobby: 300s** (plano Pro: sem limite prático)
+- Solução de upload: browser → Supabase Storage via signed URL (não passa pela Vercel)
 
-### Supabase — `createServerClient()` vs `createClient()`
+### Supabase
 - `createServerClient()` usa `service_role` — bypassa RLS, usar apenas em server
 - `createClient()` usa `anon key` — RLS ativo, para browser
+- `storage_path` sempre salvo no DB e lido de volta — nunca confiar no localStorage para isso
+
+---
+
+## ⚠️ Checklist Pré-Lançamento (AÇÕES MANUAIS NECESSÁRIAS)
+
+> Execute antes de colocar o primeiro cliente em produção.
+
+- [ ] **Aplicar migration do contador**: no Supabase SQL Editor, executar o conteúdo de `supabase/migrations/20260417_sinistro_counters.sql` (cria tabela `sinistro_counters` e função RPC `increment_sinistro_counter`)
+- [ ] **Verificar bucket de storage**: confirmar que o bucket `sinistros-arquivos` existe no Supabase Storage e está configurado como **privado**
+- [ ] **Verificar tabela `aprendizados`**: confirmar que a tabela existe com colunas `id, empresa_id, sinistro_id, conteudo, status, criado_em`
+- [ ] **Backfill de storage_path**: se já existem sinistros no banco sem `storage_path`, acessar `POST /api/admin/backfill-storage-paths` com token master para recuperá-los
+- [ ] **Plano Vercel**: plano Hobby suporta até 6 execuções serverless simultâneas — com 4 analistas, está no limite. Considerar upgrade para Pro se houver lentidão
+- [ ] **Variáveis de ambiente**: confirmar no painel da Vercel que todas estão definidas: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`
 
 ---
 
@@ -168,7 +218,7 @@ new File([buffer], fileName, { type: mimeType })
 
 ---
 
-## Sessões Concluídas
+## Histórico de Sessões
 
 ### Sessão 1 — Setup e Estrutura Completa (09/04/2026)
 - [x] Projeto Next.js 16 criado do zero, dependências, shadcn/ui
@@ -181,7 +231,7 @@ new File([buffer], fileName, { type: mimeType })
 
 ### Sessão 2 — Perfil Master e Correções de Produção (09-10/04/2026)
 - [x] Sistema de roles: `master`, `admin`, `usuario`
-- [x] Usuário master criado no Supabase (`vsoareslins452@gmail.com`)
+- [x] Usuário master criado no Supabase
 - [x] Painel `/admin` — gerenciar empresas, limite_usuarios, nivel_acesso, ativo
 - [x] API routes `/api/admin/empresas` protegidas por role=master
 - [x] Sidebar mostra "Painel Master" apenas para role=master
@@ -189,29 +239,52 @@ new File([buffer], fileName, { type: mimeType })
 - [x] Corrigido erro silencioso de análise: erro visível + botão retry
 - [x] Página `/sinistros/[id]` busca Supabase como fallback ao localStorage
 - [x] Corrigido 413 Request Entity Too Large: upload via signed URL
-- [x] Arquivos nunca mais trafegam como base64 pelo servidor Vercel
+
+### Sessão 3 — Rebranding, Conversão e Padronização (10/04/2026)
+- [x] Remoção de cadastro público (`/cadastro` não acessível pela interface)
+- [x] Login atualizado: mostra contato WhatsApp em vez de cadastro
+- [x] Painel `/admin` — Modal "Nova Empresa" completo
+- [x] Landing Page — conversão completa com botão WhatsApp
+- [x] Refatoração de cores: navy `#1a2744` em Header/Sidebar/Dashboard
+- [x] Correção de bugs de codificação UTF-8 no deploy
+
+### Sessão 4 — Qualidade, Segurança e Sistema de Aprendizado (15-16/04/2026)
+- [x] Arquivos do resultado clicáveis (download via signed URL de 5 min)
+- [x] `storage_path` salvo corretamente no banco e lido de volta na tela
+- [x] Endpoint `/api/sinistros/[id]/download-url` com validação de ownership
+- [x] Segurança: `/api/sinistros/[id]` (GET + PATCH) agora requer autenticação + empresa_id
+- [x] Vendor names ocultados: "Whisper" → "transcrevendo áudio", "GPT-4o" → "IA online"
+- [x] Migração de modelos: gpt-4.1-mini (200K TPM) para análises — sem risco de estourar 30K TPM
+- [x] Fluxo 2-call para furto/roubo com áudio (evita limite TPM)
+- [x] Furto/roubo sem áudio usa `buildSystemPromptDocumental` (sem linguística)
+- [x] Otimização da knowledge base: omite seções irrelevantes por tipo de chamada (~3.5K tokens economizados)
+- [x] Logs `[TPM]` em todas as 6 chamadas OpenAI para monitoramento
+- [x] Sistema de aprendizado: `aprendizados` table, fluxo pendente→aprovado→registrado
+- [x] Modal de decisão obrigatório: analista escreve motivo ao Aprovar/Recusar/Investigar
+- [x] Aprendizados registrados injetados no system prompt de análises futuras
+- [x] Endpoint `/api/admin/backfill-storage-paths` para recuperar dados históricos
+
+### Sessão 5 — IDs Sequenciais Atômicos e Fix de Build (16/04/2026)
+- [x] IDs de evento: formato `EVT-001` sequencial por empresa (sem colisão entre usuários)
+- [x] `sinistro_counters` table + função RPC `increment_sinistro_counter` (PostgreSQL atômico)
+- [x] Migration `supabase/migrations/20260417_sinistro_counters.sql`
+- [x] Endpoint `/api/sinistros/generate-id` (GET autenticado, retorna próximo EVT-XXX)
+- [x] `lib/storage.ts`: `generateId()` usa `crypto.randomUUID()` (sem colisão local)
+- [x] Fix build: modal de decisão envolto em React Fragment `<>...</>` (erro "Expected ',', got '{'")
+- [x] Fix deploy: `maxDuration` reduzido de 600 → 300 (limite plano Hobby Vercel)
 
 ---
 
-## Próximas Features (backlog)
+## Backlog
+
 - [ ] Dashboard com métricas (sinistros por tipo, score médio, taxa suspeito)
 - [ ] Exportação de relatório PDF por sinistro
-  - [ ] Integração webhook para notificação de status
+- [ ] Integração webhook para notificação de status
 - [ ] Onboarding multi-step para nova empresa
 - [ ] Planos (Free/Pro) com controle de uso via Supabase
 - [ ] Paginação na lista de sinistros
-- [ ] Extração real de texto de PDFs
+- [ ] Extração real de texto de PDFs (pdf-parse ou similar)
 - [ ] Gráficos na página de relatórios
 - [ ] Dark mode
-- [ ] Notificações em tempo real
-
-### Sessão 3 — Rebranding, Conversão e Padronização (10/04/2026)
-- [x] Remoção de cadastro público (`/cadastro` não acessível pela interface).
-- [x] Login atualizado: mostra texto de contato do WhatsApp em vez de cadastro.
-- [x] Painel `/admin` — Modal "Nova Empresa" completo (CNPJ, Limite Usuários, Nível e Senha).
-- [x] Landing Page — conversão completa pós-teste com botão direto para WhatsApp.
-- [x] Refatoração de cores: sistema na cor azul navy (`#1a2744`) no Header/Sidebar/Dashboard, substituindo o antigo `#0f172a`.
-- [x] Correção de bugs de codificação UTF-8 (`fix-encoding.js`) causados no deploy.
-
-## Próximas Features (backlog imediato)
-- [ ] **Ajuste Visual:** Alterar a página inicial para remover os botões laranjas (amber) e mudar para o azul do sistema (`#1a2744`).
+- [ ] Notificações em tempo real (Supabase Realtime)
+- [ ] Upgrade Vercel para Pro (remove limite de 300s e 6 execuções simultâneas)
