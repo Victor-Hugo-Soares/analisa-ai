@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import {
   Upload, X, ScanSearch, ShieldCheck, ShieldAlert, ShieldX,
-  ChevronDown, ChevronUp, ImageIcon, AlertTriangle, ArrowLeftRight, CheckCircle2, XCircle, MinusCircle,
+  ChevronDown, ChevronUp, ImageIcon, AlertTriangle, ArrowLeftRight,
+  CheckCircle2, XCircle, MinusCircle, Microscope, Info, Sliders,
 } from "lucide-react"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
@@ -16,6 +17,7 @@ import type {
   ResultadoComparacao,
   ChecklistItem,
 } from "@/app/api/analyze-image/route"
+import { computeEla, type ElaResult } from "@/lib/ela"
 
 interface ImagemLocal {
   id: string
@@ -23,11 +25,19 @@ interface ImagemLocal {
   base64: string
   previewUrl: string
   tamanho: number
-  papel?: "original" | "suspeita" // apenas no modo comparação
+  papel?: "original" | "suspeita"
+}
+
+interface ElaState {
+  computing: boolean
+  result: ElaResult | null
+  error: string | null
 }
 
 const MAX_IMAGENS = 10
 const MAX_TAMANHO_MB = 10
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function AnaliseImagemPage() {
   const router = useRouter()
@@ -42,13 +52,20 @@ export default function AnaliseImagemPage() {
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [dragOver, setDragOver] = useState(false)
 
+  // ELA state
+  const [modoEla, setModoEla] = useState(false)
+  const [elaScale, setElaScale] = useState(15)
+  const [elaQuality, setElaQuality] = useState(75) // percent
+  const [elaStates, setElaStates] = useState<Record<string, ElaState>>({})
+  const [elaSelectedId, setElaSelectedId] = useState<string | null>(null)
+
   useEffect(() => {
     const s = getSession()
     if (!s) { router.push("/login"); return }
     setSession(s)
   }, [router])
 
-  // Quando ativa o modo comparação com 2 imagens, atribui papéis automaticamente
+  // Assign roles when entering comparison mode with 2 images
   useEffect(() => {
     if (modoComparacao && imagens.length === 2) {
       setImagens((prev) => prev.map((img, i) => ({
@@ -59,6 +76,46 @@ export default function AnaliseImagemPage() {
       setImagens((prev) => prev.map((img) => ({ ...img, papel: undefined })))
     }
   }, [modoComparacao, imagens.length])
+
+  // When ELA mode is toggled on and images exist, auto-select the first one
+  useEffect(() => {
+    if (modoEla && imagens.length > 0 && !elaSelectedId) {
+      setElaSelectedId(imagens[0].id)
+    }
+    if (!modoEla) {
+      setElaSelectedId(null)
+    }
+  }, [modoEla, imagens.length, elaSelectedId])
+
+  // Compute ELA whenever the selected image or params change
+  const runEla = useCallback(async (img: ImagemLocal, scale: number, quality: number) => {
+    setElaStates((prev) => ({
+      ...prev,
+      [img.id]: { computing: true, result: null, error: null },
+    }))
+    try {
+      const result = await computeEla(img.previewUrl, {
+        scale,
+        quality: quality / 100,
+      })
+      setElaStates((prev) => ({
+        ...prev,
+        [img.id]: { computing: false, result, error: null },
+      }))
+    } catch {
+      setElaStates((prev) => ({
+        ...prev,
+        [img.id]: { computing: false, result: null, error: "Falha ao processar ELA." },
+      }))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!modoEla || !elaSelectedId) return
+    const img = imagens.find((i) => i.id === elaSelectedId)
+    if (!img) return
+    runEla(img, elaScale, elaQuality)
+  }, [modoEla, elaSelectedId, elaScale, elaQuality, imagens, runEla])
 
   function toggleExpandido(chave: string) {
     setExpandidos((prev) => {
@@ -97,6 +154,10 @@ export default function AnaliseImagemPage() {
       })
     }
     setImagens((prev) => [...prev, ...novas])
+    // Auto-select first image for ELA if in ELA mode
+    if (modoEla && novas.length > 0 && !elaSelectedId) {
+      setElaSelectedId(novas[0].id)
+    }
   }
 
   function removerImagem(id: string) {
@@ -105,6 +166,12 @@ export default function AnaliseImagemPage() {
       if (img) URL.revokeObjectURL(img.previewUrl)
       return prev.filter((i) => i.id !== id)
     })
+    setElaStates((prev) => {
+      const next = { ...prev }
+      delete next[id]
+      return next
+    })
+    if (elaSelectedId === id) setElaSelectedId(null)
   }
 
   async function analisar() {
@@ -120,7 +187,6 @@ export default function AnaliseImagemPage() {
     try {
       const token = getAccessToken()
 
-      // No modo comparação, ordena para que "original" seja índice 0
       const imagensOrdenadas = modoComparacao
         ? [...imagens].sort((a) => (a.papel === "original" ? -1 : 1))
         : imagens
@@ -145,7 +211,6 @@ export default function AnaliseImagemPage() {
 
       const data = (await res.json()) as ResultadoAnaliseImagem
       setResultado(data)
-      // Expande tudo por padrão
       if (data.resultados) setExpandidos(new Set(data.resultados.map((r) => r.arquivo)))
       if (data.comparacao) setExpandidos(new Set(["comparacao"]))
     } catch (e) {
@@ -163,9 +228,14 @@ export default function AnaliseImagemPage() {
     setErro(null)
     setExpandidos(new Set())
     setModoComparacao(false)
+    setModoEla(false)
+    setElaStates({})
+    setElaSelectedId(null)
   }
 
   const podeComparar = imagens.length === 2
+  const elaAtual = elaSelectedId ? elaStates[elaSelectedId] : null
+  const imagemElaAtual = elaSelectedId ? imagens.find((i) => i.id === elaSelectedId) : null
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
@@ -185,30 +255,64 @@ export default function AnaliseImagemPage() {
 
           {!resultado ? (
             <div className="space-y-5">
-              {/* Modo comparação toggle */}
-              <div className="bg-white rounded-xl border border-[#e2e8f0] p-4">
-                <div className="flex items-start gap-3">
-                  <button
-                    onClick={() => {
-                      if (!modoComparacao && !podeComparar) {
-                        setErro("Adicione exatamente 2 imagens para usar o modo comparação.")
-                        return
-                      }
-                      setErro(null)
-                      setModoComparacao((v) => !v)
-                    }}
-                    className={`mt-0.5 w-10 h-6 rounded-full transition-colors flex-shrink-0 relative ${modoComparacao ? "bg-[#00bcb6]" : "bg-[#e2e8f0]"}`}
-                  >
-                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${modoComparacao ? "translate-x-5" : "translate-x-1"}`} />
-                  </button>
-                  <div>
-                    <p className="text-sm font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
-                      <ArrowLeftRight className="w-4 h-4" style={{ color: "#00bcb6" }} />
-                      Modo Comparação
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
-                      Envie o original + a imagem suspeita juntos. A IA compara as duas diretamente — muito mais preciso para detectar dano inserido digitalmente.
-                    </p>
+              {/* Mode toggle row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Comparison mode */}
+                <div className="bg-white rounded-xl border border-[#e2e8f0] p-4">
+                  <div className="flex items-start gap-3">
+                    <button
+                      onClick={() => {
+                        if (!modoComparacao && !podeComparar) {
+                          setErro("Adicione exatamente 2 imagens para usar o modo comparação.")
+                          return
+                        }
+                        setErro(null)
+                        setModoComparacao((v) => !v)
+                        if (modoEla) setModoEla(false)
+                      }}
+                      className={`mt-0.5 w-10 h-6 rounded-full transition-colors flex-shrink-0 relative ${modoComparacao ? "bg-[#00bcb6]" : "bg-[#e2e8f0]"}`}
+                    >
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${modoComparacao ? "translate-x-5" : "translate-x-1"}`} />
+                    </button>
+                    <div>
+                      <p className="text-sm font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                        <ArrowLeftRight className="w-4 h-4" style={{ color: "#00bcb6" }} />
+                        Modo Comparação
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
+                        Envie o original + suspeita. A IA compara as duas diretamente.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ELA mode */}
+                <div className={`bg-white rounded-xl border p-4 transition-colors ${modoEla ? "border-[#00bcb6]" : "border-[#e2e8f0]"}`}>
+                  <div className="flex items-start gap-3">
+                    <button
+                      onClick={() => {
+                        if (!modoEla && imagens.length === 0) {
+                          setErro("Adicione ao menos uma imagem para usar a análise ELA.")
+                          return
+                        }
+                        setErro(null)
+                        setModoEla((v) => !v)
+                        if (modoComparacao) setModoComparacao(false)
+                      }}
+                      className={`mt-0.5 w-10 h-6 rounded-full transition-colors flex-shrink-0 relative ${modoEla ? "bg-[#00bcb6]" : "bg-[#e2e8f0]"}`}
+                    >
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${modoEla ? "translate-x-5" : "translate-x-1"}`} />
+                    </button>
+                    <div>
+                      <p className="text-sm font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                        <Microscope className="w-4 h-4" style={{ color: "#00bcb6" }} />
+                        Análise ELA
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f0fdfc] text-[#00a89e] border border-[#b2f0ed]">FORENSE</span>
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
+                        Mapa de erro de compressão — áreas editadas ficam brilhantes.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -236,7 +340,11 @@ export default function AnaliseImagemPage() {
               {imagens.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {imagens.map((img) => (
-                    <div key={img.id} className="relative group rounded-lg overflow-hidden border border-[#e2e8f0] bg-white aspect-square">
+                    <div
+                      key={img.id}
+                      className={`relative group rounded-lg overflow-hidden border bg-white aspect-square cursor-pointer transition-all ${modoEla && elaSelectedId === img.id ? "border-[#00bcb6] ring-2 ring-[#00bcb6]/40" : "border-[#e2e8f0]"}`}
+                      onClick={() => { if (modoEla) setElaSelectedId(img.id) }}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={img.previewUrl} alt={img.nome} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
@@ -246,10 +354,14 @@ export default function AnaliseImagemPage() {
                       >
                         <X className="w-3 h-3" />
                       </button>
-                      {/* Badge de papel no modo comparação */}
                       {modoComparacao && img.papel && (
                         <div className={`absolute top-1 left-1 text-[10px] font-bold px-1.5 py-0.5 rounded ${img.papel === "original" ? "bg-blue-500 text-white" : "bg-orange-500 text-white"}`}>
                           {img.papel === "original" ? "ORIGINAL" : "SUSPEITA"}
+                        </div>
+                      )}
+                      {modoEla && elaSelectedId === img.id && (
+                        <div className="absolute top-1 left-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#00bcb6] text-white">
+                          ELA
                         </div>
                       )}
                       <p className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] px-1.5 py-0.5 truncate">{img.nome}</p>
@@ -258,7 +370,7 @@ export default function AnaliseImagemPage() {
                 </div>
               )}
 
-              {/* Trocar papéis no modo comparação */}
+              {/* Swap roles (comparison mode) */}
               {modoComparacao && imagens.length === 2 && (
                 <button
                   onClick={trocarPapeis}
@@ -270,7 +382,19 @@ export default function AnaliseImagemPage() {
                 </button>
               )}
 
-              {/* Contexto */}
+              {/* ── ELA Panel ─────────────────────────────────────────────────── */}
+              {modoEla && imagemElaAtual && (
+                <ElaPanel
+                  imagem={imagemElaAtual}
+                  elaState={elaAtual}
+                  scale={elaScale}
+                  quality={elaQuality}
+                  onScaleChange={setElaScale}
+                  onQualityChange={setElaQuality}
+                />
+              )}
+
+              {/* Context */}
               <div className="bg-white rounded-xl border border-[#e2e8f0] p-4">
                 <label className="block text-sm font-medium mb-2" style={{ color: "#0f172a" }}>
                   Contexto / suspeita (opcional)
@@ -300,7 +424,7 @@ export default function AnaliseImagemPage() {
                     {modoComparacao ? "Comparando imagens..." : `Analisando ${imagens.length} imagem${imagens.length > 1 ? "ns" : ""}...`}</>
                 ) : (
                   <><ScanSearch className="w-4 h-4" />
-                    {modoComparacao ? "Comparar Imagens" : `Analisar ${imagens.length > 0 ? `${imagens.length} imagem${imagens.length > 1 ? "ns" : ""}` : "Imagens"}`}</>
+                    {modoComparacao ? "Comparar com IA" : `Analisar ${imagens.length > 0 ? `${imagens.length} imagem${imagens.length > 1 ? "ns" : ""}` : "Imagens"} com IA`}</>
                 )}
               </button>
             </div>
@@ -314,6 +438,183 @@ export default function AnaliseImagemPage() {
             />
           )}
         </main>
+      </div>
+    </div>
+  )
+}
+
+// ─── ELA Panel ────────────────────────────────────────────────────────────────
+
+function ElaPanel({
+  imagem,
+  elaState,
+  scale,
+  quality,
+  onScaleChange,
+  onQualityChange,
+}: {
+  imagem: ImagemLocal
+  elaState: ElaState | null | undefined
+  scale: number
+  quality: number
+  onScaleChange: (v: number) => void
+  onQualityChange: (v: number) => void
+}) {
+  const [showInfo, setShowInfo] = useState(false)
+  const [view, setView] = useState<"ela" | "original">("ela")
+
+  const anomalyPct = elaState?.result
+    ? (elaState.result.anomalyRatio * 100).toFixed(1)
+    : null
+
+  const riskLevel = elaState?.result
+    ? elaState.result.anomalyRatio > 0.08 ? "ALTO"
+      : elaState.result.anomalyRatio > 0.03 ? "MÉDIO"
+      : "BAIXO"
+    : null
+
+  const riskColor = { ALTO: "text-red-600 bg-red-50 border-red-200", MÉDIO: "text-yellow-600 bg-yellow-50 border-yellow-200", BAIXO: "text-green-600 bg-green-50 border-green-200" }
+
+  return (
+    <div className="bg-white rounded-xl border border-[#00bcb6]/40 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-[#f0fdfc] border-b border-[#b2f0ed]">
+        <div className="flex items-center gap-2">
+          <Microscope className="w-4 h-4" style={{ color: "#00a89e" }} />
+          <span className="text-sm font-semibold" style={{ color: "#0f172a" }}>
+            Error Level Analysis — <span className="font-normal text-slate-500">{imagem.nome}</span>
+          </span>
+        </div>
+        <button
+          onClick={() => setShowInfo((v) => !v)}
+          className="text-slate-400 hover:text-slate-600 transition-colors"
+          title="O que é ELA?"
+        >
+          <Info className="w-4 h-4" />
+        </button>
+      </div>
+
+      {showInfo && (
+        <div className="px-4 py-3 bg-slate-50 border-b border-[#e2e8f0] text-xs text-slate-600 space-y-1">
+          <p><strong>Como funciona:</strong> A imagem é re-salva em JPEG com qualidade reduzida e a diferença pixel a pixel é amplificada.</p>
+          <p><strong>Áreas brilhantes/quentes</strong> (ciano → amarelo → vermelho) indicam que aquela região foi editada mais recentemente e não se integrou ao nível de erro do restante.</p>
+          <p><strong>Áreas escuras</strong> têm erro uniforme, característico de conteúdo original não adulterado.</p>
+          <p className="text-slate-400">Funciona melhor em arquivos JPEG. PNG e WebP apresentam baseline mais alta de erro por não terem artefatos de compressão prévia.</p>
+        </div>
+      )}
+
+      {/* Controls */}
+      <div className="px-4 py-3 border-b border-[#f1f5f9] flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
+          <label className="text-xs font-medium text-slate-500 flex items-center gap-1.5 mb-1.5">
+            <Sliders className="w-3.5 h-3.5" />
+            Amplificação <span className="text-[#00a89e] font-bold">×{scale}</span>
+          </label>
+          <input
+            type="range" min={5} max={40} step={1} value={scale}
+            onChange={(e) => onScaleChange(Number(e.target.value))}
+            className="w-full accent-[#00bcb6] h-1.5"
+          />
+          <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+            <span>Sutil</span><span>Máximo</span>
+          </div>
+        </div>
+        <div className="flex-1">
+          <label className="text-xs font-medium text-slate-500 flex items-center gap-1.5 mb-1.5">
+            <Sliders className="w-3.5 h-3.5" />
+            Qualidade de re-save <span className="text-[#00a89e] font-bold">{quality}%</span>
+          </label>
+          <input
+            type="range" min={50} max={95} step={5} value={quality}
+            onChange={(e) => onQualityChange(Number(e.target.value))}
+            className="w-full accent-[#00bcb6] h-1.5"
+          />
+          <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+            <span>+ sensível</span><span>– sensível</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Image view toggle */}
+      <div className="px-4 pt-3 flex gap-2">
+        <button
+          onClick={() => setView("ela")}
+          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${view === "ela" ? "bg-[#00bcb6] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}
+        >
+          Mapa ELA
+        </button>
+        <button
+          onClick={() => setView("original")}
+          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${view === "original" ? "bg-[#00bcb6] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}
+        >
+          Imagem original
+        </button>
+      </div>
+
+      {/* Image display */}
+      <div className="px-4 pb-4 pt-3">
+        {elaState?.computing ? (
+          <div className="flex flex-col items-center justify-center h-48 gap-3">
+            <div className="w-6 h-6 border-2 border-[#00bcb6] border-t-transparent rounded-full animate-spin" />
+            <p className="text-xs text-slate-400">Calculando ELA…</p>
+          </div>
+        ) : elaState?.error ? (
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" /> {elaState.error}
+          </div>
+        ) : elaState?.result ? (
+          <div className="space-y-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={view === "ela" ? elaState.result.dataUrl : imagem.previewUrl}
+              alt={view === "ela" ? "ELA map" : "Original"}
+              className="w-full rounded-lg border border-[#e2e8f0] object-contain max-h-[420px]"
+              style={{ backgroundColor: "#0d1117" }}
+            />
+
+            {/* Metrics */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg bg-slate-50 border border-[#e2e8f0] px-3 py-2 text-center">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wide">Erro médio</p>
+                <p className="text-sm font-bold text-slate-700">{elaState.result.meanError.toFixed(1)}</p>
+              </div>
+              <div className="rounded-lg bg-slate-50 border border-[#e2e8f0] px-3 py-2 text-center">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wide">Erro máx.</p>
+                <p className="text-sm font-bold text-slate-700">{elaState.result.maxError.toFixed(1)}</p>
+              </div>
+              <div className="rounded-lg bg-slate-50 border border-[#e2e8f0] px-3 py-2 text-center">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wide">Anomalias</p>
+                <p className="text-sm font-bold text-slate-700">{anomalyPct}%</p>
+              </div>
+            </div>
+
+            {/* Risk badge */}
+            {riskLevel && (
+              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold ${riskColor[riskLevel as keyof typeof riskColor]}`}>
+                {riskLevel === "ALTO" ? <ShieldX className="w-3.5 h-3.5" /> : riskLevel === "MÉDIO" ? <ShieldAlert className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                Risco de adulteração: {riskLevel}
+                <span className="font-normal">
+                  {riskLevel === "ALTO" ? " — regiões com erro elevado detectadas" : riskLevel === "MÉDIO" ? " — algumas anomalias presentes" : " — padrão de erro uniforme"}
+                </span>
+              </div>
+            )}
+
+            {/* Color legend */}
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-slate-400 flex-shrink-0">Legenda:</p>
+              <div className="flex-1 h-2 rounded-full" style={{ background: "linear-gradient(to right, #0d1117, #0ea5e9, #facc15, #ef4444)" }} />
+              <div className="flex justify-between w-full max-w-[160px] text-[10px] text-slate-400">
+                <span>Original</span>
+                <span className="text-center">Suspeito</span>
+                <span className="text-right">Adulterado</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-32 text-xs text-slate-400">
+            Selecione uma imagem para ver o mapa ELA.
+          </div>
+        )}
       </div>
     </div>
   )
@@ -370,7 +671,6 @@ function ResultadoView({ resultado, imagens, expandidos, onToggle, onLimpar }: R
 
   return (
     <div className="space-y-5">
-      {/* Veredicto geral */}
       <div className={`rounded-xl border p-5 ${bgGeral}`}>
         <div className="flex items-start gap-3">
           {iconGeral}
@@ -392,7 +692,6 @@ function ResultadoView({ resultado, imagens, expandidos, onToggle, onLimpar }: R
         </div>
       </div>
 
-      {/* MODO COMPARAÇÃO */}
       {resultado.modo === "comparacao" && resultado.comparacao && (
         <ComparacaoCard
           comparacao={resultado.comparacao}
@@ -402,7 +701,6 @@ function ResultadoView({ resultado, imagens, expandidos, onToggle, onLimpar }: R
         />
       )}
 
-      {/* MODO INDIVIDUAL */}
       {resultado.modo === "individual" && resultado.resultados && (
         <div className="space-y-3">
           {resultado.resultados.map((r) => (
