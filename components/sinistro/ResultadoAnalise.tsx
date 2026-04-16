@@ -364,6 +364,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
       : null
 
   return (
+    <>
     <div className="space-y-5">
       {/* Disclaimer */}
       <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
@@ -1014,5 +1015,6 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
         </div>
       </div>
     )}
+    </>
   )
 }
