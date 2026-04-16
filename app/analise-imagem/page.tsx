@@ -17,6 +17,7 @@ import type {
   ChecklistItem,
 } from "@/app/api/analyze-image/route"
 import { computeEla, type ElaResult } from "@/lib/ela"
+import { useDarkMode } from "@/lib/useTheme"
 
 interface VideoFrame {
   base64: string   // data:image/jpeg;base64,…
@@ -149,6 +150,7 @@ export default function AnaliseImagemPage() {
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [dragOver, setDragOver] = useState(false)
   const [extraindoVideo, setExtraindoVideo] = useState(false)
+  const isDark = useDarkMode()
 
   // ELA state (images only)
   const [modoEla, setModoEla] = useState(false)
@@ -352,7 +354,7 @@ export default function AnaliseImagemPage() {
   const imagemElaAtual = elaSelectedId ? itens.find((i) => i.id === elaSelectedId) : null
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
+    <div className="min-h-screen" style={{ backgroundColor: isDark ? "#0f172a" : "#f8fafc" }}>
       <Header session={session} />
       <div className="flex">
         <Sidebar />
@@ -360,9 +362,9 @@ export default function AnaliseImagemPage() {
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-1">
               <ScanSearch className="w-6 h-6" style={{ color: "#00bcb6" }} />
-              <h1 className="text-2xl font-bold" style={{ color: "#0f172a" }}>Análise de Imagem</h1>
+              <h1 className="text-2xl font-bold" style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>Análise de Imagem</h1>
             </div>
-            <p className="text-sm" style={{ color: "#64748b" }}>
+            <p className="text-sm" style={{ color: isDark ? "#94a3b8" : "#64748b" }}>
               Verifique se uma imagem ou vídeo foi adulterado digitalmente antes de processar um evento.
             </p>
           </div>
@@ -387,12 +389,12 @@ export default function AnaliseImagemPage() {
                     <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${modoEla ? "translate-x-5" : "translate-x-1"}`} />
                   </button>
                   <div>
-                    <p className="text-sm font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                    <p className="text-sm font-semibold flex items-center gap-2" style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>
                       <Microscope className="w-4 h-4" style={{ color: "#00bcb6" }} />
                       Análise ELA
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f0fdfc] text-[#00a89e] border border-[#b2f0ed]">FORENSE</span>
                     </p>
-                    <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
+                    <p className="text-xs mt-0.5" style={{ color: isDark ? "#94a3b8" : "#64748b" }}>
                       Mapa de erro de compressão JPEG — áreas editadas ficam brilhantes no mapa térmico. Aplica-se apenas a imagens.
                     </p>
                   </div>
@@ -416,7 +418,7 @@ export default function AnaliseImagemPage() {
                   onChange={(e) => e.target.files && processarArquivos(e.target.files)}
                 />
                 <Upload className="w-10 h-10 mx-auto mb-3" style={{ color: "#00bcb6" }} />
-                <p className="font-medium text-sm" style={{ color: "#0f172a" }}>
+                <p className="font-medium text-sm" style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>
                   Arraste imagens ou vídeos aqui, ou clique para selecionar
                 </p>
                 <p className="text-xs mt-1" style={{ color: "#94a3b8" }}>
@@ -499,14 +501,14 @@ export default function AnaliseImagemPage() {
 
               {/* Context */}
               <div className="bg-white rounded-xl border border-[#e2e8f0] p-4">
-                <label className="block text-sm font-medium mb-2" style={{ color: "#0f172a" }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>
                   Contexto / suspeita (opcional)
                 </label>
                 <textarea
                   rows={3} value={contexto} onChange={(e) => setContexto(e.target.value)}
                   placeholder="Ex: Associado alega colisão traseira, mas a imagem parece editada. Placa FKP2J40."
                   className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#00bcb6]"
-                  style={{ color: "#0f172a" }}
+                  style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}
                 />
               </div>
 
@@ -563,6 +565,7 @@ function ElaPanel({
   onScaleChange: (v: number) => void
   onQualityChange: (v: number) => void
 }) {
+  const isDark = useDarkMode()
   const [showInfo, setShowInfo] = useState(false)
   const [view, setView] = useState<"ela" | "original">("ela")
 
@@ -587,7 +590,7 @@ function ElaPanel({
       <div className="flex items-center justify-between px-4 py-3 bg-[#f0fdfc] border-b border-[#b2f0ed]">
         <div className="flex items-center gap-2">
           <Microscope className="w-4 h-4" style={{ color: "#00a89e" }} />
-          <span className="text-sm font-semibold" style={{ color: "#0f172a" }}>
+          <span className="text-sm font-semibold" style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>
             Error Level Analysis — <span className="font-normal text-slate-500">{imagem.nome}</span>
           </span>
         </div>
@@ -743,6 +746,7 @@ interface ResultadoViewProps {
 }
 
 function ResultadoView({ resultado, itens, expandidos, onToggle, onLimpar }: ResultadoViewProps) {
+  const isDark = useDarkMode()
   // Build preview map: image name → thumbnail src
   const previewMap: Record<string, string> = {}
   for (const item of itens) {
@@ -769,11 +773,11 @@ function ResultadoView({ resultado, itens, expandidos, onToggle, onLimpar }: Res
           {iconGeral}
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h2 className="font-bold text-base" style={{ color: "#0f172a" }}>Veredicto Geral:</h2>
+              <h2 className="font-bold text-base" style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>Veredicto Geral:</h2>
               <VeredictoBadge veredicto={resultado.veredicto_geral} />
             </div>
-            <p className="text-sm" style={{ color: "#334155" }}>{resultado.resumo}</p>
-            <p className="text-sm font-medium mt-2" style={{ color: "#0f172a" }}>
+            <p className="text-sm" style={{ color: isDark ? "#cbd5e1" : "#334155" }}>{resultado.resumo}</p>
+            <p className="text-sm font-medium mt-2" style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>
               Recomendação: <span className="font-normal">{resultado.recomendacao}</span>
             </p>
           </div>
@@ -811,6 +815,7 @@ function IndividualCard({ resultado, preview, expanded, onToggle }: {
   expanded: boolean
   onToggle: () => void
 }) {
+  const isDark = useDarkMode()
   const isVideoFrame = resultado.arquivo.includes("_frame")
 
   return (
@@ -826,7 +831,7 @@ function IndividualCard({ resultado, preview, expanded, onToggle }: {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
             {isVideoFrame && <Video className="w-3 h-3 text-slate-400 flex-shrink-0" />}
-            <p className="text-sm font-medium truncate" style={{ color: "#0f172a" }}>{resultado.arquivo}</p>
+            <p className="text-sm font-medium truncate" style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>{resultado.arquivo}</p>
           </div>
           <div className="flex items-center gap-2">
             <VeredictoBadge veredicto={resultado.veredicto} />
@@ -838,11 +843,11 @@ function IndividualCard({ resultado, preview, expanded, onToggle }: {
 
       {expanded && (
         <div className="px-4 pb-4 border-t border-[#f1f5f9] pt-3 space-y-4">
-          <p className="text-sm" style={{ color: "#334155" }}>{resultado.observacoes}</p>
+          <p className="text-sm" style={{ color: isDark ? "#cbd5e1" : "#334155" }}>{resultado.observacoes}</p>
 
           {resultado.checklist.length > 0 && (
             <div>
-              <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "#64748b" }}>Checklist forense</p>
+              <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: isDark ? "#94a3b8" : "#64748b" }}>Checklist forense</p>
               <div className="space-y-1.5">
                 {resultado.checklist.map((item, i) => <ChecklistItemRow key={i} item={item} />)}
               </div>

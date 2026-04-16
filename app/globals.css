@@ -228,3 +228,22 @@ body {
 .dark ::-webkit-scrollbar-track { background: #1e293b; }
 .dark ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
 .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+/* ── Slate (analise-imagem, ELA panel) ── */
+.dark .bg-slate-50        { background-color: #0f172a; }
+.dark .bg-slate-100       { background-color: #1e293b; }
+.dark .hover\:bg-slate-200:hover { background-color: #334155; }
+.dark .text-slate-400     { color: #64748b; }
+.dark .text-slate-500     { color: #94a3b8; }
+.dark .text-slate-600     { color: #94a3b8; }
+.dark .text-slate-700     { color: #cbd5e1; }
+.dark .border-slate-200   { border-color: #334155; }
+
+/* ── Amarelo / Suspeito ── */
+.dark .bg-yellow-50       { background-color: #422006; }
+.dark .border-yellow-200  { border-color: #92400e; }
+.dark .text-yellow-600    { color: #fbbf24; }
+.dark .text-yellow-700    { color: #fbbf24; }
+
+/* ── Bordas teal extras (ELA panel) ── */
+.dark [class~="border-[#b2f0ed]"]  { border-color: #0f766e; }
