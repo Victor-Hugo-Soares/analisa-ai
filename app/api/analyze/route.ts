@@ -3,7 +3,7 @@ import { openai, buildSystemPrompt, buildSystemPromptDocumental, PROMPT_INTEGRAC
 import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
-export const maxDuration = 600
+export const maxDuration = 300
 export const dynamic = "force-dynamic"
 
 interface ArquivoPayload {
