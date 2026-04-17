@@ -25,6 +25,7 @@ import type {
   ArquivoAnexo,
   EmpresaSession,
   Sinistro,
+  AnaliseIA,
 } from "@/lib/types"
 
 const steps = [
@@ -245,7 +246,7 @@ export default function NovoEventoPage() {
         arquivos: arquivosComPath.map(({ base64: _, ...rest }) => rest),
         status: "em_analise",
         criadoEm: new Date().toISOString(),
-        analise: result.analise,
+        analise: result.analise as AnaliseIA | undefined,
       }
 
       saveSinistro(sinistro)
