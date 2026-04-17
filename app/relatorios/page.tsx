@@ -24,11 +24,11 @@ async function exportarXlsx(sinistros: Sinistro[]) {
   const linhas = sinistros.map((s) => ({
     "Nº Evento": s.id,
     "Tipo": tipoEventoLabel[s.tipoEvento] ?? s.tipoEvento,
-    "Segurado": s.dados.nomeSegurado,
+    "Associado": s.dados.nomeSegurado,
     "CPF": s.dados.cpf,
     "Placa": s.dados.placa,
     "Local": s.dados.local,
-    "Data/Hora Sinistro": s.dados.dataHora,
+    "Data/Hora Evento": s.dados.dataHora,
     "Status": statusLabel[s.status] ?? s.status,
     "Recomendação IA": (s.analise as unknown as Record<string, unknown>)?.recomendacao ?? "",
     "Score Fraude": (s.analise as unknown as Record<string, unknown>)?.score_fraude ?? "",
@@ -80,7 +80,7 @@ export default function RelatoriosPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-[#0f172a]">Relatórios</h1>
-                <p className="text-[#64748b] text-sm mt-0.5">Visão consolidada dos sinistros</p>
+                <p className="text-[#64748b] text-sm mt-0.5">Visão consolidada dos eventos</p>
               </div>
               <Button
                 variant="outline"

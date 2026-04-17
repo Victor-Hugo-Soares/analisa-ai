@@ -259,7 +259,7 @@ export default function AdminPage() {
             { label: "Empresas", value: totalEmpresas, icon: Building2, color: "text-blue-400" },
             { label: "Ativas", value: totalAtivas, icon: CheckCircle, color: "text-emerald-400" },
             { label: "Usuários", value: totalUsuarios, icon: Users, color: "text-violet-400" },
-            { label: "Sinistros", value: totalSinistros, icon: FileText, color: "text-[#00bcb6]" },
+            { label: "Eventos", value: totalSinistros, icon: FileText, color: "text-[#00bcb6]" },
           ].map((stat) => (
             <div key={stat.label} className="bg-[#1e293b] border border-[#334155] rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
@@ -342,7 +342,7 @@ export default function AdminPage() {
                         </span>
                         <span className="flex items-center gap-1 text-slate-400 text-xs">
                           <FileText className="w-3.5 h-3.5" />
-                          {empresa.total_sinistros} sinistros
+                          {empresa.total_sinistros} eventos
                         </span>
                         {empresa.sinistros_suspeitos > 0 && (
                           <span className="flex items-center gap-1 text-xs" style={{ color: "#00bcb6" }}>

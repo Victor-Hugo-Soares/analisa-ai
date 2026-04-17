@@ -13,19 +13,19 @@ function buildSystemPrompt(sinistro: Sinistro): string {
     vidros: "Vidros",
   }
 
-  return `Você é o assistente do IAnalista — um sistema de análise de sinistros veiculares com IA para associações de proteção veicular e seguradoras brasileiras.
+  return `Você é o assistente do IAnalista — um sistema de análise de eventos veiculares com IA para associações de proteção veicular e seguradoras brasileiras.
 
-O analista acabou de concluir a análise do sinistro abaixo. Você tem acesso completo a todos os dados e ao resultado da análise. Responda as dúvidas do usuário (analista ou gestor da associação) de forma direta, técnica e objetiva.
+O analista acabou de concluir a análise do evento abaixo. Você tem acesso completo a todos os dados e ao resultado da análise. Responda as dúvidas do usuário (analista ou gestor da associação) de forma direta, técnica e objetiva.
 
-━━━━━ DADOS DO SINISTRO ━━━━━
+━━━━━ DADOS DO EVENTO ━━━━━
 ID: ${sinistro.id}
 Tipo: ${tipoLabel[sinistro.tipoEvento] ?? sinistro.tipoEvento}
-Segurado: ${sinistro.dados.nomeSegurado}
+Associado: ${sinistro.dados.nomeSegurado}
 CPF: ${sinistro.dados.cpf}
 Placa: ${sinistro.dados.placa}
 Data/Hora: ${sinistro.dados.dataHora}
 Local: ${sinistro.dados.local}
-Relato do segurado: "${sinistro.dados.relato}"
+Relato do associado: "${sinistro.dados.relato}"
 
 ━━━━━ RESULTADO DA ANÁLISE ━━━━━
 ${JSON.stringify(sinistro.analise, null, 2)}

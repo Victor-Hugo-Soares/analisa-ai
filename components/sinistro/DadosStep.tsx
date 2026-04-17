@@ -21,7 +21,7 @@ export default function DadosStep({ dados, onChange }: DadosStepProps) {
         Dados do Evento
       </h2>
       <p className="text-[#64748b] text-sm mb-6">
-        Preencha as informações do segurado e do evento
+        Preencha as informações do associado e do evento
       </p>
 
       <div className="space-y-5">
@@ -105,7 +105,7 @@ export default function DadosStep({ dados, onChange }: DadosStepProps) {
           </Label>
           <Textarea
             name="relato"
-            placeholder="Descreva em detalhes como ocorreu o sinistro, circunstâncias, pessoas envolvidas, danos causados..."
+            placeholder="Descreva em detalhes como ocorreu o evento, circunstâncias, pessoas envolvidas, danos causados..."
             value={dados.relato}
             onChange={handleChange}
             className="border-[#e2e8f0] focus:border-[#1a2744] min-h-[140px] resize-none"

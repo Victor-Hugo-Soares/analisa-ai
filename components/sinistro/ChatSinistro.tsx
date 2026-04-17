@@ -14,7 +14,7 @@ const SUGESTOES = [
   "Por que a recomendação foi essa?",
   "Quais documentos devo solicitar?",
   "Quais os maiores riscos neste caso?",
-  "Como devo abordar o segurado?",
+  "Como devo abordar o associado?",
 ]
 
 export default function ChatSinistro({ sinistro }: { sinistro: Sinistro }) {
@@ -91,7 +91,7 @@ export default function ChatSinistro({ sinistro }: { sinistro: Sinistro }) {
           <MessageCircle className="w-4 h-4 text-white" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-[#0f172a]">Tire suas dúvidas sobre este sinistro</p>
+          <p className="text-sm font-semibold text-[#0f172a]">Tire suas dúvidas sobre este evento</p>
           <p className="text-xs text-[#64748b]">O IAnalista tem acesso completo à análise e aos dados do caso</p>
         </div>
         <div className="ml-auto flex items-center gap-1.5">

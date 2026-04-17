@@ -270,14 +270,14 @@ const decisaoConfig: Record<string, DecisaoConfig> = {
   aguardando_informacoes: {
     status: "aguardando_informacoes",
     label: "Solicitar Informações",
-    placeholder: "Ex: Faltam fotos do local do sinistro. O BO foi registrado 48h após o evento sem justificativa. Aguardando laudo pericial.",
+    placeholder: "Ex: Faltam fotos do local do evento. O BO foi registrado 48h após o evento sem justificativa. Aguardando laudo pericial.",
     cor: "bg-amber-500",
     icon: AlertTriangle,
   },
   suspeito: {
     status: "suspeito",
     label: "Recusar Evento",
-    placeholder: "Ex: Rastreador inativo 3 dias antes do furto. Histórico de 2 sinistros similares nos últimos 12 meses. Relato inconsistente com o BO.",
+    placeholder: "Ex: Rastreador inativo 3 dias antes do furto. Histórico de 2 eventos similares nos últimos 12 meses. Relato inconsistente com o BO.",
     cor: "bg-red-600",
     icon: XCircle,
   },
@@ -295,7 +295,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
   if (!analise) {
     return (
       <div className="text-center py-12 text-[#64748b]">
-        Análise não disponível para este sinistro.
+        Análise não disponível para este evento.
       </div>
     )
   }

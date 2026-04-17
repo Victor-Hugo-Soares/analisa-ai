@@ -89,7 +89,7 @@ export default function CadastroPage() {
         {/* Card */}
         <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
           <h1 className="text-xl font-bold text-slate-900 mb-1">Cadastrar empresa</h1>
-          <p className="text-slate-500 text-sm mb-6">Crie sua conta e comece a analisar sinistros</p>
+          <p className="text-slate-500 text-sm mb-6">Crie sua conta e comece a analisar eventos</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

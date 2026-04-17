@@ -12,11 +12,11 @@ export const metadata: Metadata = {
   description:
     "Plataforma com IA para análise de eventos veiculares. Detecte fraudes, transcreva áudios automaticamente e tome decisões assertivas em segundos.",
   keywords: [
-    "análise de sinistros",
+    "análise de eventos veiculares",
     "detecção de fraude veicular",
-    "sinistros veiculares",
+    "eventos veiculares",
     "IA para proteção veicular",
-    "análise de sinistros com inteligência artificial",
+    "análise de eventos com inteligência artificial",
     "proteção veicular",
     "análise de fraude",
     "seguro veicular",

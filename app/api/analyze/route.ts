@@ -732,18 +732,18 @@ function buildContexto({
 
   // ── Dados do sinistro ──────────────────────────────────────────────────────
   partes.push(`════════════════════════════════════════`)
-  partes.push(`SINISTRO PARA ANÁLISE`)
+  partes.push(`EVENTO PARA ANÁLISE`)
   partes.push(`════════════════════════════════════════`)
   partes.push(`TIPO DE EVENTO: ${tipoEventoLabel[tipoEvento]}`)
   partes.push(``)
-  partes.push(`── DADOS DO SEGURADO ──`)
+  partes.push(`── DADOS DO ASSOCIADO ──`)
   partes.push(`Nome: ${dados.nomeSegurado}`)
   partes.push(`CPF: ${dados.cpf}`)
   partes.push(`Placa: ${dados.placa}`)
   partes.push(`Data/Hora declarada do sinistro: ${dados.dataHora}`)
   partes.push(`Local declarado: ${dados.local}`)
   partes.push(``)
-  partes.push(`── RELATO ESCRITO DO SEGURADO ──`)
+  partes.push(`── RELATO ESCRITO DO ASSOCIADO ──`)
   partes.push(dados.relato)
 
   // ── Áudio: transcrição + pré-análise de tom ───────────────────────────────
@@ -823,7 +823,7 @@ function buildContexto({
     partes.push(`════════════════════════════════════════`)
     partes.push(`VÍDEOS ANEXADOS (não analisados automaticamente)`)
     partes.push(`════════════════════════════════════════`)
-    partes.push(`ATENÇÃO: Os arquivos de vídeo abaixo foram enviados pelo segurado mas não puderam ser analisados automaticamente pela IA.`)
+    partes.push(`ATENÇÃO: Os arquivos de vídeo abaixo foram enviados pelo associado mas não puderam ser analisados automaticamente pela IA.`)
     partes.push(`Recomende ao analista que revise o conteúdo desses vídeos manualmente como parte da instrução de próximos passos.`)
     for (const nome of nomesVideos!) {
       partes.push(`- ${nome}`)

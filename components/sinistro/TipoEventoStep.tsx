@@ -63,7 +63,7 @@ export default function TipoEventoStep({
         Tipo de Evento
       </h2>
       <p className="text-[#64748b] text-sm mb-6">
-        Selecione a categoria do sinistro a ser analisado
+        Selecione a categoria do evento a ser analisado
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
