@@ -25,8 +25,6 @@ import {
   Volume2,
   Eye,
   BarChart3,
-  Wrench,
-  ExternalLink,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -168,46 +166,6 @@ function InfoRow({
   )
 }
 
-const ENDERECO_INVALIDO = /^(não informado|nao informado|desconhecido|ignorado|sem endereço|sem local|n\/a|-)$/i
-const INDICADOR_ENDERECO = /\b(rua|r\.|av\.?|avenida|estrada|rodovia|rod\.|alameda|al\.|travessa|tv\.|praça|pça\.|largo|lg\.|bairro|distrito|vila|cidade|municipio|município|km\s*\d|\d+\s*,)/i
-
-function isEnderecoConsistente(local: string): boolean {
-  const trimmed = local?.trim() ?? ""
-  if (trimmed.length < 8) return false
-  if (ENDERECO_INVALIDO.test(trimmed)) return false
-  // endereço válido se tiver indicador de logradouro OU vírgula (ex: "Rua X, Bairro, Cidade") OU número embutido
-  return INDICADOR_ENDERECO.test(trimmed) || trimmed.includes(",") || /\d/.test(trimmed)
-}
-
-function buildMapsUrl(local: string): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.trim())}`
-}
-
-function LocalRow({ local }: { local: string }) {
-  const consistente = isEnderecoConsistente(local)
-  return (
-    <div className="flex items-start gap-2.5 text-sm">
-      <MapPin className="w-4 h-4 text-[#64748b] flex-shrink-0 mt-0.5" />
-      <div>
-        <p className="text-xs text-[#94a3b8] leading-none mb-0.5">Local</p>
-        <p className="text-[#0f172a] font-medium">{local}</p>
-        {consistente ? (
-          <a
-            href={buildMapsUrl(local)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-[#0f766e] hover:underline mt-1"
-          >
-            <ExternalLink className="w-3 h-3" />
-            Ver no Google Maps
-          </a>
-        ) : (
-          <p className="text-xs text-[#94a3b8] mt-1">Endereço não localizado no Maps</p>
-        )}
-      </div>
-    </div>
-  )
-}
 
 function ScoreBar({ score }: { score: number }) {
   const color =
@@ -403,25 +361,6 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
     analise.indicadores_fraude.length > 0
   const temProximosPassos =
     Array.isArray(analise.proximos_passos) && analise.proximos_passos.length > 0
-  const temPreOrcamento = !!analise.pre_orcamento?.itens?.length
-
-  const categoriaBadge: Record<string, { label: string; className: string }> = {
-    pequeno_reparo:       { label: "Pequeno Reparo",        className: "bg-green-100 text-green-800 border-green-200" },
-    reparo_medio:         { label: "Reparo Médio",          className: "bg-amber-100 text-amber-800 border-amber-200" },
-    grande_reparo:        { label: "Grande Reparo",         className: "bg-orange-100 text-orange-800 border-orange-200" },
-    possivel_perda_total: { label: "Possível Perda Total",  className: "bg-red-100 text-red-800 border-red-200" },
-  }
-
-  function formatBRL(v: number) {
-    return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
-  }
-
-  const operacaoLabel: Record<string, string> = {
-    troca: "Troca",
-    reparo: "Reparo",
-    pintura: "Pintura",
-    "troca+pintura": "Troca + Pintura",
-  }
   const scoreConfiabilidade =
     typeof analise.score_confiabilidade === "number"
       ? analise.score_confiabilidade
@@ -457,7 +396,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 label="Data e Hora"
                 value={formatDate(sinistro.dados.dataHora)}
               />
-              <LocalRow local={sinistro.dados.local} />
+              <InfoRow icon={MapPin} label="Local" value={sinistro.dados.local} />
             </div>
           </div>
 
@@ -951,72 +890,6 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
             </CollapsibleSection>
           )}
 
-          {/* Pré-Orçamento */}
-          {temPreOrcamento && analise.pre_orcamento && (
-            <CollapsibleSection
-              title="Pré-Orçamento Estimado de Danos"
-              className="border-[#0f766e]/20 bg-[#0f766e]/5"
-              icon={Wrench}
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <span className="text-xs text-[#64748b]">{analise.pre_orcamento.veiculo_referencia}</span>
-                  {analise.pre_orcamento.categoria && (
-                    <Badge className={`text-xs border ${categoriaBadge[analise.pre_orcamento.categoria]?.className ?? ""}`}>
-                      {categoriaBadge[analise.pre_orcamento.categoria]?.label ?? analise.pre_orcamento.categoria}
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-[#e2e8f0]">
-                        <th className="text-left py-2 pr-4 font-semibold text-[#0f172a] text-xs uppercase tracking-wide">Peça</th>
-                        <th className="text-left py-2 pr-4 font-semibold text-[#0f172a] text-xs uppercase tracking-wide">Operação</th>
-                        <th className="text-right py-2 font-semibold text-[#0f172a] text-xs uppercase tracking-wide">Estimativa</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {analise.pre_orcamento.itens.map((item, i) => (
-                        <tr key={i} className="border-b border-[#f1f5f9]">
-                          <td className="py-2 pr-4 text-[#0f172a]">
-                            {item.peca}
-                            {item.observacao && (
-                              <p className="text-[10px] text-[#64748b] mt-0.5">{item.observacao}</p>
-                            )}
-                          </td>
-                          <td className="py-2 pr-4 text-[#64748b] text-xs">{operacaoLabel[item.operacao] ?? item.operacao}</td>
-                          <td className="py-2 text-right text-[#0f172a] whitespace-nowrap">
-                            {formatBRL(item.preco_min)} – {formatBRL(item.preco_max)}
-                          </td>
-                        </tr>
-                      ))}
-                      <tr className="border-b border-[#e2e8f0] text-[#64748b]">
-                        <td className="py-2 pr-4 text-xs italic">Mão de obra (funilaria/pintura)</td>
-                        <td />
-                        <td className="py-2 text-right text-xs whitespace-nowrap">
-                          {formatBRL(analise.pre_orcamento.mao_obra_min)} – {formatBRL(analise.pre_orcamento.mao_obra_max)}
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <td colSpan={2} className="pt-3 font-bold text-[#0f172a]">Total Estimado</td>
-                        <td className="pt-3 text-right font-bold text-[#0f766e] whitespace-nowrap text-base">
-                          {formatBRL(analise.pre_orcamento.total_min)} – {formatBRL(analise.pre_orcamento.total_max)}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-
-                <p className="text-[11px] text-[#64748b] italic border-t border-[#e2e8f0] pt-3">
-                  ⚠️ {analise.pre_orcamento.ressalvas}
-                </p>
-              </div>
-            </CollapsibleSection>
-          )}
 
           {/* Próximos Passos */}
           {temProximosPassos && (
