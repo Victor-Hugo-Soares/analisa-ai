@@ -719,6 +719,7 @@ function buildContexto({
   transcricoesComAnalise,
   descricoesImagens,
   docsResolvidos,
+  nomesVideos,
 }: ContextoParams): string {
   const partes: string[] = []
 
