@@ -562,6 +562,164 @@ PROTOCOLO RECOMENDADO PARA CASOS SUSPEITOS:
 `
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 10B — CINEMÁTICA DE COLISÃO E ANÁLISE DE VIA
+// (exclusiva para eventos de COLISÃO — baseado em metodologia de perícia técnica veicular)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_CINEMATICA_COLISAO = `
+ANÁLISE TÉCNICA DE CINEMÁTICA E VIA — COLISÃO VEICULAR:
+
+══════════════════════════════════════════════════════════════
+ETAPA 1 — IDENTIFICAR O LOCAL EXATO DO EVENTO
+══════════════════════════════════════════════════════════════
+
+• Extraia do BO ou do relato: nome da via, número aproximado, bairro, município, UF.
+• Se o endereço estiver completo, busque ativamente na web o limite de velocidade dessa via.
+  - Pesquisa recomendada: "[nome da via] [município] limite velocidade" ou
+    "[nome da via] [município] velocidade máxima permitida"
+  - Fontes válidas: portal da prefeitura, CET/DETRAN municipal, notícias locais, Google Maps.
+• Classifique o tipo de via:
+  - Via urbana (calçada, bairro, semáforos) → limite padrão 60 km/h se não houver placa.
+  - Rodovia estadual → limite padrão 80–110 km/h (verificar sinalização).
+  - Vicinal/rural → 60 km/h padrão.
+  - Via com sinalização específica → limite da placa prevalece.
+• Descreva a geometria: reta, curva, cruzamento, declive, pista dupla ou simples.
+• Registre condições na data: chuva, neblina, noite (se informado no relato ou BO).
+
+══════════════════════════════════════════════════════════════
+ETAPA 2 — IDENTIFICAR A DINÂMICA DO ACIDENTE
+══════════════════════════════════════════════════════════════
+
+Classifique a dinâmica a partir do relato + danos:
+
+• TOMBAMENTO / CAPOTAMENTO:
+  Assinatura de danos: avarias em AMBAS as laterais + teto deformado + arco de roda desalinhado
+  + pilares A/B/C comprometidos + para-brisa trincado centralmente.
+  Causas típicas: curva em alta velocidade, solo escorregadio, obstáculo no acostamento.
+  ALERTA EXCLUSÃO: tombamento por perda de controle em curva pode indicar excesso de velocidade
+  (Exclusão 3 — qualquer percentual acima do limite → cobertura negada).
+
+• COLISÃO FRONTAL (com objeto fixo ou outro veículo):
+  Assinatura: setor dianteiro concentrado (capô, para-choque, longarina, radiador).
+  Se objeto fixo (poste, muro, árvore): dano centrado em um ponto, sem espalhamento lateral.
+  Se outro veículo: verificar transferência de tinta do veículo colisor.
+
+• SAÍDA DE PISTA (sem tombamento):
+  Assinatura: danos multidirecionais, solo / vegetação presos embaixo do veículo,
+  para-choque traseiro ou dianteiro arrancado por capim/pedra.
+
+• COLISÃO LATERAL:
+  Assinatura: dano concentrado em uma lateral + deformação de porta(s) ipsilateral(is).
+
+• COLISÃO TRASEIRA:
+  Assinatura: para-choque traseiro, porta-malas, longarina traseira.
+  RED FLAG: colisão traseira isolada sem outro veículo informado → verificar uso de celular,
+  distância de frenagem, velocidade declarada vs dano observado.
+
+══════════════════════════════════════════════════════════════
+ETAPA 3 — VELOCIDADE CRÍTICA DE CURVA (quando acidente ocorreu em curva)
+══════════════════════════════════════════════════════════════
+
+Quando o relato mencionar perda de controle EM CURVA, aplique o raciocínio abaixo:
+
+FÓRMULA (Autoinsp / SAE 830612):
+  V_crítica = √(R × g × μ)  [resultado em m/s → converter: km/h = m/s × 3,6]
+
+Onde:
+  R = raio da curva em metros (estimativa qualitativa quando não há medição)
+  g = 9,81 m/s²
+  μ = coeficiente de atrito lateral:
+       0,7  → piso SECO / asfalto em bom estado
+       0,5  → piso ÚMIDO / chuvoso (padrão SAE 830612)
+       0,3  → piso molhado com lama ou areia
+
+ESTIMATIVA DO RAIO SEM MEDIÇÃO (use somente para orientação qualitativa):
+  - Curva ampla em avenida urbana → R ≈ 60–120 m
+  - Curva fechada em rua de bairro → R ≈ 20–50 m
+  - Curva de rodovia estadual → R ≈ 100–300 m
+
+EXEMPLO PRÁTICO (este laudo — Av. Marginal Rio Jundiaí, Várzea Paulista):
+  R = 87 m (medido no Google Maps), μ = 0,5 (piso úmido), g = 9,81
+  V = √(87 × 9,81 × 0,5) = √426,4 = 20,6 m/s = 74,2 km/h
+  Limite da via: 60 km/h → excesso de 23% → infração grave (CTB Art. 218 II)
+
+ATENÇÃO: você não tem acesso ao Google Maps para medir o raio. Portanto:
+  - Se o endereço for fornecido, pesquise o limite da via na web.
+  - Indique qualitativamente se a curva parece fechada (alto risco) ou ampla (menor risco).
+  - Nunca afirme um valor de velocidade exato sem dados objetivos — use "velocidade mínima estimada".
+  - Recomende perícia técnica presencial (tipo Autoinsp) para calcular o raio com precisão.
+
+══════════════════════════════════════════════════════════════
+ETAPA 4 — PADRÃO DE DANOS vs. VELOCIDADE DECLARADA
+══════════════════════════════════════════════════════════════
+
+Correlacione severidade do dano com velocidade:
+
+• Danos SUPERFICIAIS (amassado/riscos sem deformação estrutural):
+  Compatível com impacto a baixa velocidade (< 20 km/h).
+  Incompatível com "colisão violenta" ou "perda total" a altas velocidades.
+
+• Danos MODERADOS (painel deformado, para-choque destruído, airbag acionado):
+  Velocidade estimada: 30–60 km/h dependendo do obstáculo.
+  Airbag acionado tipicamente indica impacto > 25–30 km/h.
+
+• Danos SEVEROS (deformação estrutural, longarina, habitáculo comprometido):
+  Velocidade estimada: > 60 km/h, ou impacto com objeto de grande massa.
+  ALERTA: dano estrutural severo com relato de "baixa velocidade" → inconsistência → RED FLAG.
+
+• TOMBAMENTO COMPLETO com avarias em todo o veículo (capô + teto + ambas laterais):
+  Requer velocidade acima da velocidade crítica de curva para o raio e atrito da via.
+  Tombamento espontâneo sem obstrução da via em baixa velocidade é física e estatisticamente
+  improvável — merece investigação prioritária.
+
+══════════════════════════════════════════════════════════════
+ETAPA 5 — CTB E IMPLICAÇÃO PARA COBERTURA LOMA
+══════════════════════════════════════════════════════════════
+
+ARTIGO 218 DO CTB — EXCESSO DE VELOCIDADE:
+  Inciso I:   até 20% acima do limite → infração média
+  Inciso II:  20% a 50% acima do limite → infração GRAVE
+  Inciso III: acima de 50% do limite → infração GRAVÍSSIMA (suspensão de habilitação)
+
+IMPACTO DIRETO NA COBERTURA LOMA:
+  • Exclusão 3 do regulamento: "excesso de velocidade — qualquer percentual acima do limite da via"
+    → cobertura NEGADA mesmo em infrações leves (< 20%).
+  • Se a análise técnica indicar que o tombamento/saída de pista só é fisicamente possível acima
+    do limite da via → configurada a exclusão → recusa fundamentada.
+  • Combine com Exclusão 4 (infrações graves de trânsito demonstrando culpa do associado).
+
+══════════════════════════════════════════════════════════════
+ETAPA 6 — CHECKLIST DE ANÁLISE PARA COLISÃO EM CURVA
+══════════════════════════════════════════════════════════════
+
+Responda sistematicamente a cada item quando o evento for colisão em curva:
+
+[ ] 1. Local identificado? (via, número, município)
+[ ] 2. Limite de velocidade da via encontrado (busca web)?
+[ ] 3. Condição do piso na data (seco/úmido/lama)?
+[ ] 4. Geometria da curva (fechada/ampla) descrita?
+[ ] 5. Padrão de danos compatível com tombamento ou saída de pista?
+[ ] 6. Velocidade crítica estimada qualitativamente?
+[ ] 7. Velocidade estimada excede o limite da via?
+[ ] 8. Exclusão 3 (excesso de velocidade) configura-se?
+[ ] 9. Sindicância ou perícia técnica presencial recomendada?
+
+══════════════════════════════════════════════════════════════
+QUANDO RECOMENDAR PERÍCIA TÉCNICA EXTERNA (tipo Autoinsp)
+══════════════════════════════════════════════════════════════
+
+Recomende explicitamente perícia técnica quando:
+• Tombamento em curva com relato de "chão molhado" ou "perdi o controle" → calcular raio e V_crítica.
+• Valor do sinistro alto (indenização de veículo ou terceiros > R$ 15.000).
+• Contradição severa entre dano observado e velocidade declarada.
+• Suspeita de excesso de velocidade que fundamentaria a exclusão de cobertura.
+• Associado ou advogado contesta a decisão de recusa.
+
+A perícia técnica gera laudo com ART (Anotação de Responsabilidade Técnica) que tem validade
+judicial — é a base legal mais sólida para sustentar uma recusa de cobertura por excesso de velocidade.
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
 // SEÇÃO 11 — ANÁLISE LINGUÍSTICA E VOCAL FORENSE
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1372,6 +1530,7 @@ export function buildKnowledgeBase(tipoEvento: TipoEventoKB): string {
     LOMA_SINDICANCIA,
     LOMA_FRAUDES,
     temImagens ? IANALISTA_FORENSE_IMAGENS : "",
+    tipoEvento === "colisao" ? IANALISTA_CINEMATICA_COLISAO : "",
     IANALISTA_LINGUISTICA,
     IANALISTA_SCORE_RISCO,
     ehFurtoRoubo ? IANALISTA_TELEMETRIA : "",
