@@ -9,6 +9,38 @@ import Sidebar from "@/components/layout/Sidebar"
 import { getSession, getAccessToken } from "@/lib/storage"
 import type { EmpresaSession, Sinistro } from "@/lib/types"
 
+const tipoEventoLabel: Record<string, string> = {
+  colisao: "Colisão", roubo: "Roubo", furto: "Furto",
+  natureza: "Eventos da Natureza", vidros: "Vidros",
+}
+const statusLabel: Record<string, string> = {
+  pendente: "Pendente", em_analise: "Em Análise",
+  aguardando_informacoes: "Aguardando Informações",
+  concluido: "Concluído", suspeito: "Suspeito",
+}
+
+async function exportarXlsx(sinistros: Sinistro[]) {
+  const { utils, writeFile } = await import("xlsx")
+  const linhas = sinistros.map((s) => ({
+    "Nº Evento": s.id,
+    "Tipo": tipoEventoLabel[s.tipoEvento] ?? s.tipoEvento,
+    "Segurado": s.dados.nomeSegurado,
+    "CPF": s.dados.cpf,
+    "Placa": s.dados.placa,
+    "Local": s.dados.local,
+    "Data/Hora Sinistro": s.dados.dataHora,
+    "Status": statusLabel[s.status] ?? s.status,
+    "Recomendação IA": (s.analise as unknown as Record<string, unknown>)?.recomendacao ?? "",
+    "Score Fraude": (s.analise as unknown as Record<string, unknown>)?.score_fraude ?? "",
+    "Criado em": new Date(s.criadoEm).toLocaleString("pt-BR"),
+  }))
+  const ws = utils.json_to_sheet(linhas)
+  ws["!cols"] = [10,18,28,16,10,28,20,22,32,14,20].map((w) => ({ wch: w }))
+  const wb = utils.book_new()
+  utils.book_append_sheet(wb, ws, "Eventos")
+  writeFile(wb, `relatorio-eventos-${new Date().toISOString().slice(0,10)}.xlsx`)
+}
+
 export default function RelatoriosPage() {
   const router = useRouter()
   const [session, setSession] = useState<EmpresaSession | null>(null)
@@ -50,9 +82,14 @@ export default function RelatoriosPage() {
                 <h1 className="text-2xl font-bold text-[#0f172a]">Relatórios</h1>
                 <p className="text-[#64748b] text-sm mt-0.5">Visão consolidada dos sinistros</p>
               </div>
-              <Button variant="outline" className="gap-2 border-[#e2e8f0] text-[#64748b]">
+              <Button
+                variant="outline"
+                className="gap-2 border-[#e2e8f0] text-[#64748b]"
+                onClick={() => exportarXlsx(sinistros)}
+                disabled={sinistros.length === 0}
+              >
                 <FileDown className="w-4 h-4" />
-                Exportar PDF
+                Exportar Excel
               </Button>
             </div>
 
