@@ -354,6 +354,7 @@ export default function AdminUsuariosPage() {
                 >
                   <option value="usuario">Usuário — acesso padrão</option>
                   <option value="gestor">Gestor — gerencia usuários da empresa</option>
+                  <option value="admin">Admin — acesso administrativo</option>
                 </select>
               </div>
 

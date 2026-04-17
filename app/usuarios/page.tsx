@@ -316,7 +316,8 @@ export default function UsuariosPage() {
                     className="w-full text-sm border border-[#e2e8f0] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1a2744]/20"
                   >
                     <option value="usuario">Usuário — acesso padrão</option>
-                    <option value="gestor">Gestor — gerencia usuários</option>
+                    <option value="gestor">Gestor — gerencia usuários da empresa</option>
+                    <option value="admin">Admin — acesso administrativo</option>
                   </select>
                 </div>
               )}
