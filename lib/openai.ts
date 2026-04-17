@@ -535,7 +535,7 @@ Retorne o JSON COMPLETO (mesclando análise documental + áudio), no mesmo schem
   "analise_bo": { ... },          // copie da análise documental
   "nivel_risco": "BAIXO|MEDIO|ALTO|CRITICO",
   "score_confiabilidade": 0,
-  "recomendacao": "...",
+  "recomendacao": "APROVACAO_RECOMENDADA|APROVACAO_COM_RESSALVAS|INVESTIGACAO_NECESSARIA|AGUARDAR_DOCUMENTOS|RECUSA_RECOMENDADA",
   "justificativa_recomendacao": "...",
   "documentos_pendentes": [...],
   "proximos_passos": [...]

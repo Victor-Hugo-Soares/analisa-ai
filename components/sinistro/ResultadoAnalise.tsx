@@ -300,7 +300,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
     )
   }
 
-  const rec = recomendacaoConfig[analise.recomendacao]
+  const rec = recomendacaoConfig[analise.recomendacao] ?? recomendacaoConfig["INVESTIGACAO_NECESSARIA"]
   const RecIcon = rec.icon
 
   function abrirModalDecisao(chave: string) {
