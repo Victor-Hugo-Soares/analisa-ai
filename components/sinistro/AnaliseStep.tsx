@@ -110,7 +110,7 @@ export default function AnaliseStep({
       </h2>
       <p className="text-[#64748b] text-sm mb-8 max-w-md">
         Nossa IA está processando todos os dados e evidências para gerar uma
-        análise detalhada. Isso pode levar até 2 minutos.
+        análise detalhada. Isso pode demorar até 10 minutos.
       </p>
 
       <div className="w-full max-w-md mb-6">
