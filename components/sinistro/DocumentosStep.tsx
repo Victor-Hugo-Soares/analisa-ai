@@ -168,8 +168,13 @@ function DocDropzone({ arquivos, onDrop, onRemove, onChangeTipoDoc }: DocDropzon
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleDrop,
-    accept: { "application/pdf": [".pdf"] },
-    maxSize: 10 * 1024 * 1024,
+    accept: {
+      "application/pdf": [".pdf"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+      "image/webp": [".webp"],
+    },
+    maxSize: 20 * 1024 * 1024,
   })
 
   const lista = arquivos.filter((a) => a.tipo === "documento")
@@ -191,9 +196,9 @@ function DocDropzone({ arquivos, onDrop, onRemove, onChangeTipoDoc }: DocDropzon
           <div className="p-3 rounded-xl mb-3 bg-[#00bcb6]/10">
             <FileText className="w-7 h-7 text-[#00bcb6]" />
           </div>
-          <p className="font-semibold text-[#0f172a] text-sm mb-1">Documentos PDF</p>
+          <p className="font-semibold text-[#0f172a] text-sm mb-1">Documentos</p>
           <p className="text-xs text-[#64748b] mb-2">
-            BO, CRLV, CNH, Fotos em PDF, Laudos, Orçamentos — até 10MB cada
+            PDF ou foto — CRLV, CNH, BO, Laudos, FIPE, Orçamentos — até 20MB cada
           </p>
           <div className="flex items-center gap-1.5 text-xs text-[#94a3b8]">
             <Upload className="w-3 h-3" />
@@ -208,7 +213,10 @@ function DocDropzone({ arquivos, onDrop, onRemove, onChangeTipoDoc }: DocDropzon
             <div key={a.nome} className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-3">
               {/* Linha superior: ícone + nome + tamanho + remover */}
               <div className="flex items-center gap-2 mb-2">
-                <FileText className="w-4 h-4 text-[#00bcb6] flex-shrink-0" />
+                {/\.(jpg|jpeg|png|webp)$/i.test(a.nome)
+                  ? <ImageIcon className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                  : <FileText className="w-4 h-4 text-[#00bcb6] flex-shrink-0" />
+                }
                 <span className="text-sm text-[#0f172a] flex-1 truncate font-medium">{a.nome}</span>
                 <span className="text-xs text-[#94a3b8] flex-shrink-0">{formatSize(a.tamanho)}</span>
                 <button

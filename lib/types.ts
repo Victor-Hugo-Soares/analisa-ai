@@ -35,6 +35,7 @@ export type TipoDocumento =
   | "procuracao"
   | "croqui"
   | "fotos_pdf"
+  | "fipe"
   | "outro"
 
 export const TIPO_DOCUMENTO_LABEL: Record<TipoDocumento, string> = {
@@ -50,7 +51,8 @@ export const TIPO_DOCUMENTO_LABEL: Record<TipoDocumento, string> = {
   laudo_medico: "Laudo Médico",
   procuracao: "Procuração",
   croqui: "Croqui / Diagrama do Evento",
-  fotos_pdf: "Fotos do Sinistro (PDF)",
+  fotos_pdf: "Fotos do Evento (PDF)",
+  fipe: "Tabela FIPE do Veículo",
   outro: "Outro Documento",
 }
 

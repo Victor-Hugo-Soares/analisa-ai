@@ -161,6 +161,8 @@ export async function POST(req: NextRequest) {
         continue
       }
 
+      const isImageDoc = /\.(jpg|jpeg|png|webp)$/i.test(doc.nome)
+
       if (doc.nome.toLowerCase().endsWith(".pdf")) {
         try {
           const raw = base64.includes(",") ? base64.split(",")[1] : base64
@@ -172,6 +174,15 @@ export async function POST(req: NextRequest) {
           console.log(`[PDF] Texto extraído de ${doc.nome}: ${textoPdf?.length ?? 0} chars`)
         } catch (e) {
           console.error(`[PDF] Falha ao extrair texto de ${doc.nome}:`, e)
+        }
+      } else if (isImageDoc) {
+        // Foto de documento (CRLV, CNH, BO, FIPE etc.) — leitura via vision
+        try {
+          console.log(`[DocFoto] Extraindo dados via vision: ${doc.nome} (${doc.tipoDoc ?? "outro"})`)
+          textoPdf = await extractDocumentFromImage(base64, doc.nome, doc.tipoDoc)
+          console.log(`[DocFoto] Extração concluída (${textoPdf?.length ?? 0} chars)`)
+        } catch (e) {
+          console.error(`[DocFoto] Falha ao extrair ${doc.nome}:`, e)
         }
       }
 
@@ -631,6 +642,56 @@ function extractTimestamps(transcricao: string): string[] {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// GPT-4o Vision: Extração de dados de foto de documento (CRLV, CNH, BO, FIPE...)
+// ─────────────────────────────────────────────────────────────────────────────
+async function extractDocumentFromImage(
+  base64: string,
+  nome: string,
+  tipoDoc?: TipoDocumento
+): Promise<string> {
+  const imageUrl = base64.startsWith("data:") ? base64 : `data:image/jpeg;base64,${base64}`
+
+  const instrucaoPorTipo: Record<string, string> = {
+    crlv: "Extraia TODOS os dados visíveis: proprietário, CPF/CNPJ, placa, chassi, RENAVAM, ano de fabricação, modelo, município, restrições (alienação, furto, impedimento) e data de emissão do licenciamento. Leia as datas EXATAMENTE como estão impressas — não corrija nem interprete.",
+    crv: "Extraia: proprietário, CPF, chassi, placa, ano/modelo. Verifique se há campo de transferência preenchido.",
+    cnh: "Extraia: nome completo, CPF, data de nascimento, número do registro, validade, categoria habilitada, data de emissão. Informe se está dentro da validade.",
+    bo: "Extraia: número do BO, delegacia, data e hora do registro, data e hora declarada do evento, nome do declarante, narrativa completa dos fatos.",
+    fipe: "Extraia: marca, modelo, ano, código FIPE, valor de referência e mês/ano de consulta. Informe a fonte (site FIPE, Tabela FIPE, etc.).",
+    laudo_pericial: "Extraia: nome e registro do perito, data da vistoria, partes danificadas, estimativa de danos e conclusão sobre a causa.",
+    orcamento: "Extraia: itens, valores unitários, valor total, nome e CNPJ da oficina, data de emissão.",
+    nota_fiscal: "Extraia: itens cobrados, valores, total, CNPJ e nome do emitente, data de emissão.",
+    cnh_terceiro: "Extraia todos os dados da CNH visíveis na imagem.",
+    declaracao_segurado: "Extraia a narrativa completa, datas e dados do declarante.",
+  }
+
+  const instrucao = instrucaoPorTipo[tipoDoc ?? ""] ??
+    "Extraia todas as informações visíveis neste documento: datas, nomes, números, valores, códigos e qualquer texto relevante para análise de sinistro veicular."
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4.1-mini",
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Você é um sistema de OCR especializado em documentos veiculares brasileiros. Analise a imagem do documento "${nome}" e execute a seguinte instrução:\n\n${instrucao}\n\nApresente os dados extraídos de forma estruturada e clara. Não invente dados — se algo estiver ilegível, indique "[ilegível]".`,
+          },
+          {
+            type: "image_url",
+            image_url: { url: imageUrl, detail: "high" },
+          },
+        ],
+      },
+    ],
+    max_tokens: 1000,
+  })
+
+  console.log(`[TPM] DocFoto vision — prompt: ${response.usage?.prompt_tokens ?? '?'} | completion: ${response.usage?.completion_tokens ?? '?'} | total: ${response.usage?.total_tokens ?? '?'} tokens`)
+  return response.choices[0]?.message?.content ?? ""
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GPT-4o Vision: Análise de imagens
 // ─────────────────────────────────────────────────────────────────────────────
 async function analyzeImage(
@@ -872,6 +933,10 @@ function buildContexto({
           partes.push(`Compare com o local e horário declarados pelo associado.`)
         } else if (doc.tipoDoc === "orcamento") {
           partes.push(`INSTRUÇÃO: Extraia valor total e itens. Compare o valor com 75% da FIPE para avaliar perda total.`)
+        } else if (doc.tipoDoc === "fipe") {
+          partes.push(`INSTRUÇÃO: Este é o valor de tabela FIPE do veículo. Extraia: marca, modelo, ano, código FIPE, valor de referência e mês/ano da consulta.`)
+          partes.push(`USE ESTE VALOR como referência obrigatória para avaliar perda total (custo de reparo ≥ 75% da FIPE).`)
+          partes.push(`Compare com orçamentos e notas fiscais recebidos. Se o valor FIPE não foi fornecido, a avaliação de perda total fica prejudicada — registre como pendência.`)
         } else if (doc.tipoDoc === "procuracao") {
           partes.push(`INSTRUÇÃO: Procuração em sinistros é RED FLAG de fraude organizada. Identifique outorgante e poderes.`)
         } else if (doc.tipoDoc === "croqui") {
