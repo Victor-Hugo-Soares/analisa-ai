@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic"
 
 interface ArquivoPayload {
   nome: string
-  tipo: "audio" | "documento" | "imagem"
+  tipo: "audio" | "documento" | "imagem" | "video"
   tipoDoc?: TipoDocumento
   tamanho: number
   base64?: string
@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     const arquivosAudio = arquivos.filter((a) => a.tipo === "audio")
     const arquivosImagem = arquivos.filter((a) => a.tipo === "imagem")
     const arquivosDoc = arquivos.filter((a) => a.tipo === "documento")
+    const arquivosVideo = arquivos.filter((a) => a.tipo === "video")
 
     // ─── 1. Transcrever áudio com Whisper + Analisar tom com GPT-4o ──────────
     const transcricoesComAnalise: Array<{
@@ -184,6 +185,7 @@ export async function POST(req: NextRequest) {
       transcricoesComAnalise,
       descricoesImagens,
       docsResolvidos,
+      nomesVideos: arquivosVideo.map((v) => v.nome),
     })
 
     console.log(`[Análise] Enviando contexto ao GPT-4o (${contexto.length} chars, ${docsResolvidos.filter(d => d.base64).length} docs anexados)`)
@@ -218,10 +220,12 @@ export async function POST(req: NextRequest) {
 
     let analise: Record<string, unknown>
 
-    if (ehFurtoRoubo && temAudio) {
-      // ── FLUXO DE DUAS CHAMADAS: furto/roubo com áudio ─────────────────────
-      // Chamada 1: documentos + imagens (sem áudio) com gpt-4.1-mini — Tier 1: 200K TPM
-      console.log("[Análise] Furto/roubo com áudio — iniciando fluxo de 2 chamadas com gpt-4.1-mini")
+    if (temAudio) {
+      // ── FLUXO DE DUAS CHAMADAS: qualquer evento com áudio ────────────────────
+      // Chamada 1: documentos + imagens (sem áudio) — elimina pressão de tokens
+      // Chamada 2: integra áudio + emite JSON final completo
+      const tipoFluxo = ehFurtoRoubo ? "furto/roubo" : tipoEvento
+      console.log(`[Análise] ${tipoFluxo} com áudio — iniciando fluxo de 2 chamadas com gpt-4.1-mini`)
 
       const contextoDocs = buildContexto({
         tipoEvento,
@@ -229,9 +233,16 @@ export async function POST(req: NextRequest) {
         transcricoesComAnalise: [], // sem áudio nesta chamada
         descricoesImagens,
         docsResolvidos,
+        nomesVideos: arquivosVideo.map((v) => v.nome),
       })
 
-      const systemCall1 = buildSystemPromptDocumental(tipoEvento) + aprendizados
+      // Furto/roubo usa prompt documental (sem IANALISTA_LINGUISTICA) — economiza ~1.4K tokens
+      // Demais eventos (colisão, natureza, vidros) usam prompt completo para preservar
+      // knowledge base específica (cinemática, pré-orçamento, etc.)
+      const systemCall1 = (ehFurtoRoubo
+        ? buildSystemPromptDocumental(tipoEvento as "furto" | "roubo")
+        : buildSystemPrompt(tipoEvento)
+      ) + aprendizados
       console.log(`[Análise] Chamada 1 — system: ${systemCall1.length} chars, contexto: ${contextoDocs.length} chars`)
 
       const resp1 = await openai.chat.completions.create({
@@ -242,7 +253,7 @@ export async function POST(req: NextRequest) {
           { role: "user", content: montarUserContent(contextoDocs) as any },
         ],
         temperature: 0.15,
-        max_tokens: 4000,
+        max_tokens: 6000,
         response_format: { type: "json_object" },
       })
 
@@ -268,7 +279,7 @@ ${contextoAudio}`
           { role: "user", content: userCall2 },
         ],
         temperature: 0.15,
-        max_tokens: 4000,
+        max_tokens: 6000,
         response_format: { type: "json_object" },
       })
 
@@ -284,7 +295,7 @@ ${contextoAudio}`
       }
 
     } else {
-      // ── FLUXO ÚNICO: todos os outros casos com gpt-4.1-mini ───────────────
+      // ── FLUXO ÚNICO: sem áudio ────────────────────────────────────────────
       // Furto/roubo sem áudio: usa prompt documental (sem IANALISTA_LINGUISTICA)
       // pois não há análise vocal a fazer — economiza ~1.400 tokens
       const systemPromptFinal = (ehFurtoRoubo
@@ -301,7 +312,7 @@ ${contextoAudio}`
           { role: "user", content: montarUserContent(contexto) as any },
         ],
         temperature: 0.15,
-        max_tokens: 4000,
+        max_tokens: 6000,
         response_format: { type: "json_object" },
       })
 
@@ -672,6 +683,7 @@ interface ContextoParams {
   transcricoesComAnalise: TranscricaoComAnalise[]
   descricoesImagens: Array<{ arquivo: string; descricao: string }>
   docsResolvidos: Array<{ nome: string; tipoDoc?: TipoDocumento; base64: string | null; textoPdf: string | null; erroSistema: boolean }>
+  nomesVideos?: string[]
 }
 
 /**
@@ -794,6 +806,19 @@ function buildContexto({
       partes.push(`4. SUJEIRA E CONTEXTO: a sujeira do veículo, o ambiente ao fundo e as condições climáticas são consistentes entre as fotos?`)
       partes.push(`5. REFLEXOS: reflexos e brilhos no veículo são coerentes com a mesma fonte de luz e o mesmo ambiente?`)
       partes.push(`Se qualquer inconsistência for encontrada entre as fotos, registre em "indicadores_fraude" — não em "pontos_atencao".`)
+    }
+  }
+
+  // ── Vídeos ───────────────────────────────────────────────────────────────
+  if ((nomesVideos ?? []).length > 0) {
+    partes.push(``)
+    partes.push(`════════════════════════════════════════`)
+    partes.push(`VÍDEOS ANEXADOS (não analisados automaticamente)`)
+    partes.push(`════════════════════════════════════════`)
+    partes.push(`ATENÇÃO: Os arquivos de vídeo abaixo foram enviados pelo segurado mas não puderam ser analisados automaticamente pela IA.`)
+    partes.push(`Recomende ao analista que revise o conteúdo desses vídeos manualmente como parte da instrução de próximos passos.`)
+    for (const nome of nomesVideos!) {
+      partes.push(`- ${nome}`)
     }
   }
 

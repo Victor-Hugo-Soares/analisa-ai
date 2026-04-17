@@ -56,7 +56,7 @@ export const TIPO_DOCUMENTO_LABEL: Record<TipoDocumento, string> = {
 
 export interface ArquivoAnexo {
   nome: string
-  tipo: "audio" | "documento" | "imagem"
+  tipo: "audio" | "documento" | "imagem" | "video"
   tipoDoc?: TipoDocumento  // classificação manual para documentos PDF
   tamanho: number
   base64?: string        // usado apenas para arquivos pequenos inline

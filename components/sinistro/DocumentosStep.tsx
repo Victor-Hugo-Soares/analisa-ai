@@ -2,7 +2,7 @@
 
 import { useCallback } from "react"
 import { useDropzone } from "react-dropzone"
-import { Mic, FileText, ImageIcon, X, Upload, ChevronDown } from "lucide-react"
+import { Mic, FileText, ImageIcon, Video, X, Upload, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { ArquivoAnexo, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
@@ -103,11 +103,12 @@ function ImageDropzone({ arquivos, onDrop, onRemove }: ImageDropzoneProps) {
       "image/jpeg": [".jpg", ".jpeg"],
       "image/png": [".png"],
       "image/webp": [".webp"],
+      "video/mp4": [".mp4"],
     },
-    maxSize: 20 * 1024 * 1024,
+    maxSize: 100 * 1024 * 1024,
   })
 
-  const lista = arquivos.filter((a) => a.tipo === "imagem")
+  const lista = arquivos.filter((a) => a.tipo === "imagem" || a.tipo === "video")
 
   return (
     <div>
@@ -126,7 +127,7 @@ function ImageDropzone({ arquivos, onDrop, onRemove }: ImageDropzoneProps) {
             <ImageIcon className="w-7 h-7 text-purple-600" />
           </div>
           <p className="font-semibold text-[#0f172a] text-sm mb-1">Fotos e Vídeos</p>
-          <p className="text-xs text-[#64748b] mb-2">JPG, PNG, WEBP — até 20MB cada</p>
+          <p className="text-xs text-[#64748b] mb-2">JPG, PNG, WEBP — até 20MB | MP4 — até 100MB</p>
           <div className="flex items-center gap-1.5 text-xs text-[#94a3b8]">
             <Upload className="w-3 h-3" />
             <span>{isDragActive ? "Solte os arquivos aqui" : "Arraste ou clique para selecionar"}</span>
@@ -137,7 +138,11 @@ function ImageDropzone({ arquivos, onDrop, onRemove }: ImageDropzoneProps) {
         <div className="mt-2 space-y-1.5">
           {lista.map((a) => (
             <div key={a.nome} className="flex items-center gap-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-3 py-2">
-              <ImageIcon className="w-4 h-4 text-[#64748b] flex-shrink-0" />
+              {a.tipo === "video" ? (
+                <Video className="w-4 h-4 text-purple-600 flex-shrink-0" />
+              ) : (
+                <ImageIcon className="w-4 h-4 text-[#64748b] flex-shrink-0" />
+              )}
               <span className="text-sm text-[#0f172a] flex-1 truncate">{a.nome}</span>
               <span className="text-xs text-[#94a3b8] flex-shrink-0">{formatSize(a.tamanho)}</span>
               <button type="button" onClick={() => onRemove(a.nome)} className="text-[#94a3b8] hover:text-red-500 transition-colors flex-shrink-0">
@@ -277,7 +282,11 @@ export default function DocumentosStep({
   }
 
   function handleDropImagem(files: File[]) {
-    const novos: ArquivoAnexo[] = files.map((f) => ({ nome: f.name, tipo: "imagem", tamanho: f.size }))
+    const novos: ArquivoAnexo[] = files.map((f) => ({
+      nome: f.name,
+      tipo: f.type === "video/mp4" ? "video" : "imagem",
+      tamanho: f.size,
+    }))
     for (const f of files) onRawFile(f.name, f)
     onChange([...arquivos, ...novos])
   }

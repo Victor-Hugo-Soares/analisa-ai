@@ -283,6 +283,23 @@ analisa-ai/
 - [x] Fix: login page sempre em modo claro (preserva logo)
 - [x] Fix: dark mode na página de análise de imagem
 
+### Sessão 8 — Maps, Vídeo MP4 e Fix Crítico de Análise com Áudio (16/04/2026)
+- [x] Google Maps no campo "Local do evento" em `ResultadoAnalise.tsx`
+  - `isEnderecoConsistente()`: valida se tem indicador de logradouro, vírgula ou número (≥ 8 chars)
+  - Endereço válido: link "Ver no Google Maps" clicável (abre `maps/search?query=...` em nova aba)
+  - Endereço inválido/genérico: exibe "Endereço não localizado no Maps" em cinza
+- [x] Suporte a vídeo MP4 no upload de evidências
+  - `lib/types.ts`: `ArquivoAnexo.tipo` agora aceita `"video"`
+  - `DocumentosStep.tsx`: dropzone aceita `video/mp4` (limite 100MB); `handleDropImagem` detecta `f.type === "video/mp4"` e atribui `tipo: "video"`; ícone `Video` (roxo) para MP4 na lista
+  - `analyze/route.ts`: `arquivosVideo` separado; seção no prompt informa a IA dos vídeos anexados e orienta analista a revisá-los manualmente
+  - `ResultadoAnalise.tsx`: `tipoIcone` inclui `video: Video`
+- [x] **Fix crítico**: análise de colisão com áudio retornava "formato inválido"
+  - Causa: `max_tokens: 4000` insuficiente — JSON de colisão (cinemática + pré-orçamento + áudio) facilmente ultrapassa 5000-6000 tokens; JSON truncava e falhava no parse
+  - Fix 1: fluxo de 2 chamadas estendido para **todos os eventos com áudio** (antes era só furto/roubo)
+    - Call 1: analisa documentos + imagens sem áudio (colisão usa `buildSystemPrompt`, furto/roubo usa `buildSystemPromptDocumental`)
+    - Call 2: integra áudio com `PROMPT_INTEGRACAO_AUDIO` + emite JSON final
+  - Fix 2: `max_tokens` aumentado de 4000 → **6000** em todas as 3 calls principais
+
 ### Sessão 7 — IA Avançada, Correções e Pré-Orçamento (16/04/2026)
 - [x] Novo status `aguardando_informacoes` dedicado ao botão "Solicitar Informações"
   - Badge amber, opção no filtro de eventos, incluído no contador de pendentes do relatório

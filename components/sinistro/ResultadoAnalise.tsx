@@ -11,6 +11,7 @@ import {
   Mic,
   ImageIcon,
   FileText,
+  Video,
   ChevronDown,
   ChevronUp,
   Car,
@@ -25,6 +26,7 @@ import {
   Eye,
   BarChart3,
   Wrench,
+  ExternalLink,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -166,6 +168,47 @@ function InfoRow({
   )
 }
 
+const ENDERECO_INVALIDO = /^(não informado|nao informado|desconhecido|ignorado|sem endereço|sem local|n\/a|-)$/i
+const INDICADOR_ENDERECO = /\b(rua|r\.|av\.?|avenida|estrada|rodovia|rod\.|alameda|al\.|travessa|tv\.|praça|pça\.|largo|lg\.|bairro|distrito|vila|cidade|municipio|município|km\s*\d|\d+\s*,)/i
+
+function isEnderecoConsistente(local: string): boolean {
+  const trimmed = local?.trim() ?? ""
+  if (trimmed.length < 8) return false
+  if (ENDERECO_INVALIDO.test(trimmed)) return false
+  // endereço válido se tiver indicador de logradouro OU vírgula (ex: "Rua X, Bairro, Cidade") OU número embutido
+  return INDICADOR_ENDERECO.test(trimmed) || trimmed.includes(",") || /\d/.test(trimmed)
+}
+
+function buildMapsUrl(local: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.trim())}`
+}
+
+function LocalRow({ local }: { local: string }) {
+  const consistente = isEnderecoConsistente(local)
+  return (
+    <div className="flex items-start gap-2.5 text-sm">
+      <MapPin className="w-4 h-4 text-[#64748b] flex-shrink-0 mt-0.5" />
+      <div>
+        <p className="text-xs text-[#94a3b8] leading-none mb-0.5">Local</p>
+        <p className="text-[#0f172a] font-medium">{local}</p>
+        {consistente ? (
+          <a
+            href={buildMapsUrl(local)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-[#0f766e] hover:underline mt-1"
+          >
+            <ExternalLink className="w-3 h-3" />
+            Ver no Google Maps
+          </a>
+        ) : (
+          <p className="text-xs text-[#94a3b8] mt-1">Endereço não localizado no Maps</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function ScoreBar({ score }: { score: number }) {
   const color =
     score >= 70
@@ -247,6 +290,7 @@ const tipoIcone = {
   audio: Mic,
   documento: FileText,
   imagem: ImageIcon,
+  video: Video,
 }
 
 type DecisaoConfig = {
@@ -413,7 +457,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 label="Data e Hora"
                 value={formatDate(sinistro.dados.dataHora)}
               />
-              <InfoRow icon={MapPin} label="Local" value={sinistro.dados.local} />
+              <LocalRow local={sinistro.dados.local} />
             </div>
           </div>
 
