@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { ArrowLeft, AlertCircle } from "lucide-react"
+import { ArrowLeft, AlertCircle, Trash2 } from "lucide-react"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
 import ResultadoAnalise from "@/components/sinistro/ResultadoAnalise"
 import ChatSinistro from "@/components/sinistro/ChatSinistro"
-import { getSession, getSinistro, getAccessToken } from "@/lib/storage"
+import { getSession, getSinistro, getAccessToken, canManageUsers } from "@/lib/storage"
 import type { EmpresaSession, Sinistro } from "@/lib/types"
 
 export default function EventoPage() {
@@ -19,6 +19,23 @@ export default function EventoPage() {
   const [sinistro, setEvento] = useState<Sinistro | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  async function handleDelete() {
+    if (!confirm(`Excluir o evento ${id}? Esta ação não pode ser desfeita.`)) return
+    const token = getAccessToken()
+    if (!token) return
+    setDeleting(true)
+    const res = await fetch(`/api/sinistros/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (res.ok) {
+      router.push("/sinistros")
+    } else {
+      setDeleting(false)
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -75,21 +92,33 @@ export default function EventoPage() {
         <Sidebar />
         <main className="flex-1 p-6 min-w-0">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <button
-                onClick={() => router.push("/dashboard")}
-                className="p-2 text-[#64748b] hover:text-[#0f172a] hover:bg-white rounded-lg border border-transparent hover:border-[#e2e8f0] transition-all"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-              <div>
-                <h1 className="text-xl font-bold text-[#0f172a]">
-                  Evento {id}
-                </h1>
-                <p className="text-sm text-[#64748b]">
-                  {sinistro?.dados?.nomeSegurado ?? ""}
-                </p>
+            <div className="flex items-center justify-between gap-3 mb-6">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => router.push("/dashboard")}
+                  className="p-2 text-[#64748b] hover:text-[#0f172a] hover:bg-white rounded-lg border border-transparent hover:border-[#e2e8f0] transition-all"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <div>
+                  <h1 className="text-xl font-bold text-[#0f172a]">
+                    Evento {id}
+                  </h1>
+                  <p className="text-sm text-[#64748b]">
+                    {sinistro?.dados?.nomeSegurado ?? ""}
+                  </p>
+                </div>
               </div>
+              {canManageUsers() && sinistro && (
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {deleting ? "Excluindo..." : "Excluir"}
+                </button>
+              )}
             </div>
 
             {notFound ? (

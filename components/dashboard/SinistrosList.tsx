@@ -1,14 +1,15 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import Link from "next/link"
-import { Car, MapPin, Calendar, ChevronRight } from "lucide-react"
+import { Car, MapPin, Calendar, ChevronRight, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { Sinistro, StatusSinistro, TipoEvento } from "@/lib/types"
 import { useDarkMode } from "@/lib/useTheme"
 
 interface SinistrosListProps {
   sinistros: Sinistro[]
+  onDelete?: (id: string) => Promise<void>
 }
 
 const statusConfig: Record<
@@ -55,8 +56,22 @@ function formatDate(dateStr: string) {
   })
 }
 
-export default function SinistrosList({ sinistros }: SinistrosListProps) {
+export default function SinistrosList({ sinistros, onDelete }: SinistrosListProps) {
   const isDark = useDarkMode()
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  async function handleDelete(e: React.MouseEvent, id: string) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!onDelete) return
+    if (!confirm(`Excluir o evento ${id}? Esta ação não pode ser desfeita.`)) return
+    setDeletingId(id)
+    try {
+      await onDelete(id)
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   if (sinistros.length === 0) {
     return (
@@ -118,7 +133,7 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Badge
                 className={`${status.className} border text-xs font-medium px-2.5 py-0.5`}
                 variant="outline"
@@ -130,6 +145,16 @@ export default function SinistrosList({ sinistros }: SinistrosListProps) {
               >
                 {status.label}
               </Badge>
+              {onDelete && (
+                <button
+                  onClick={(e) => handleDelete(e, sinistro.id)}
+                  disabled={deletingId === sinistro.id}
+                  className="p-1.5 text-[#94a3b8] hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                  title="Excluir evento"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
               <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#00bcb6] transition-colors" />
             </div>
           </Link>

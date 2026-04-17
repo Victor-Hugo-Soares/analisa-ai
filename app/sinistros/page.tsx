@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
 import SinistrosList from "@/components/dashboard/SinistrosList"
-import { getSession, getAccessToken, refreshAuthTokens, clearSession } from "@/lib/storage"
+import { getSession, getAccessToken, refreshAuthTokens, clearSession, canManageUsers } from "@/lib/storage"
 import type { EmpresaSession, Sinistro, StatusSinistro } from "@/lib/types"
 
 const statusOptions: { value: string; label: string }[] = [
@@ -59,6 +59,18 @@ export default function EventosPage() {
       setLoading(false)
     }
   }, [router])
+
+  async function handleDelete(id: string) {
+    const token = getAccessToken()
+    if (!token) return
+    const res = await fetch(`/api/sinistros/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (res.ok) {
+      setEventos((prev) => prev.filter((s) => s.id !== id))
+    }
+  }
 
   const filtered = sinistros.filter((s) => {
     const matchSearch =
@@ -139,7 +151,10 @@ export default function EventosPage() {
                   </p>
                 </div>
               ) : (
-                <SinistrosList sinistros={filtered} />
+                <SinistrosList
+                  sinistros={filtered}
+                  onDelete={canManageUsers() ? handleDelete : undefined}
+                />
               )}
             </div>
           </div>
