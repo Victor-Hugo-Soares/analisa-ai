@@ -24,11 +24,13 @@ export async function POST(req: NextRequest) {
     const supabase = createServerClient()
     const nome = sinistro.dados?.nomeSegurado ?? 'Associado'
     const tipo = sinistro.tipoEvento ?? 'evento'
-    await supabase.from('notificacoes').insert({
-      empresa_id: empresaId,
-      titulo: 'Novo evento registrado',
-      mensagem: `${nome} — ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} (${sinistro.id})`,
-    })
+    try {
+      await supabase.from('notificacoes').insert({
+        empresa_id: empresaId,
+        titulo: 'Novo evento registrado',
+        mensagem: `${nome} — ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} (${sinistro.id})`,
+      })
+    } catch { /* tabela pode não existir ainda */ }
 
     return NextResponse.json({ success: true })
   } catch (e) {
