@@ -52,7 +52,7 @@ export default function RelatoriosPage() {
               </div>
               <Button variant="outline" className="gap-2 border-[#e2e8f0] text-[#64748b]">
                 <FileDown className="w-4 h-4" />
-                Exportar CSV
+                Exportar PDF
               </Button>
             </div>
 
