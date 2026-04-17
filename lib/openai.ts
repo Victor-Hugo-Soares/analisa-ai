@@ -413,16 +413,20 @@ REGRAS FINAIS:
 - nivel_risco CRITICO: reservado para casos com múltiplos indicadores de fraude organizada ou padrão de quadrilha
 - Retorne APENAS o JSON válido, sem markdown, sem comentários`
 
+const NOTA_SEM_AUDIO = `
+
+NOTA OPERACIONAL: Este caso não possui áudio. A ETAPA 4 (análise vocal/comportamento) não se aplica. Retorne "analise_audio": null no JSON.`
+
 /**
  * Monta o system prompt com a base de conhecimento calibrada para o tipo de evento.
- * Colisão/natureza/vidros economiza ~5.300 tokens vs. furto/roubo.
+ * temAudio=false: omite IANALISTA_LINGUISTICA (~1.200 tokens) e adiciona nota explícita.
  */
-export function buildSystemPrompt(tipoEvento: "colisao" | "roubo" | "furto" | "natureza" | "vidros"): string {
+export function buildSystemPrompt(tipoEvento: "colisao" | "roubo" | "furto" | "natureza" | "vidros", temAudio = true): string {
   return `${SYSTEM_PROMPT_PREFIX}
 
-${buildKnowledgeBase(tipoEvento)}
+${buildKnowledgeBase(tipoEvento, temAudio)}
 
-${SYSTEM_PROMPT_SUFFIX}`
+${SYSTEM_PROMPT_SUFFIX}${temAudio ? "" : NOTA_SEM_AUDIO}`
 }
 
 /** @deprecated Use buildSystemPrompt(tipoEvento). Mantido para compatibilidade. */
@@ -438,7 +442,7 @@ export function buildSystemPromptDocumental(tipoEvento: "roubo" | "furto"): stri
 
 ${buildKnowledgeBaseDocumental(tipoEvento)}
 
-${SYSTEM_PROMPT_SUFFIX}`
+${SYSTEM_PROMPT_SUFFIX}${NOTA_SEM_AUDIO}`
 }
 
 /**

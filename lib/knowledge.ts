@@ -1671,7 +1671,7 @@ type TipoEventoKB = "colisao" | "roubo" | "furto" | "natureza" | "vidros"
  * Retorna a base de conhecimento calibrada para o tipo de evento.
  * Evita carregar ~5K tokens de IANALISTA_FURTO_ROUBO em eventos sem relevância.
  */
-export function buildKnowledgeBase(tipoEvento: TipoEventoKB): string {
+export function buildKnowledgeBase(tipoEvento: TipoEventoKB, temAudio = true): string {
   const ehFurtoRoubo = tipoEvento === "furto" || tipoEvento === "roubo"
   const temImagens = tipoEvento !== "vidros" // vidros raramente envia fotos do dano
 
@@ -1687,7 +1687,7 @@ export function buildKnowledgeBase(tipoEvento: TipoEventoKB): string {
     LOMA_FRAUDES,
     temImagens ? IANALISTA_FORENSE_IMAGENS : "",
     tipoEvento === "colisao" ? IANALISTA_CINEMATICA_COLISAO : "",
-    IANALISTA_LINGUISTICA,
+    temAudio ? IANALISTA_LINGUISTICA : "",
     IANALISTA_SCORE_RISCO,
     ehFurtoRoubo ? IANALISTA_TELEMETRIA : "",
     IANALISTA_FRAUDE_IA,

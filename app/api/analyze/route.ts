@@ -239,9 +239,10 @@ export async function POST(req: NextRequest) {
       // Furto/roubo usa prompt documental (sem IANALISTA_LINGUISTICA) — economiza ~1.4K tokens
       // Demais eventos (colisão, natureza, vidros) usam prompt completo para preservar
       // knowledge base específica (cinemática, pré-orçamento, etc.)
+      // Call 1 nunca tem áudio — omite IANALISTA_LINGUISTICA e ETAPA 4 (~1.200 tokens)
       const systemCall1 = (ehFurtoRoubo
         ? buildSystemPromptDocumental(tipoEvento as "furto" | "roubo")
-        : buildSystemPrompt(tipoEvento)
+        : buildSystemPrompt(tipoEvento, false)
       ) + aprendizados
       console.log(`[Análise] Chamada 1 — system: ${systemCall1.length} chars, contexto: ${contextoDocs.length} chars`)
 
@@ -298,9 +299,10 @@ ${contextoAudio}`
       // ── FLUXO ÚNICO: sem áudio ────────────────────────────────────────────
       // Furto/roubo sem áudio: usa prompt documental (sem IANALISTA_LINGUISTICA)
       // pois não há análise vocal a fazer — economiza ~1.400 tokens
+      // Fluxo único = sem áudio — omite IANALISTA_LINGUISTICA e ETAPA 4 (~1.200 tokens)
       const systemPromptFinal = (ehFurtoRoubo
         ? buildSystemPromptDocumental(tipoEvento as "furto" | "roubo")
-        : buildSystemPrompt(tipoEvento)
+        : buildSystemPrompt(tipoEvento, false)
       ) + aprendizados
       console.log(`[Análise] Fluxo único gpt-4.1-mini — system: ${systemPromptFinal.length} chars`)
 
