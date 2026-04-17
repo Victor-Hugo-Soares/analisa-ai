@@ -1686,7 +1686,6 @@ export function buildKnowledgeBase(tipoEvento: TipoEventoKB): string {
     LOMA_SINDICANCIA,
     LOMA_FRAUDES,
     temImagens ? IANALISTA_FORENSE_IMAGENS : "",
-    tipoEvento === "colisao" ? IANALISTA_PREORCAMENTO_COLISAO : "",
     tipoEvento === "colisao" ? IANALISTA_CINEMATICA_COLISAO : "",
     IANALISTA_LINGUISTICA,
     IANALISTA_SCORE_RISCO,
