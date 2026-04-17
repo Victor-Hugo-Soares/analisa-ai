@@ -293,6 +293,31 @@ analisa-ai/
   - Verificar em: platform.openai.com → Settings → Limits
   - Após confirmação Tier 2: atualizar modelos em `lib/openai.ts` e `app/api/analyze/route.ts`
 
+### Sessão 10 — Exclusão de Eventos, Excel, Fotos de Documentos e Fixes (17/04/2026)
+- [x] **Exclusão de eventos**: gestores e master podem excluir eventos
+  - `DELETE /api/sinistros/[id]` com validação de role (master exclui qualquer, gestor apenas da própria empresa)
+  - Cascade: arquivos → aprendizados → sinistro
+  - Botão "Excluir" (Trash2) na página de detalhe + ícone na lista, ambos com confirmação
+  - Visível apenas para `canManageUsers()` (role `master` ou `gestor`)
+- [x] **Exportação Excel (XLSX)**: substituído CSV por planilha via SheetJS
+  - `app/relatorios/page.tsx`: `exportarXlsx()` com dynamic import de `xlsx`
+  - Colunas: Nº Evento, Tipo, Associado, CPF, Placa, Local, Data/Hora, Status, Recomendação IA, Score Fraude, Criado em
+- [x] **Fotos de documentos**: DocDropzone aceita JPG/PNG/WEBP além de PDF
+  - `extractDocumentFromImage()` em `analyze/route.ts` — OCR via gpt-4.1-mini vision com instruções específicas por tipo (crlv, cnh, bo, fipe, etc.)
+  - Ícone `ImageIcon` (roxo) para imagens, `FileText` para PDFs na lista de documentos
+- [x] **Novo tipo de documento**: `fipe` — "Tabela FIPE do Veículo"
+  - Adicionado em `lib/types.ts` (`TipoDocumento` + `TIPO_DOCUMENTO_LABEL`)
+  - Instrução específica no `buildContexto` para avaliar perda total com base no valor FIPE
+- [x] **Fix upload nome especial**: sanitização de filename antes de salvar no Storage
+  - `upload-url/route.ts`: NFD normalize → remove acentos → substitui especiais por hífen
+  - Fix para "LIGAÇÃO.mp3" e similares que o Supabase Storage rejeitava
+- [x] **Terminologia**: "segurado" → "Associado", "sinistro(s)" → "evento(s)" na UI
+  - Variáveis internas (`nomeSegurado`, rotas `/api/sinistros`) preservadas
+- [x] **Fix erro JSON 413/timeout**: `response.text()` + try/catch antes de `JSON.parse`
+  - `page.tsx (novo evento)`: trata resposta não-JSON do Vercel (413 Entity Too Large, 504 timeout)
+  - Mensagem de erro amigável ao usuário em vez de `SyntaxError`
+  - Limite fallback base64 reduzido de 4MB → 2MB (mais margem antes do limite 4.5MB do Vercel)
+
 ### Sessão 8 — Maps, Vídeo MP4 e Fix Crítico de Análise com Áudio (16/04/2026)
 - [x] Google Maps no campo "Local do evento" em `ResultadoAnalise.tsx`
   - `isEnderecoConsistente()`: valida se tem indicador de logradouro, vírgula ou número (≥ 8 chars)
