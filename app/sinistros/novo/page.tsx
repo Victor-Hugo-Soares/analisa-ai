@@ -126,14 +126,11 @@ export default function NovoEventoPage() {
       if (accessToken && empresaId) {
         try {
           // 1. Pede signed upload URL ao nosso servidor (service_role)
-          const urlRes = await fetch("/api/sinistros/upload-url", {
+          const urlRes = await fetchWithAuth("/api/sinistros/upload-url", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ fileName: nome, sinistroId, empresaId }),
-          })
+          }, router)
 
           if (urlRes.ok) {
             const { signedUrl, token: uploadToken, path } = await urlRes.json()
