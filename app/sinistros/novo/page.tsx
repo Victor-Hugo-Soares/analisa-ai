@@ -155,10 +155,10 @@ export default function NovoEventoPage() {
         }
       }
 
-      // Fallback: base64 — até 4 MB (cobre a maioria das ligações curtas)
+      // Fallback: base64 — até 2 MB (seguro para não estourar o limite de 4.5 MB do Vercel)
       // Para arquivos maiores, marca uploadFailed para bloquear a análise com aviso claro
       if (!uploadedToStorage) {
-        if (file.size < 4 * 1024 * 1024) {
+        if (file.size < 2 * 1024 * 1024) {
           const base64 = await fileToBase64(file)
           updated[idx] = { ...updated[idx], base64 }
         } else {
@@ -212,10 +212,30 @@ export default function NovoEventoPage() {
         body: JSON.stringify(payload),
       })
 
-      const result = await response.json()
+      const text = await response.text()
+      let result: Record<string, unknown>
+      try {
+        result = JSON.parse(text)
+      } catch {
+        // Vercel retornou texto puro (413 Request Entity Too Large, timeout, etc.)
+        const lower = text.toLowerCase()
+        if (response.status === 413 || lower.includes("request entity") || lower.includes("too large") || lower.includes("body exceeded")) {
+          throw new Error(
+            "Os arquivos enviados são muito grandes para processamento. Reduza o número ou tamanho dos arquivos e tente novamente."
+          )
+        }
+        if (response.status === 504 || lower.includes("timeout") || lower.includes("gateway")) {
+          throw new Error(
+            "O servidor demorou muito para responder (timeout). Isso pode ocorrer com arquivos de áudio longos. Tente novamente."
+          )
+        }
+        throw new Error(
+          `Erro de comunicação com o servidor (HTTP ${response.status}). Tente novamente.`
+        )
+      }
 
       if (!response.ok) {
-        throw new Error(result.error ?? "Erro na análise")
+        throw new Error((result as { error?: string }).error ?? "Erro na análise")
       }
 
       const sinistro: Sinistro = {
