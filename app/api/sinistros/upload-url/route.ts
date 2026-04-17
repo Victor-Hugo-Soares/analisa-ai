@@ -10,7 +10,12 @@ export async function POST(req: NextRequest) {
   if (authError || !user) return NextResponse.json({ error: 'Sessão inválida' }, { status: 401 })
 
   const { fileName, sinistroId, empresaId } = await req.json()
-  const path = `${empresaId}/${sinistroId}/${Date.now()}-${fileName}`
+  // Sanitiza o nome: remove acentos, substitui espaços e caracteres especiais por hífen
+  const safeName = fileName
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")  // remove acentos
+    .replace(/[^a-zA-Z0-9._-]/g, "-")                   // substitui especiais por hífen
+    .replace(/-+/g, "-")                                 // colapsa hífens duplos
+  const path = `${empresaId}/${sinistroId}/${Date.now()}-${safeName}`
 
   const { data, error } = await supabase.storage
     .from('sinistros-arquivos')
