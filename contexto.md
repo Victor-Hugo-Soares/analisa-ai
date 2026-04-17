@@ -293,6 +293,26 @@ analisa-ai/
   - Limite Whisper: 25MB por arquivo (MP3 64kbps resolve até ~45 min de áudio)
   - Compressão reduz tamanho mas **não** reduz tempo de processamento (Whisper processa por duração)
 
+### Sessão 12 — Protocolo Manual, Fixes de Auth e Estabilidade (17/04/2026)
+- [x] **Protocolo manual**: campo "Protocolo" obrigatório no step 2 substituiu ID auto-gerado (EVT-001)
+  - Analista digita o número do protocolo existente no sistema da empresa (ex: `202612158`)
+  - Removida geração automática via `/api/sinistros/generate-id`
+  - `DadosStep.tsx`: novo campo "Protocolo" como primeiro campo do formulário
+  - `canProceed()` exige protocolo preenchido para avançar do step 2
+- [x] **Fix cascata de 401 → "Evento null"**: token expirado derrubava toda a criação
+  - `generate-id` usava `fetch` direto — 401 retornava JSON `{error}`, `data.id` undefined, `sinistroId` ficava `null`
+  - Risco eliminado: `sinistroId` agora é `string` (nunca `null`) e vem do campo Protocolo
+  - `Header.tsx`: polling de notificações a cada 30s migrado para `fetchWithAuth`
+  - `upload-url`: migrado para `fetchWithAuth` (fix anterior desta sessão)
+- [x] **Fix status `aguardando_informacoes` não salvava no banco**
+  - Causa: CHECK constraint da tabela `sinistros` não incluía o novo status
+  - Fix: `ALTER TABLE sinistros` executado no Supabase SQL Editor
+  - Migration criada: `supabase/migrations/20260417_sinistros_status_check.sql`
+- [x] **Fix TypeScript build** (`result.analise: unknown → AnaliseIA | undefined`) — build que estava falhando na Vercel
+- [x] **maxDuration 300 → 800s** — Vercel Pro contratado; análise de 9 min levava ~9:30 min, agora tem margem até ~13 min
+- [x] **Texto estimativa de análise**: "até 2 minutos" → "até 10 minutos" em `AnaliseStep.tsx`
+- **Tier 2 OpenAI**: exige $50 **gastos** (não recarregados) + 7 dias — ainda não atingido
+
 ### Sessão 9 — Fix Transcrição Incompleta e Tier 2 OpenAI (16/04/2026)
 - [x] **Fix**: transcrição de áudio truncando (~10min em áudio de 13min)
   - Causa: `diarizeTranscription` usava `max_tokens: 4000` — cortava a saída para áudios longos
