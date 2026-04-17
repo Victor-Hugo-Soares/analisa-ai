@@ -400,7 +400,27 @@ FORMATO DE SAÍDA — JSON OBRIGATÓRIO
 
   "proximos_passos": [
     "Ação específica e priorizada para o analista/gestor executar — com o que verificar, onde, como e por que isso é crítico para este caso"
-  ]
+  ],
+
+  "pre_orcamento": {
+    // APENAS para eventos de COLISÃO. Para demais tipos → null.
+    "veiculo_referencia": "Marca/Modelo/Versão/Ano exatos conforme CRLV ou dados informados (ex: Chevrolet Classic LS 1.0 Flex 2012/2013)",
+    "itens": [
+      {
+        "peca": "Nome exato da peça (ex: Para-choque dianteiro, Capô, Farol dianteiro esquerdo)",
+        "operacao": "troca|reparo|pintura|troca+pintura",
+        "preco_min": 0,
+        "preco_max": 0,
+        "observacao": "Opcional — condição do dano, alternativa de reparo vs. troca, etc."
+      }
+    ],
+    "mao_obra_min": 0,
+    "mao_obra_max": 0,
+    "total_min": 0,
+    "total_max": 0,
+    "categoria": "pequeno_reparo|reparo_medio|grande_reparo|possivel_perda_total",
+    "ressalvas": "Aviso obrigatório: preços estimados com base em mercado paralelo (reposição) para a região Sul/Sudeste, referência 2025/2026. Podem variar conforme região, fornecedor e disponibilidade. Não substitui orçamento presencial."
+  }
 }
 
 REGRAS FINAIS:
@@ -410,6 +430,7 @@ REGRAS FINAIS:
 - Campos array opcionais (pontos_verdadeiros, pontos_atencao, contradicoes, indicadores_fraude): se não houver itens → retorne array vazio [] (nunca null)
 - score_confiabilidade: 0 = fraude praticamente confirmada, 100 = sinistro inequivocamente verídico. Seja criterioso: a maioria dos casos reais fica entre 40 e 75.
 - nivel_risco CRITICO: reservado para casos com múltiplos indicadores de fraude organizada ou padrão de quadrilha
+- "pre_orcamento": APENAS para tipoEvento=colisao → preencha o objeto. Para qualquer outro tipo → "pre_orcamento": null
 - Retorne APENAS o JSON válido, sem markdown, sem comentários`
 
 /**

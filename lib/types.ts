@@ -125,6 +125,26 @@ export interface AnaliseIA {
   recomendacao: Recomendacao
   justificativa_recomendacao: string
   proximos_passos: string[]
+  pre_orcamento?: PreOrcamento | null
+}
+
+export interface PreOrcamentoItem {
+  peca: string
+  operacao: "troca" | "reparo" | "pintura" | "troca+pintura"
+  preco_min: number
+  preco_max: number
+  observacao?: string
+}
+
+export interface PreOrcamento {
+  veiculo_referencia: string
+  itens: PreOrcamentoItem[]
+  mao_obra_min: number
+  mao_obra_max: number
+  total_min: number
+  total_max: number
+  categoria: "pequeno_reparo" | "reparo_medio" | "grande_reparo" | "possivel_perda_total"
+  ressalvas: string
 }
 
 export type RoleUsuario = "master" | "gestor" | "admin" | "usuario"

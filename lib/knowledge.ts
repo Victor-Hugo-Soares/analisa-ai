@@ -562,6 +562,162 @@ PROTOCOLO RECOMENDADO PARA CASOS SUSPEITOS:
 `
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 10A — PRÉ-ORÇAMENTO DE DANOS (exclusiva para COLISÃO)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_PREORCAMENTO_COLISAO = `
+PRÉ-ORÇAMENTO ESTIMADO DE DANOS — MERCADO PARALELO (REPOSIÇÃO):
+
+OBJETIVO: Gerar estimativa de custo de reparo baseada nos danos descritos/visíveis em fotos,
+usando preços de peças do mercado paralelo (reposição) e mão de obra de funilaria/pintura.
+Referência de preços: região Sul/Sudeste do Brasil, 2025/2026.
+
+══════════════════════════════════════════════════════════════
+COMO USAR ESTA TABELA
+══════════════════════════════════════════════════════════════
+
+1. Identifique a CATEGORIA DO VEÍCULO pelo modelo/ano informado no CRLV:
+   - ECONÔMICO: Gol, Celta, Classic, Palio, Uno, Corsa, Ka, HB20 1.0 entry, Onix entry
+   - MÉDIO: Onix Plus, Argo, Polo, Virtus, Cronos, HB20S, Yaris, Cobalt, Spin
+   - INTERMEDIÁRIO/SUV: Civic, Corolla, Compass, T-Cross, HR-V, Tracker, Duster, Pulse
+
+2. Para cada peça danificada visível ou descrita, aplique a faixa de preço correta.
+3. Defina a operação: "troca" (peça destruída), "reparo" (amassado recuperável), "pintura" (só pintura), "troca+pintura".
+4. Some as peças + mão de obra para obter o total estimado.
+
+══════════════════════════════════════════════════════════════
+TABELA DE PREÇOS — PEÇAS (mercado paralelo, por categoria de veículo)
+══════════════════════════════════════════════════════════════
+
+PARA-CHOQUE DIANTEIRO (troca):
+  Econômico:      R$ 120 – R$ 300
+  Médio:          R$ 200 – R$ 500
+  Intermediário:  R$ 350 – R$ 800
+
+PARA-CHOQUE TRASEIRO (troca):
+  Econômico:      R$ 100 – R$ 260
+  Médio:          R$ 180 – 450
+  Intermediário:  R$ 300 – R$ 700
+
+CAPÔ (troca — peça nova paralela):
+  Econômico:      R$ 400 – R$ 900
+  Médio:          R$ 650 – R$ 1.400
+  Intermediário:  R$ 1.000 – R$ 2.200
+  Capô reparo (endireitamento sem troca):  R$ 250 – R$ 600
+
+PARA-LAMA DIANTEIRO (troca):
+  Econômico:      R$ 200 – R$ 450
+  Médio:          R$ 350 – R$ 750
+  Intermediário:  R$ 600 – R$ 1.300
+  Para-lama reparo: R$ 150 – R$ 400
+
+FAROL DIANTEIRO — por unidade (troca):
+  Econômico:      R$ 150 – R$ 400
+  Médio:          R$ 250 – R$ 650
+  Intermediário:  R$ 450 – R$ 1.300
+
+LANTERNA TRASEIRA — por unidade (troca):
+  Econômico:      R$ 80 – R$ 200
+  Médio:          R$ 130 – R$ 350
+  Intermediário:  R$ 250 – R$ 600
+
+PARA-BRISA (troca + aplicação):
+  Econômico:      R$ 280 – R$ 550
+  Médio:          R$ 380 – R$ 750
+  Intermediário:  R$ 550 – R$ 1.300
+
+VIDRO LATERAL DE PORTA — por unidade (troca):
+  Econômico:      R$ 80 – R$ 200
+  Médio:          R$ 100 – R$ 280
+  Intermediário:  R$ 180 – R$ 450
+
+PORTA COMPLETA (troca — peça usada/paralela sem pintura):
+  Econômico:      R$ 400 – R$ 900
+  Médio:          R$ 600 – R$ 1.300
+  Intermediário:  R$ 1.000 – R$ 2.500
+  Porta reparo (amassado sem troca): R$ 200 – R$ 600
+
+ESPELHO RETROVISOR EXTERNO — por unidade (troca):
+  Econômico:      R$ 90 – R$ 250
+  Médio:          R$ 150 – R$ 400
+  Intermediário:  R$ 300 – R$ 800
+
+TETO (reparo/desembolamento — tombamento):
+  Reparo superficial (amassados leves): R$ 500 – R$ 1.200
+  Reparo severo (deformação estrutural): R$ 1.500 – R$ 3.500
+  Substituição de teto: raramente feito em paralelo — indicar perda total se severo
+
+LONGARINA / ESTRUTURA (reparo em prensa):
+  Reparo leve:    R$ 600 – R$ 1.500
+  Reparo severo:  R$ 1.500 – R$ 4.000
+  Obs.: dano estrutural severo em longarina → cotação de perda total
+
+AIRBAG — módulo por unidade (troca + reprogramação):
+  Econômico:      R$ 700 – R$ 1.400
+  Médio:          R$ 900 – R$ 2.000
+  Intermediário:  R$ 1.500 – R$ 3.500
+
+RODA DE LIGA LEVE — por unidade (troca):
+  Econômico:      R$ 200 – R$ 500
+  Médio:          R$ 350 – R$ 800
+  Intermediário:  R$ 600 – R$ 1.500
+
+PNEU — por unidade (troca, aro 13/14):
+  Econômico:      R$ 200 – R$ 350
+  Médio (aro 15): R$ 280 – R$ 450
+  Intermediário (aro 16/17): R$ 350 – R$ 650
+
+══════════════════════════════════════════════════════════════
+TABELA DE MÃO DE OBRA — FUNILARIA E PINTURA
+══════════════════════════════════════════════════════════════
+
+Troca de para-choque (desmontar/montar):          R$ 100 – R$ 200
+Troca de capô (desmontar/montar):                 R$ 150 – R$ 300
+Troca de para-lama:                               R$ 120 – R$ 250
+Troca de porta completa:                          R$ 300 – R$ 600
+Troca de farol ou lanterna:                       R$ 60 – R$ 130
+Troca de para-brisa (instalação+silicone):        R$ 150 – R$ 280
+Troca de vidro lateral:                           R$ 80 – R$ 180
+Pintura de um painel (por painel):                R$ 300 – R$ 650
+Funilaria + pintura painel completo:              R$ 450 – R$ 900
+Reparo de teto (tombamento):                      R$ 800 – R$ 2.500
+Alinhamento de geometria (pós-colisão):           R$ 120 – R$ 250
+Reparo estrutural em prensa (longarina/assoalho): R$ 800 – R$ 3.000
+
+══════════════════════════════════════════════════════════════
+CATEGORIAS DE REPARO
+══════════════════════════════════════════════════════════════
+
+PEQUENO REPARO   → total estimado < R$ 2.500
+  Exemplos: riscos, amassados superficiais, troca de lanterna/farol, para-choque simples.
+
+REPARO MÉDIO     → R$ 2.500 a R$ 10.000
+  Exemplos: capô + para-lama + para-brisa, colisão frontal moderada sem airbag.
+
+GRANDE REPARO    → R$ 10.000 a R$ 25.000
+  Exemplos: airbag acionado + dano estrutural dianteiro, colisão severa em múltiplos setores.
+
+POSSÍVEL PERDA TOTAL → total estimado > 75% do valor FIPE do veículo
+  Exemplos: tombamento com teto + laterais + estrutura + airbag.
+  Regra Loma: se custo de reparo ≥ 75% do valor FIPE → recomendar cotação de perda total.
+  IMPORTANTE: informe sempre "veja o valor FIPE do modelo para comparar" quando o total
+  estimado ultrapassar R$ 15.000 em veículos econômicos ou R$ 25.000 em médios.
+
+══════════════════════════════════════════════════════════════
+INSTRUÇÕES DE PREENCHIMENTO DO CAMPO pre_orcamento
+══════════════════════════════════════════════════════════════
+
+• Liste APENAS as peças com dano confirmado (visível em foto ou descrito no relato/BO).
+• Se o dano for incerto (possível mas não confirmado), mencione em "observacao" da peça.
+• Use a faixa mais conservadora quando o dano for leve; a mais alta quando severo/estrutural.
+• Inclua pintura quando a operação for "troca" de peça visível (capô, para-lama, porta).
+• mao_obra_min/max: soma de todas as operações de mão de obra do reparo completo.
+• total_min = soma de todos os preco_min das peças + mao_obra_min.
+• total_max = soma de todos os preco_max das peças + mao_obra_max.
+• ressalvas: sempre incluir o aviso padrão sobre região e necessidade de orçamento presencial.
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
 // SEÇÃO 10B — CINEMÁTICA DE COLISÃO E ANÁLISE DE VIA
 // (exclusiva para eventos de COLISÃO — baseado em metodologia de perícia técnica veicular)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1530,6 +1686,7 @@ export function buildKnowledgeBase(tipoEvento: TipoEventoKB): string {
     LOMA_SINDICANCIA,
     LOMA_FRAUDES,
     temImagens ? IANALISTA_FORENSE_IMAGENS : "",
+    tipoEvento === "colisao" ? IANALISTA_PREORCAMENTO_COLISAO : "",
     tipoEvento === "colisao" ? IANALISTA_CINEMATICA_COLISAO : "",
     IANALISTA_LINGUISTICA,
     IANALISTA_SCORE_RISCO,
