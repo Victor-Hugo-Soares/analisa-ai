@@ -8,6 +8,7 @@ export type TipoEvento =
 export type StatusSinistro =
   | "pendente"
   | "em_analise"
+  | "aguardando_informacoes"
   | "concluido"
   | "suspeito"
 

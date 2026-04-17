@@ -264,8 +264,8 @@ const decisaoConfig: Record<string, DecisaoConfig> = {
     cor: "bg-green-600",
     icon: CheckCircle2,
   },
-  em_analise: {
-    status: "em_analise",
+  aguardando_informacoes: {
+    status: "aguardando_informacoes",
     label: "Solicitar Informações",
     placeholder: "Ex: Faltam fotos do local do sinistro. O BO foi registrado 48h após o evento sem justificativa. Aguardando laudo pericial.",
     cor: "bg-amber-500",
@@ -926,7 +926,7 @@ export default function ResultadoAnalise({ sinistro }: ResultadoAnaliseProps) {
                 Aprovar Evento
               </Button>
               <Button
-                onClick={() => abrirModalDecisao("em_analise")}
+                onClick={() => abrirModalDecisao("aguardando_informacoes")}
                 className="bg-amber-500 hover:bg-amber-600 text-white gap-2 flex-1"
               >
                 <AlertTriangle className="w-4 h-4" />

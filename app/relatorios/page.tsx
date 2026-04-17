@@ -29,7 +29,7 @@ export default function RelatoriosPage() {
   const total = sinistros.length
   const aprovados = sinistros.filter((s) => s.status === "concluido").length
   const suspeitos = sinistros.filter((s) => s.status === "suspeito").length
-  const pendentes = sinistros.filter((s) => s.status === "pendente" || s.status === "em_analise").length
+  const pendentes = sinistros.filter((s) => s.status === "pendente" || s.status === "em_analise" || s.status === "aguardando_informacoes").length
 
   const metrics = [
     { label: "Total de Eventos", value: total, icon: BarChart3, color: "", bg: "", inlineColor: "#00a89e", inlineBg: "#ccf7f5" },

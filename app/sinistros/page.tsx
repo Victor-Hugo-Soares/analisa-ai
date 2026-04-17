@@ -16,6 +16,7 @@ const statusOptions: { value: string; label: string }[] = [
   { value: "todos", label: "Todos os status" },
   { value: "pendente", label: "Pendente" },
   { value: "em_analise", label: "Em Análise" },
+  { value: "aguardando_informacoes", label: "Aguardando Informações" },
   { value: "concluido", label: "Concluído" },
   { value: "suspeito", label: "Suspeito" },
 ]
