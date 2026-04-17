@@ -203,7 +203,7 @@ export interface ArquivoDB {
   id: string
   sinistro_id: string
   nome: string
-  tipo: 'audio' | 'documento' | 'imagem'
+  tipo: 'audio' | 'documento' | 'imagem' | 'video'
   tamanho: number
   storage_path: string | null
   criado_em: string
