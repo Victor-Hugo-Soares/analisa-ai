@@ -53,7 +53,7 @@ export default function NovoEventoPage() {
   const [arquivos, setArquivos] = useState<ArquivoAnexo[]>([])
   const [analisando, setAnalisando] = useState(false)
   const [erroAnalise, setErroAnalise] = useState<string | null>(null)
-  const [sinistroId, setEventoId] = useState<string | null>(null)
+  const [sinistroId, setEventoId] = useState<string>("")
   const [rawFiles, setRawFiles] = useState<Map<string, File>>(new Map())
 
   useEffect(() => {
@@ -64,18 +64,13 @@ export default function NovoEventoPage() {
     }
     setSession(s)
 
-    // Gera ID sequencial no servidor (EVT-001, EVT-002...) — sem colisão entre usuários
-    const localFallback = () => setEventoId(`EVT-${Date.now().toString(36).toUpperCase().slice(-5)}`)
-    fetchWithAuth("/api/sinistros/generate-id", {}, router)
-      .then(r => r.json())
-      .then(data => { if (data.id) setEventoId(data.id); else localFallback() })
-      .catch(localFallback)
   }, [router])
 
   function canProceed(): boolean {
     if (currentStep === 1) return tipoEvento !== null
     if (currentStep === 2) {
       return !!(
+        sinistroId.trim() &&
         dados.nomeSegurado &&
         dados.cpf &&
         dados.placa &&
@@ -228,7 +223,7 @@ export default function NovoEventoPage() {
       }
 
       const sinistro: Sinistro = {
-        id: sinistroId!,
+        id: sinistroId,
         tipoEvento: tipoEvento!,
         dados,
         arquivos: arquivosComPath.map(({ base64: _, ...rest }) => rest),
@@ -282,7 +277,7 @@ export default function NovoEventoPage() {
                   Novo Evento
                 </h1>
                 <p className="text-sm text-[#64748b]">
-                  {sinistroId} &middot; Preencha os dados para análise
+                  {sinistroId || "Novo Evento"} &middot; Preencha os dados para análise
                 </p>
               </div>
             </div>
@@ -301,7 +296,7 @@ export default function NovoEventoPage() {
                 />
               )}
               {currentStep === 2 && (
-                <DadosStep dados={dados} onChange={setDados} />
+                <DadosStep dados={dados} onChange={setDados} protocolo={sinistroId} onProtocoloChange={setEventoId} />
               )}
               {currentStep === 3 && (
                 <DocumentosStep

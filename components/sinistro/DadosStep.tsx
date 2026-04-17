@@ -6,9 +6,11 @@ import type { DadosSinistro } from "@/lib/types"
 interface DadosStepProps {
   dados: DadosSinistro
   onChange: (dados: DadosSinistro) => void
+  protocolo: string
+  onProtocoloChange: (v: string) => void
 }
 
-export default function DadosStep({ dados, onChange }: DadosStepProps) {
+export default function DadosStep({ dados, onChange, protocolo, onProtocoloChange }: DadosStepProps) {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
@@ -25,6 +27,19 @@ export default function DadosStep({ dados, onChange }: DadosStepProps) {
       </p>
 
       <div className="space-y-5">
+        <div className="space-y-2">
+          <Label className="text-[#0f172a] font-medium">
+            Protocolo <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            placeholder="Ex: 202612158"
+            value={protocolo}
+            onChange={e => onProtocoloChange(e.target.value.trim())}
+            className="border-[#e2e8f0] focus:border-[#1a2744]"
+            required
+          />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-[#0f172a] font-medium">
