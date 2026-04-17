@@ -299,6 +299,15 @@ analisa-ai/
     - Call 1: analisa documentos + imagens sem áudio (colisão usa `buildSystemPrompt`, furto/roubo usa `buildSystemPromptDocumental`)
     - Call 2: integra áudio com `PROMPT_INTEGRACAO_AUDIO` + emite JSON final
   - Fix 2: `max_tokens` aumentado de 4000 → **6000** em todas as 3 calls principais
+- [x] Otimização de tokens: `IANALISTA_LINGUISTICA` (~1.200 tokens) omitido quando não há áudio
+  - `buildKnowledgeBase(tipoEvento, temAudio)` — parâmetro `temAudio` controla inclusão
+  - `buildSystemPrompt(tipoEvento, temAudio)` — passa `temAudio` à KB e adiciona `NOTA_SEM_AUDIO` no suffix
+  - `buildSystemPromptDocumental` sempre usa `temAudio=false` (Call 1 nunca tem áudio)
+  - Fluxo único sem áudio e Call 1 do fluxo 2-call passam `temAudio: false`
+- [x] Fix IA: validação de datas impossíveis por erro de OCR (regra 10 nas REGRAS ABSOLUTAS)
+  - Datas com dia > 31, mês > 12 ou ano fora de 1900-2100 → reconhecidas como erro de OCR
+  - IA registra "data ilegível" no `alertas_documentais`, não compara com outras fontes, solicita confirmação nos `proximos_passos`
+- [x] Pré-orçamento removido da UI (`ResultadoAnalise.tsx`) e da knowledge base (`buildKnowledgeBase`, schema JSON, REGRAS FINAIS)
 
 ### Sessão 7 — IA Avançada, Correções e Pré-Orçamento (16/04/2026)
 - [x] Novo status `aguardando_informacoes` dedicado ao botão "Solicitar Informações"
