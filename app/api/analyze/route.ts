@@ -567,13 +567,18 @@ async function diarizeTranscription(transcricaoBruta: string): Promise<string> {
         },
       ],
       temperature: 0.1,
-      max_tokens: 4000,
+      max_tokens: 12000,
     })
 
     const content = response.choices[0]?.message?.content
     console.log(`[TPM] Diarização — prompt: ${response.usage?.prompt_tokens ?? '?'} | completion: ${response.usage?.completion_tokens ?? '?'} | total: ${response.usage?.total_tokens ?? '?'} tokens`)
     if (!content || content.length < 20) {
       console.warn("[Diarização] Resposta vazia — usando transcrição bruta")
+      return transcricaoBruta
+    }
+    // Se a diarização produziu muito menos conteúdo que a bruta, pode ter sido truncada — usa bruta como fallback
+    if (content.length < transcricaoBruta.length * 0.4) {
+      console.warn(`[Diarização] Output suspeito (${content.length} chars vs ${transcricaoBruta.length} chars bruta) — usando transcrição bruta`)
       return transcricaoBruta
     }
     return content

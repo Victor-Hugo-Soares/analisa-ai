@@ -283,6 +283,16 @@ analisa-ai/
 - [x] Fix: login page sempre em modo claro (preserva logo)
 - [x] Fix: dark mode na página de análise de imagem
 
+### Sessão 9 — Fix Transcrição Incompleta e Tier 2 OpenAI (16/04/2026)
+- [x] **Fix**: transcrição de áudio truncando (~10min em áudio de 13min)
+  - Causa: `diarizeTranscription` usava `max_tokens: 4000` — cortava a saída para áudios longos
+  - Fix: `max_tokens` aumentado de 4000 → **12000** na diarização
+  - Adicionado fallback: se output diarizado < 40% do tamanho bruto, usa transcrição bruta (evita perda silenciosa)
+- **Próximos passos**: verificar se conta OpenAI atingiu **Tier 2** ($50 pagos + 7 dias desde 09/04)
+  - Tier 2 libera 2M TPM (vs 200K TPM atual) → viabiliza migrar análises para **gpt-4o** (ou gpt-4.1)
+  - Verificar em: platform.openai.com → Settings → Limits
+  - Após confirmação Tier 2: atualizar modelos em `lib/openai.ts` e `app/api/analyze/route.ts`
+
 ### Sessão 8 — Maps, Vídeo MP4 e Fix Crítico de Análise com Áudio (16/04/2026)
 - [x] Google Maps no campo "Local do evento" em `ResultadoAnalise.tsx`
   - `isEnderecoConsistente()`: valida se tem indicador de logradouro, vírgula ou número (≥ 8 chars)
