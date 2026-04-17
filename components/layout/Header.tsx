@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { LogOut, Bell, X, BookOpen, Moon, Sun } from "lucide-react"
-import { clearSession, getAccessToken } from "@/lib/storage"
+import { clearSession, getAccessToken, fetchWithAuth } from "@/lib/storage"
 import type { EmpresaSession } from "@/lib/types"
 import AprendizadoModal from "@/components/AprendizadoModal"
 
@@ -54,12 +54,9 @@ export default function Header({ session }: HeaderProps) {
   }
 
   async function fetchNotificacoes() {
-    const token = getAccessToken()
-    if (!token) return
+    if (!getAccessToken()) return
     try {
-      const res = await fetch("/api/notificacoes", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const res = await fetchWithAuth("/api/notificacoes", {}, router)
       if (res.ok) {
         const data = await res.json()
         setNotificacoes(data.notificacoes ?? [])
@@ -68,12 +65,8 @@ export default function Header({ session }: HeaderProps) {
   }
 
   async function marcarTodasLidas() {
-    const token = getAccessToken()
-    if (!token) return
-    await fetch("/api/notificacoes", {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    if (!getAccessToken()) return
+    await fetchWithAuth("/api/notificacoes", { method: "PATCH" }, router)
     setNotificacoes((prev) => prev.map((n) => ({ ...n, lida: true })))
   }
 
