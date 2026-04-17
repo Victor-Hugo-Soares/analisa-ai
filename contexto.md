@@ -273,6 +273,44 @@ analisa-ai/
 - [x] Fix build: modal de decisão envolto em React Fragment `<>...</>` (erro "Expected ',', got '{'")
 - [x] Fix deploy: `maxDuration` reduzido de 600 → 300 (limite plano Hobby Vercel)
 
+### Sessão 6 — Gestão de Usuários, Dark Mode e Fixes (16/04/2026)
+*(trabalho realizado em outro dispositivo — detalhes no git log)*
+- [x] Gestão de usuários por empresa: `app/usuarios/page.tsx` (Gestor cria/edita/exclui)
+- [x] Gestão de usuários no admin master: `app/admin/usuarios/page.tsx`
+- [x] APIs: `GET/POST /api/usuarios`, `PATCH/DELETE /api/usuarios/[id]`
+- [x] APIs admin: `GET/POST /api/admin/usuarios`, `PATCH/DELETE /api/admin/usuarios/[id]`
+- [x] `lib/useTheme.ts`: hook de dark mode com toggle Moon/Sun no Header
+- [x] Fix: login page sempre em modo claro (preserva logo)
+- [x] Fix: dark mode na página de análise de imagem
+
+### Sessão 7 — IA Avançada, Correções e Pré-Orçamento (16/04/2026)
+- [x] Novo status `aguardando_informacoes` dedicado ao botão "Solicitar Informações"
+  - Badge amber, opção no filtro de eventos, incluído no contador de pendentes do relatório
+  - `lib/types.ts`, `ResultadoAnalise.tsx`, `SinistrosList.tsx`, `sinistros/page.tsx`, `relatorios/page.tsx`
+- [x] Fix deploy: `useEffect` faltando no import de `app/login/page.tsx`
+- [x] Fix Supabase: constraint `usuarios_role_check` atualizado para incluir `gestor`
+- [x] Fix UI: opção `admin` adicionada ao dropdown de perfil nos modais de usuário (`/usuarios` e `/admin/usuarios`)
+- [x] Knowledge base — Cinemática de Colisão (`IANALISTA_CINEMATICA_COLISAO`):
+  - Busca web do limite de velocidade da via quando endereço for informado
+  - Fórmula de velocidade crítica de curva: V = √(R × g × μ) com coeficientes SAE 830612
+  - Padrões de dano por dinâmica (tombamento, frontal, lateral, saída de pista)
+  - CTB Art. 218 + Exclusão 3 Loma (excesso de velocidade)
+  - Checklist de 9 pontos para colisão em curva + critérios para perícia externa com ART
+- [x] Knowledge base — Pré-Orçamento (`IANALISTA_PREORCAMENTO_COLISAO`):
+  - Tabela de preços por categoria de veículo (econômico/médio/intermediário), mercado paralelo 2025/2026
+  - Peças: para-choque, capô, para-lama, farol, lanterna, para-brisa, vidros, porta, teto, airbag, roda, pneu
+  - Mão de obra: funilaria, pintura por painel, reparo estrutural
+  - Categorias: pequeno_reparo / reparo_medio / grande_reparo / possivel_perda_total
+  - Regra de perda total: custo ≥ 75% do valor FIPE
+- [x] Campo `pre_orcamento` no JSON de saída da IA (apenas colisão, null nos demais)
+  - Tipos `PreOrcamentoItem` e `PreOrcamento` em `lib/types.ts`
+  - Seção colapsável com tabela de peças + mão de obra + total em `ResultadoAnalise.tsx`
+
+---
+
+## Banco de Dados — Constraints atualizadas
+- `usuarios_role_check`: `master | admin | gestor | usuario` (gestor adicionado na Sessão 7)
+
 ---
 
 ## Backlog
@@ -283,8 +321,6 @@ analisa-ai/
 - [ ] Onboarding multi-step para nova empresa
 - [ ] Planos (Free/Pro) com controle de uso via Supabase
 - [ ] Paginação na lista de sinistros
-- [ ] Extração real de texto de PDFs (pdf-parse ou similar)
 - [ ] Gráficos na página de relatórios
-- [ ] Dark mode
 - [ ] Notificações em tempo real (Supabase Realtime)
 - [ ] Upgrade Vercel para Pro (remove limite de 300s e 6 execuções simultâneas)
