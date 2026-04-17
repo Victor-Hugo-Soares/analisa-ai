@@ -283,6 +283,16 @@ analisa-ai/
 - [x] Fix: login page sempre em modo claro (preserva logo)
 - [x] Fix: dark mode na página de análise de imagem
 
+### Sessão 11 — Fix Build, Vercel Pro e Limites de Áudio (17/04/2026)
+- [x] **Fix TypeScript build error**: `result.analise` era `unknown` — cast para `AnaliseIA | undefined` em `app/sinistros/novo/page.tsx`; import de `AnaliseIA` adicionado
+- [x] **maxDuration 300 → 800s**: Vercel Pro contratado; `app/api/analyze/route.ts` atualizado para aproveitar o novo limite
+- [x] **Conflito de merge resolvido**: label `aguardando_informacoes` em `SinistrosList.tsx` (mantido "Aguardando Informações" do remote)
+- **Contexto de performance**:
+  - Áudio de 9 min levava ~5 min de processamento — estava no limite do plano Hobby (300s)
+  - Com Pro (800s): áudios de até ~20 min processam confortavelmente
+  - Limite Whisper: 25MB por arquivo (MP3 64kbps resolve até ~45 min de áudio)
+  - Compressão reduz tamanho mas **não** reduz tempo de processamento (Whisper processa por duração)
+
 ### Sessão 9 — Fix Transcrição Incompleta e Tier 2 OpenAI (16/04/2026)
 - [x] **Fix**: transcrição de áudio truncando (~10min em áudio de 13min)
   - Causa: `diarizeTranscription` usava `max_tokens: 4000` — cortava a saída para áudios longos
@@ -374,6 +384,22 @@ analisa-ai/
 
 ---
 
+## Próximos Passos Prioritários
+
+### Arquitetura — Processamento Assíncrono (próxima sprint)
+> Problema: pipeline IA é síncrono — usuário espera até 5+ min na tela. Com KB crescendo e áudios longos, vai piorar.
+- [ ] **Mover `/api/analyze` para Railway** (~$5-10/mês) — Node.js persistente, sem timeout
+- [ ] **Fila assíncrona**: usuário envia → salva no Supabase → job processa em background
+- [ ] **Supabase Realtime**: notifica browser quando análise concluir (sem polling)
+- [ ] **Stack final**: Vercel (frontend, grátis) + Railway (IA, $5-10/mês) + Supabase (já tem)
+
+### Orientação operacional para analistas
+- [ ] Orientar uso de MP3 64kbps para ligações longas (resolve limite 25MB do Whisper para até ~45 min)
+
+### OpenAI Tier 2
+- [ ] Verificar se conta atingiu Tier 2 ($50 pagos + 7 dias desde 09/04) em platform.openai.com → Settings → Limits
+- [ ] Após Tier 2: migrar modelos para gpt-4.1 (2M TPM vs 200K TPM atual) em `lib/openai.ts` e `app/api/analyze/route.ts`
+
 ## Backlog
 
 - [ ] Dashboard com métricas (sinistros por tipo, score médio, taxa suspeito)
@@ -383,5 +409,3 @@ analisa-ai/
 - [ ] Planos (Free/Pro) com controle de uso via Supabase
 - [ ] Paginação na lista de sinistros
 - [ ] Gráficos na página de relatórios
-- [ ] Notificações em tempo real (Supabase Realtime)
-- [ ] Upgrade Vercel para Pro (remove limite de 300s e 6 execuções simultâneas)
