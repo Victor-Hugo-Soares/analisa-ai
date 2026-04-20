@@ -36,6 +36,8 @@ export type TipoDocumento =
   | "croqui"
   | "fotos_pdf"
   | "fipe"
+  | "sindicancia"
+  | "mapa_local"
   | "outro"
 
 export const TIPO_DOCUMENTO_LABEL: Record<TipoDocumento, string> = {
@@ -53,6 +55,8 @@ export const TIPO_DOCUMENTO_LABEL: Record<TipoDocumento, string> = {
   croqui: "Croqui / Diagrama do Evento",
   fotos_pdf: "Fotos do Evento (PDF)",
   fipe: "Tabela FIPE do Veículo",
+  sindicancia: "Sindicância",
+  mapa_local: "Mapa / Print do Local (Google Maps)",
   outro: "Outro Documento",
 }
 

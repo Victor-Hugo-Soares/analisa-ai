@@ -198,7 +198,7 @@ function DocDropzone({ arquivos, onDrop, onRemove, onChangeTipoDoc }: DocDropzon
           </div>
           <p className="font-semibold text-[#0f172a] text-sm mb-1">Documentos</p>
           <p className="text-xs text-[#64748b] mb-2">
-            PDF ou foto — CRLV, CNH, BO, Laudos, FIPE, Orçamentos — até 20MB cada
+            PDF ou foto — CRLV, CNH, BO, Laudos, Sindicância, Mapa do Local — até 20MB cada
           </p>
           <div className="flex items-center gap-1.5 text-xs text-[#94a3b8]">
             <Upload className="w-3 h-3" />

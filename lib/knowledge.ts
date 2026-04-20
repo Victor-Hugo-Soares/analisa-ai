@@ -138,8 +138,11 @@ EVENTOS EXCLUÍDOS DA COBERTURA — O SISTEMA DEVE VERIFICAR ATIVAMENTE CADA UM:
 13. AVARIAS PREEXISTENTES: danos identificados na vistoria inicial são excluídos de danos
     reparáveis. Em perda total, são descontados do valor da indenização.
 
-14. MÁS CONDIÇÕES DE CONSERVAÇÃO: pneus com sulcos abaixo de 1,7mm, freios comprometidos,
-    suspensão com problemas que podem causar colisão → exclusão.
+14. MÁS CONDIÇÕES DE CONSERVAÇÃO: pneus com sulcos abaixo de 1,6mm (limite legal CONTRAN
+    Resolução 540/2015, Art. 6°), freios comprometidos, suspensão com problemas que podem
+    causar colisão → exclusão. Medição feita com paquímetro (calibrador de sulco) —
+    resultado abaixo de 1,6mm em qualquer pneu configura a exclusão, independentemente
+    dos demais pneus estarem regulares.
 
 ──── EXCLUSÕES DE SITUAÇÃO LEGAL ────
 
@@ -362,6 +365,44 @@ O QUE A SINDICÂNCIA PODE INVESTIGAR:
 • Histórico de sinistros em outras associações
 • Situação financeira do associado (dívidas, restrições, alienação fiduciária)
 • Conduta do condutor (alcoolemia, habilitação, velocidade)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RELATÓRIO DE NEXO CAUSAL — DOCUMENTO DE REGULADORA DE SINISTROS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+O Relatório de Nexo Causal é emitido por empresas reguladoras de sinistros (ex: Real
+Reguladora de Sinistros) contratadas pela associação para apurar colisões com terceiros.
+
+O QUE CONTÉM:
+1. Qualificação completa de cada veículo envolvido (com dados do CRLV: proprietário,
+   chassi, renavam, restrições como alienação fiduciária)
+2. Vistoria fotográfica presencial de cada veículo (exterior, interior, painel)
+3. Medição de pneus com paquímetro — confirma ou exclui exclusão por má conservação
+4. Levantamento do local dos fatos: via, limite de velocidade fotografado in loco,
+   condições de iluminação, presença de câmeras, busca ativa por testemunhas
+5. Dinâmica do ocorrido conforme relato do associado
+6. Análise técnica de compatibilidade de danos por veículo
+7. Conclusão: existe ou não nexo causal entre os danos e a dinâmica declarada?
+
+COMO A IA DEVE INTERPRETAR ESTE DOCUMENTO:
+• Conclusão FAVORÁVEL (nexo causal confirmado): corrobora o relato do associado —
+  adicionar como ponto_verdadeiro de alta relevância.
+• Conclusão DESFAVORÁVEL (danos incompatíveis): contradição técnica com o relato →
+  adicionar como contradição crítica.
+• Verificar se a vistoria foi realizada pelo associado E pelos terceiros — vistoria
+  unilateral (só do associado) tem menor peso probatório.
+• Verificar dados dos terceiros: alienação fiduciária nos CRLVs dos terceiros indica que
+  o pagamento de danos a esses terceiros deve ir ao credor fiduciário (banco/financeira).
+• Limite de velocidade fotografado pela reguladora é dado objetivo e confiável.
+• Medição de pneus com paquímetro é dado técnico objetivo — resultado abaixo de 1,6mm
+  configura exclusão mesmo que o associado alegue que o pneu estava "em bom estado".
+
+PROCEDIMENTO DE VERIFICAÇÃO IN LOCO (o que a reguladora faz):
+• Fotografa placas de limite de velocidade no local exato do evento
+• Entrevista porteiros, funcionários de empresas vizinhas e pedestres como testemunhas
+• Verifica câmeras de segurança próximas e solicita acesso às gravações
+• Registra condições da via: pavimento, iluminação, largura, sinalização
+• Se não há câmeras ou testemunhas: documenta explicitamente (não é omissão da investigação)
 `
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -571,6 +612,19 @@ PRÉ-ORÇAMENTO ESTIMADO DE DANOS — MERCADO PARALELO (REPOSIÇÃO):
 OBJETIVO: Gerar estimativa de custo de reparo baseada nos danos descritos/visíveis em fotos,
 usando preços de peças do mercado paralelo (reposição) e mão de obra de funilaria/pintura.
 Referência de preços: região Sul/Sudeste do Brasil, 2025/2026.
+Base de referência Loma: orçamentos da plataforma Cilia — nunca adote valores abaixo dessa base.
+
+TAXA DE MÃO DE OBRA — ORÇAMENTOS CILIA AUTORIZADOS:
+  R$ 65,00/h → padrão dominante em oficinas linhas gerais aprovadas pela Loma (referência principal)
+  R$ 50,00/h → oficinas mais simples (ex: veículos econômicos de menor valor)
+  Use R$ 65/h como base de cálculo. R$ 75/h apenas se a oficina justificar e for aprovada pelo regulador.
+
+REGRA ABSOLUTA — ITENS DE SEGURANÇA:
+Freios (pastilha, disco, cilindro mestre), cintos de segurança, airbags e módulos de controle
+eletrônico de segurança (ABS, SRS) devem ser SEMPRE cotados com peças ORIGINAIS ou OEM
+(equivalente certificado). NUNCA usar alternativo/paralelo nesses componentes.
+Justificativa: falha nestes componentes em evento futuro gera responsabilidade civil e
+configura exclusão de cobertura por modificação não autorizada (Exclusão 12).
 
 ══════════════════════════════════════════════════════════════
 COMO USAR ESTA TABELA
@@ -614,12 +668,12 @@ PARA-LAMA DIANTEIRO (troca):
 FAROL DIANTEIRO — por unidade (troca):
   Econômico:      R$ 150 – R$ 400
   Médio:          R$ 250 – R$ 650
-  Intermediário:  R$ 450 – R$ 1.300
+  Intermediário:  R$ 400 – R$ 1.300
 
 LANTERNA TRASEIRA — por unidade (troca):
-  Econômico:      R$ 80 – R$ 200
-  Médio:          R$ 130 – R$ 350
-  Intermediário:  R$ 250 – R$ 600
+  Econômico:      R$ 150 – R$ 280
+  Médio:          R$ 200 – R$ 400
+  Intermediário:  R$ 320 – R$ 700
 
 PARA-BRISA (troca + aplicação):
   Econômico:      R$ 280 – R$ 550
@@ -636,11 +690,24 @@ PORTA COMPLETA (troca — peça usada/paralela sem pintura):
   Médio:          R$ 600 – R$ 1.300
   Intermediário:  R$ 1.000 – R$ 2.500
   Porta reparo (amassado sem troca): R$ 200 – R$ 600
+  Nota: peça genuína (ex: porta Onix tabelada ~R$3.350) pode ser negociada pelo regulador
+  para ~R$900–1.100 (alternativa aprovada). Não use tabela OEM como referência de custo.
+
+PAINEL TRASEIRO (troca — peça alternativa/corte):
+  Médio:          R$ 1.200 – R$ 1.500
+  Intermediário:  R$ 1.800 – R$ 3.000
+  Obs.: painel traseiro com deformação severa geralmente indica análise de perda total.
+
+LATERAL EXTERNA — corte parcial (reparo/substituição de seção):
+  Médio:          R$ 1.700 – R$ 2.200
+  Intermediário:  R$ 2.500 – R$ 4.000
+  Obs.: operação de alta complexidade — exige soldagem e pintura extensa. Prazo 5–10 dias.
 
 ESPELHO RETROVISOR EXTERNO — por unidade (troca):
   Econômico:      R$ 90 – R$ 250
-  Médio:          R$ 150 – R$ 400
-  Intermediário:  R$ 300 – R$ 800
+  Médio:          R$ 200 – R$ 700
+  Intermediário:  R$ 400 – R$ 1.200
+  Obs.: espelhos com eletrônico/aquecido (ex: Saveiro G5, Onix Plus) chegam a R$600–700 em alternativa.
 
 TETO (reparo/desembolamento — tombamento):
   Reparo superficial (amassados leves): R$ 500 – R$ 1.200
@@ -668,6 +735,70 @@ PNEU — por unidade (troca, aro 13/14):
   Intermediário (aro 16/17): R$ 350 – R$ 650
 
 ══════════════════════════════════════════════════════════════
+TABELA DE PEÇAS MECÂNICAS (comum em colisões frontais/traseiras)
+══════════════════════════════════════════════════════════════
+
+RADIADOR (troca — paralelo/alternativo):
+  Econômico:      R$ 300 – R$ 700
+  Médio:          R$ 400 – R$ 1.100
+  Intermediário:  R$ 400 – R$ 2.000
+  Obs.: veículos com mais de 10 anos podem ter radiadores mais baratos no mercado paralelo
+  (ex: EcoSport 2008 = R$439). Incluir fluido de arrefecimento (~R$80) e M.O. (~2–3h = R$130–200).
+
+QUADRO DO RADIADOR / SUPORTE FRONTAL (troca):
+  Econômico/Médio: R$ 150 – R$ 350
+  Intermediário:   R$ 250 – R$ 600
+  Obs.: item frequentemente danificado em colisões frontais junto com o radiador.
+
+CONDENSADOR DE AR-CONDICIONADO (troca):
+  Econômico:      R$ 300 – R$ 600
+  Médio:          R$ 450 – R$ 900
+  Intermediário:  R$ 700 – R$ 1.500
+
+CAIXA DE DIREÇÃO (troca — paralela/recondicionada):
+  Econômico:      R$ 500 – R$ 1.200
+  Médio:          R$ 800 – R$ 1.800
+  Intermediário:  R$ 1.200 – R$ 3.000
+  Obs.: SEMPRE verificar se o sistema de direção elétrica (EPS) foi danificado — módulo eletrônico
+  adiciona R$800–2.500 e exige calibração.
+
+MANGA DE EIXO / CUBO DE RODA (troca, por lado):
+  Econômico:      R$ 200 – R$ 500
+  Médio:          R$ 350 – R$ 800
+  Intermediário:  R$ 600 – R$ 1.400
+
+BANDEJA DE SUSPENSÃO DIANTEIRA (troca, por lado):
+  Econômico:      R$ 300 – R$ 700
+  Médio:          R$ 450 – R$ 1.000
+  Intermediário:  R$ 800 – R$ 2.000
+
+AMORTECEDOR (troca, por unidade):
+  Econômico:      R$ 200 – R$ 450
+  Médio:          R$ 300 – R$ 700
+  Intermediário:  R$ 500 – R$ 1.200
+  Obs.: trocar sempre em par (dianteiro D+E ou traseiro D+E) → dobrar o valor da peça.
+
+PASTILHA DE FREIO (troca — ORIGINAL/OEM obrigatório):
+  Eixo dianteiro:  R$ 180 – R$ 450 (par)
+  Eixo traseiro:   R$ 150 – R$ 380 (par)
+  Mão de obra por eixo: R$ 150 – R$ 300
+
+DISCO DE FREIO (troca — ORIGINAL/OEM obrigatório, por unidade):
+  Econômico:      R$ 180 – R$ 350
+  Médio:          R$ 250 – R$ 500
+  Intermediário:  R$ 400 – R$ 900
+
+CINTO DE SEGURANÇA (troca — ORIGINAL obrigatório, por unidade):
+  Econômico:      R$ 250 – R$ 500
+  Médio:          R$ 350 – R$ 700
+  Intermediário:  R$ 600 – R$ 1.500
+  Obs.: cinto com pré-tensor acionado em colisão deve ser substituído obrigatoriamente.
+
+BATERIA (troca — se danificada em colisão):
+  Econômico/Médio: R$ 300 – R$ 600
+  Intermediário:  R$ 500 – R$ 1.000
+
+══════════════════════════════════════════════════════════════
 TABELA DE MÃO DE OBRA — FUNILARIA E PINTURA
 ══════════════════════════════════════════════════════════════
 
@@ -681,7 +812,10 @@ Troca de vidro lateral:                           R$ 80 – R$ 180
 Pintura de um painel (por painel):                R$ 300 – R$ 650
 Funilaria + pintura painel completo:              R$ 450 – R$ 900
 Reparo de teto (tombamento):                      R$ 800 – R$ 2.500
-Alinhamento de geometria (pós-colisão):           R$ 120 – R$ 250
+Alinhamento de geometria (pós-colisão):           R$ 80 – R$ 180
+Vistoria de imagem (documentação fotográfica):     R$ 90 (padrão Cilia/Loma)
+Desmontagem interior (colisão traseira/lateral):   R$ 250 – R$ 350
+Reparo de aro de roda (endireitamento/torno):      R$ 350 – R$ 500
 Reparo estrutural em prensa (longarina/assoalho): R$ 800 – R$ 3.000
 
 ══════════════════════════════════════════════════════════════
@@ -702,6 +836,51 @@ POSSÍVEL PERDA TOTAL → total estimado > 75% do valor FIPE do veículo
   Regra Loma: se custo de reparo ≥ 75% do valor FIPE → recomendar cotação de perda total.
   IMPORTANTE: informe sempre "veja o valor FIPE do modelo para comparar" quando o total
   estimado ultrapassar R$ 15.000 em veículos econômicos ou R$ 25.000 em médios.
+
+══════════════════════════════════════════════════════════════
+GRAU DE COMPLEXIDADE DO REPARO
+══════════════════════════════════════════════════════════════
+
+SIMPLES: apenas troca de peças plásticas/lentes + pintura. Sem estrutura comprometida.
+  Exemplos: para-choque, lanterna, farol, espelho. Prazo estimado: 1–3 dias.
+
+MÉDIO: funilaria em peças metálicas (capô, para-lama, porta) + pintura + possível alinhamento.
+  Exemplos: colisão frontal moderada sem airbag. Prazo estimado: 3–7 dias.
+
+COMPLEXO: dano estrutural (longarina, assoalho, torre de suspensão), airbag acionado,
+  mecânica danificada (radiador, direção, suspensão). Prazo estimado: 7–20 dias.
+  → Exige laudo de estrutura antes de liberar o reparo. Recomendar perícia presencial.
+
+MUITO COMPLEXO / PERDA TOTAL TÉCNICA: habitáculo comprometido, múltiplos airbags, teto,
+  chassis. Mesmo que o valor não atinja 75% FIPE, a integridade estrutural pode estar
+  comprometida permanentemente.
+
+══════════════════════════════════════════════════════════════
+OBSERVAÇÕES TÉCNICAS OBRIGATÓRIAS POR TIPO DE DANO
+══════════════════════════════════════════════════════════════
+
+• COLISÃO FRONTAL SEVERA (longarina + radiador + direção):
+  Verificar obrigatoriamente: alinhamento de geometria pós-reparo, teste de freio,
+  inspeção de coxim do motor, verificação do sistema de direção elétrica (EPS).
+  Incluir no orçamento: alinhamento 4 rodas (~R$80–180) + balanceamento (~R$80–150).
+
+• AIRBAG ACIONADO:
+  Além do módulo do airbag, verificar: cinto com pré-tensor (troca obrigatória),
+  painel de instrumentos (pode ter rachaduras), módulo SRS/ACM (pode precisar reprogramação).
+  Módulo SRS: R$400–1.200 + programação R$150–400.
+
+• TOMBAMENTO:
+  Verificar todos os vidros (para-brisa + laterais + traseiro), teto, pilares A/B/C,
+  retrovisores, antena. Geometria de suspensão geralmente comprometida.
+  Se pilares deformados → indicar perda total independentemente do valor total.
+
+• COLISÃO TRASEIRA:
+  Verificar porta-malas, para-choque traseiro, longarina traseira, lanternas.
+  Em veículos com tanque traseiro (GNV/flex): verificar integridade do tanque e conexões.
+
+• DANO EM SUSPENSÃO/DIREÇÃO:
+  Após qualquer colisão que afete roda, bandeja ou manga: alinhamento 4 rodas obrigatório.
+  Verificar caixa de direção, pivô, barra estabilizadora, terminal de direção.
 
 ══════════════════════════════════════════════════════════════
 INSTRUÇÕES DE PREENCHIMENTO DO CAMPO pre_orcamento
@@ -734,6 +913,19 @@ ETAPA 1 — IDENTIFICAR O LOCAL EXATO DO EVENTO
   - Pesquisa recomendada: "[nome da via] [município] limite velocidade" ou
     "[nome da via] [município] velocidade máxima permitida"
   - Fontes válidas: portal da prefeitura, CET/DETRAN municipal, notícias locais, Google Maps.
+
+MAPA DO LOCAL (tipo mapa_local):
+• Se um print do Google Maps ou imagem do local foi anexado, USE as informações extraídas
+  desse mapa como fonte primária da análise de via — elas prevalecem sobre estimativas.
+• Com o mapa, identifique diretamente:
+  - Tipo exato de via (cruzamento, rotatória, reta, curva, viaduto, retorno)
+  - Número de faixas e sentido do tráfego
+  - Presença de semáforo, faixa de pedestres, placa de velocidade visível
+  - Características que afetam a cinemática: canteiro, acostamento, declive visual
+• Referencie o mapa explicitamente na análise: "Conforme imagem do local anexada..."
+• Se o mapa contradiz o relato do associado (ex: alega cruzamento mas o mapa mostra reta),
+  registre a divergência como RED FLAG.
+
 • Classifique o tipo de via:
   - Via urbana (calçada, bairro, semáforos) → limite padrão 60 km/h se não houver placa.
   - Rodovia estadual → limite padrão 80–110 km/h (verificar sinalização).
@@ -772,6 +964,43 @@ Classifique a dinâmica a partir do relato + danos:
   RED FLAG: colisão traseira isolada sem outro veículo informado → verificar uso de celular,
   distância de frenagem, velocidade declarada vs dano observado.
 
+• ENGAVETAMENTO EM SEQUÊNCIA (múltiplos veículos):
+  Dinâmica: veículo A colide na traseira do veículo B → energia do impacto é transferida
+  para B → B colide na traseira do veículo C (e assim por diante).
+  Causa típica: parada repentina do fluxo (manobra de caminhão, acidente à frente, sinal)
+  combinada com distância de segurança insuficiente entre os veículos subsequentes.
+
+  ASSINATURA DE DANOS POR POSIÇÃO NA CADEIA:
+  - Veículo A (causador inicial): dano concentrado na dianteira
+  - Veículo B (intermediário): dano na traseira (recebeu A) + dano na dianteira (projetado sobre C)
+  - Veículo C (último da cadeia): dano apenas na traseira
+
+  ANÁLISE DE COMPATIBILIDADE EM CADEIA — OBRIGATÓRIA:
+  Para confirmar o nexo causal em engavetamentos, verificar:
+  1. A altura do impacto na traseira de B é compatível com a dianteira de A?
+  2. A altura do impacto na traseira de C é compatível com a dianteira de B?
+  3. A intensidade dos danos é coerente com a velocidade declarada e o tipo de via
+     (trânsito lento → danos de baixa a média intensidade; alta velocidade → danos severos)?
+  4. O dano dianteiro de B é compatível em posição e intensidade com o dano traseiro de C?
+
+  ANÁLISE DE SEQUÊNCIA TEMPORAL:
+  - A colisão com MAIOR energia dissipada (calculada pelo modelo McHenry) ocorreu PRIMEIRO.
+  - A colisão com MENOR energia é subsequente (a energia vai se disipando progressivamente).
+  - Isso permite confirmar ou refutar a ordem dos eventos declarada pelos envolvidos.
+
+  RELAÇÃO DE RIGIDEZ — VALIDAÇÃO DO NEXO:
+  - A partir da energia de A, calcular a energia esperada em B pela relação de rigidez entre modelos.
+  - Se energia real de B ≈ energia prevista → nexo confirmado (danos são compatíveis).
+  - Se energia real de B >> energia prevista → danos de B inflados ou pré-existentes.
+  - Se energia real de B << energia prevista → B estava em movimento ou amorteceu o impacto.
+
+  RED FLAG em engavetamento:
+  - Dano severo em B ou C sem dano proporcional em A (inflação dos danos terceiros)
+  - Dano em posição incompatível entre os veículos da cadeia (alturas de impacto não batem)
+  - Veículo C com dano muito mais severo que o dano dianteiro de B (impossível fisicamente)
+  - Veículo B sem dano dianteiro mas com terceiro alegando que B o atingiu
+  - Relação de rigidez muito divergente (energia real vs prevista > 30%) sem explicação
+
 ══════════════════════════════════════════════════════════════
 ETAPA 3 — VELOCIDADE CRÍTICA DE CURVA (quando acidente ocorreu em curva)
 ══════════════════════════════════════════════════════════════
@@ -804,6 +1033,139 @@ ATENÇÃO: você não tem acesso ao Google Maps para medir o raio. Portanto:
   - Indique qualitativamente se a curva parece fechada (alto risco) ou ampla (menor risco).
   - Nunca afirme um valor de velocidade exato sem dados objetivos — use "velocidade mínima estimada".
   - Recomende perícia técnica presencial (tipo Autoinsp) para calcular o raio com precisão.
+
+══════════════════════════════════════════════════════════════
+ETAPA 3-B — VELOCIDADE POR ROTAÇÃO-TRANSLAÇÃO
+══════════════════════════════════════════════════════════════
+
+Aplicar quando os vestígios indicarem que o veículo se deslocou E girou após o impacto
+(marcas de arrasto com rotação, posição final girada em relação à trajetória original).
+
+FÓRMULA:
+  V = √(2 × g × μ × (d + ½ × θ × √(b² + t²)))
+
+Onde:
+  d = distância de translação após o impacto, em metros (medida pelas marcas no asfalto)
+  μ = coeficiente de atrito (0,7 seco / 0,5 úmido / 0,3 molhado com lama)
+  θ = ângulo de rotação em RADIANOS (90° = π/2 ≈ 1,57 rad; 180° = π ≈ 3,14 rad)
+  b = entre-eixos do veículo, em metros
+  t = bitola do veículo (distância entre rodas do mesmo eixo), em metros
+
+QUANDO USAR: colisão lateral que projeta o veículo para fora da trajetória com giro visível,
+             saída de pista com rotação, impacto que provoca capotamento com arrasto lateral.
+
+LIMITAÇÃO: requer medição das marcas no local — sem vestígios fotografados ou laudo pericial
+           de campo, usar apenas qualitativamente para confirmar / descartar velocidade declarada.
+
+══════════════════════════════════════════════════════════════
+ETAPA 3-C — VELOCIDADE POR ENERGIA DE DEFORMAÇÃO (modelo McHenry)
+══════════════════════════════════════════════════════════════
+
+REGRA DE DECISÃO — qual metodologia usar:
+  • Danos SUPERFICIAIS (arranhões, marcas de atrito, leves amassados sem deformação residual
+    mensurável) → usar análise DIMENSIONAL E ALTIMÉTRICA (verificar cotas/alturas de impacto
+    entre os veículos para confirmar compatibilidade geométrica). McHenry NÃO aplicável.
+  • Danos ESTRUTURAIS (deformação plástica mensurável em componentes metálicos) → aplicar
+    modelo McHenry (SAE 2010-01 1581).
+
+MODELO McHENRY — FÓRMULA DE ENERGIA DE DEFORMAÇÃO:
+  Ed = w · [G + A/2·(c1+c2) + B/6·(c1²+c2²+c1·c2)] · [1 + tan²(θ)]
+
+  Onde:
+    A = coeficiente de rigidez A [N/cm] — tabelado por veículo (SAE 2010-01 1581)
+    B = coeficiente de rigidez B [N/cm²] — tabelado por veículo
+    G = força por unidade de largura sem deformação permanente [N] — tabelado
+    θ = ângulo de impacto [graus] (0° = colisão direta frontal/traseira)
+    c1 = primeira profundidade de deformação corrigida [cm]
+    c2 = segunda profundidade de deformação corrigida [cm]
+    w = largura da deformação residual [cm]
+
+  Medição das profundidades: discretizar o dano em pontos equidistantes ao longo da largura;
+  o modelo aproxima a área irregular por trapézios (método de Enciso, 2012).
+
+VELOCIDADE EQUIVALENTE À ENERGIA (após calcular Ed):
+  V = √(2 · Tt / M)
+
+  Onde:
+    Tt = trabalho total [J] = soma de TODAS as energias de deformação (todos setores de todos
+         os veículos atribuíveis ao causador do impacto)
+    M  = massa CORRIGIDA do veículo causador [kg] = massa do veículo + 70 kg (condutor padrão)
+
+RELAÇÃO DE RIGIDEZ — VALIDAÇÃO CRUZADA DO NEXO CAUSAL:
+  Com a energia calculada no veículo A (causador), é possível PREVER a energia esperada
+  no veículo B (atingido), convertendo pela relação de rigidez entre os modelos.
+
+  INTERPRETAÇÃO:
+  • Energia real de B ≈ energia prevista (variação < 10-15%) → nexo causal CONFIRMADO.
+    Os danos são compatíveis com a dinâmica declarada.
+  • Energia real de B muito superior à prevista → danos em B inflados/pré-existentes → RED FLAG.
+  • Energia real de B muito inferior à prevista → impacto menos intenso do que V1 indica,
+    ou B estava parcialmente em movimento (não estava parado).
+
+SOMA DE TRABALHOS EM ENGAVETAMENTO (múltiplos veículos):
+  Para estimar a velocidade do veículo causador inicial (VA) em um engavetamento:
+  Tt = Ed(VA_dianteira) + Ed(VB_traseira) + Ed(VB_dianteira) + Ed(VC_traseira) + ...
+  Ou seja: somar TODAS as energias de deformação de TODOS os impactos na cadeia.
+  Depois aplicar V = √(2·Tt / M_causador).
+
+ANÁLISE DE SEQUÊNCIA TEMPORAL EM ENGAVETAMENTO:
+  Interação com MAIOR energia dissipada = colisão que ocorreu PRIMEIRO (impacto primário).
+  Interação com MENOR energia dissipada = colisão subsequente (impacto secundário).
+  Isso permite determinar a ordem dos eventos mesmo sem câmeras ou testemunhas.
+
+TABELA ORIENTATIVA (quando coeficientes A/B/G não estiverem disponíveis):
+  Amassado < 5 cm sem deformação estrutural → E_abs < 5 kJ → V < 20 km/h (m ≈ 1.200 kg)
+  Amassado 5–15 cm (para-choque destruído, painel deformado) → E_abs 10–30 kJ → V 25–50 km/h
+  Amassado 15–30 cm (longarina comprometida) → E_abs 30–80 kJ → V 50–80 km/h
+  Amassado > 30 cm (habitáculo invadido, chassi dobrado) → E_abs > 80 kJ → V > 80 km/h
+
+LIMITAÇÃO: sem os coeficientes A, B, G tabelados para o modelo específico do veículo, o cálculo
+           é aproximado. Declare explicitamente quando estiver usando a tabela orientativa.
+           Para laudos periciais com ART (valor judicial), os coeficientes SAE são obrigatórios.
+
+══════════════════════════════════════════════════════════════
+ETAPA 3-D — CONSERVAÇÃO DE QUANTIDADE DE MOVIMENTO (dois veículos)
+══════════════════════════════════════════════════════════════
+
+Aplicar quando há DOIS veículos identificados, com dados suficientes sobre:
+  - Massa de ambos (ou aproximação por modelo/ano)
+  - Direção de deslocamento de cada um antes e depois da colisão
+  - Posição final dos veículos (medida ou estimada por fotos)
+  - Ângulo de colisão (frontal, lateral, oblíquo)
+
+PRINCÍPIO:
+  m₁ × V₁ + m₂ × V₂ = (m₁ + m₂) × V_pós  (colisão perfeitamente inelástica — veículos unidos)
+  Ou resolução vetorial para colisões anguladas com separação pós-impacto.
+
+QUANDO USAR: colisão em cruzamento (ângulo oblíquo), colisão frontal com dois veículos em
+             movimento, quando uma das velocidades é conhecida (declarada, câmera, telemetria)
+             e se quer estimar a outra.
+
+LIMITAÇÃO: requer posições e direções pós-impacto minimamente documentadas. Sem dados do local,
+           o método não é aplicável de forma confiável.
+
+══════════════════════════════════════════════════════════════
+FORMATO DE SAÍDA — FAIXA DE VELOCIDADE (OBRIGATÓRIO)
+══════════════════════════════════════════════════════════════
+
+NUNCA apresente um único valor de velocidade como certeza absoluta.
+Sempre conclua em FAIXA, diferenciando os tipos de afirmação:
+
+  • FATO OBSERVADO: "As fotos mostram deformação estrutural frontal estimada em 20–25 cm."
+  • DADO INFORMADO: "O associado declara que trafegava a 40 km/h."
+  • ESTIMATIVA FÍSICA: "Pelo modelo de energia de deformação, V_impacto situa-se entre 55–70 km/h."
+  • HIPÓTESE ADOTADA: "Coeficiente de atrito estimado em 0,5 (piso úmido, sem medição)."
+
+EXEMPLO DE CONCLUSÃO CORRETA:
+  "Com base nos danos estruturais frontais, na massa estimada do veículo e no modelo de energia
+   de deformação, os vestígios são compatíveis com impacto de alta energia. A velocidade
+   estimada no momento do impacto situa-se entre 60 e 78 km/h, com confiança moderada,
+   considerando a ausência de medição pericial direta de deformação e atrito."
+
+GRAUS DE CONFIANÇA:
+  ALTO    → dados medidos diretamente (laudo pericial, telemetria, câmera) + método aplicável
+  MÉDIO   → estimativas visuais por fotos + fórmulas aplicadas com hipóteses razoáveis
+  BAIXO   → poucos dados disponíveis, dependência de aproximações múltiplas
 
 ══════════════════════════════════════════════════════════════
 ETAPA 4 — PADRÃO DE DANOS vs. VELOCIDADE DECLARADA
@@ -1623,7 +1985,125 @@ PESO MÉDIO:
 `
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SEÇÃO 16 — REGRAS DE APRENDIZADO CONTÍNUO
+// SEÇÃO 16 — CTB: ARTIGOS RELEVANTES PARA ANÁLISE DE SINISTROS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const IANALISTA_CTB = `
+CTB — ARTIGOS RELEVANTES PARA ANÁLISE DE SINISTROS E EXCLUSÕES DE COBERTURA:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CATEGORIAS DE CNH (Art. 143) — ESSENCIAL PARA VERIFICAR EXCLUSÃO 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+| Categoria | Veículos autorizados                                                    |
+|-----------|-------------------------------------------------------------------------|
+| A         | Motocicletas, motonetas, ciclomotores                                   |
+| B         | Automóveis, camionetes, SUVs, furgões até 3.500 kg (uso particular)     |
+| C         | Veículos de carga > 3.500 kg (caminhões, utilitários pesados)           |
+| D         | Veículos de passageiros com > 8 lugares (vans, micro-ônibus, ônibus)    |
+| E         | Combinações de veículos (cavalos mecânicos, carretas, treminhão)        |
+| AB/AC/AD  | Categorias combinadas: A + B, A + C, A + D                              |
+
+REGRA DE ANÁLISE:
+- Condutor com CNH categoria B dirigindo caminhão (C) → categoria inadequada → exclusão 1.
+- Condutor com CNH categoria B dirigindo van escolar (D) → exclusão 1.
+- Motorista de app/delivery em motocicleta com CNH apenas B → exclusão 1.
+- CNH ACC (aprendiz) sozinho (sem instrutor) → sem habilitação válida → exclusão 1.
+- CNH vencida há mais de 30 dias = inválida (DENATRAN) → exclusão automática.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LIMITES DE VELOCIDADE POR TIPO DE VIA (Art. 61, com Lei 14.071/2020)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+| Tipo de via                        | Automóveis / motos | Caminhões / ônibus |
+|------------------------------------|--------------------|--------------------|
+| Via local (ruas residenciais)      | 30 km/h            | 30 km/h            |
+| Via coletora (bairro → arterial)   | 40 km/h            | 40 km/h            |
+| Via arterial (avenidas principais) | 60 km/h            | 60 km/h            |
+| Via de trânsito rápido (marginais) | 80 km/h            | 80 km/h            |
+| Rodovia pista simples              | 100 km/h           | 90 km/h            |
+| Rodovia pista dupla / expressa     | 120 km/h           | 100 km/h           |
+
+ATENÇÃO: a via pode ter sinalização específica que prevalece sobre o limite padrão acima.
+Em caso de neblina, chuva ou obras: redução de 20–30% é exigida.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EMBRIAGUEZ: INFRAÇÃO ADMINISTRATIVA vs. CRIME (Arts. 165 e 306)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NÍVEL 1 — INFRAÇÃO ADMINISTRATIVA (Art. 165):
+• Concentração de álcool ≥ 0,05 mg/L no ar alveolar (bafômetro)
+• Concentração ≥ 0,1 g/L no sangue
+• OU RECUSA ao bafômetro/exame de sangue (presunção automática de infração)
+• Consequência: multa R$ 2.934,70 + suspensão CNH 12 meses + retenção do veículo
+• Para a Loma: EXCLUSÃO DE COBERTURA (qualquer teor alcoólico configurado)
+
+NÍVEL 2 — CRIME (Art. 306):
+• Concentração ≥ 0,3 mg/L no ar alveolar (bafômetro)
+• Concentração ≥ 0,6 g/L no sangue
+• Pena: detenção 6 meses a 3 anos + suspensão CNH
+• Para a Loma: EXCLUSÃO DE COBERTURA + evidência de conduta criminosa no processo
+
+ANÁLISE PRÁTICA: se o associado se RECUSOU ao bafômetro → infração configurada por lei,
+mesmo sem medição. Qualquer alegação de "estava sóbrio mas me recusei" não afasta a exclusão.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CRIMES DE TRÂNSITO RELEVANTES — AGRAVANTES DE COBERTURA (Arts. 302–312)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ART. 302 — HOMICÍDIO CULPOSO NO TRÂNSITO
+• Pena base: detenção 2 a 4 anos + suspensão CNH
+• Se o condutor estava embriagado: reclusão 5 a 8 anos (agravante obrigatório)
+• Se em velocidade incompatível ou racha: reclusão 4 a 8 anos
+• Agravante por fuga do local: pena aumentada de 1/3 a 2/3
+→ Para a Loma: colisão com morte + embriaguez ou excesso de velocidade configurados
+  = múltiplas exclusões cumulativas (exclusões 2, 3 e 5 do regulamento).
+
+ART. 303 — LESÃO CORPORAL CULPOSA NO TRÂNSITO
+• Pena base: detenção 6 meses a 2 anos + suspensão CNH
+• Se embriagado: reclusão 2 a 5 anos
+→ Para a Loma: mesma lógica de exclusões cumulativas que o art. 302.
+
+ART. 305 — FUGA DO LOCAL DO ACIDENTE
+• Crime autônomo, independente de ter causado lesão ou morte
+• Pena: detenção 6 meses a 1 ano + suspensão CNH
+→ Para a Loma: configura exclusão 4 (infração grave) de forma independente.
+  Mesmo que o associado alegue "fui buscar socorro", fuga sem prestar socorro
+  é objetiva pelo local de parada vs. local do acidente.
+
+ART. 308 — RACHA / COMPETIÇÃO NÃO AUTORIZADA
+• Crime: detenção 6 meses a 3 anos + suspensão CNH
+• Se causar lesão grave: reclusão 3 a 6 anos
+• Se causar morte: reclusão 5 a 10 anos
+→ Para a Loma: exclusão 8 (competições e apostas) + exclusão 4 (infração grave).
+
+ART. 309 — DIRIGIR SEM HABILITAÇÃO EM LOCAL COM RISCO
+• Crime: detenção 6 meses a 1 ano + apre ensão do veículo
+→ Para a Loma: exclusão 1. O caráter criminal reforça a negativa de cobertura e
+  fundamenta eventual processo de ressarcimento contra o condutor não habilitado.
+
+ART. 310 — ENTREGAR VEÍCULO A NÃO HABILITADO (ou incapaz de conduzi-lo)
+• Crime: detenção 6 meses a 1 ano
+→ Para a Loma: RED FLAG crítico em casos de troca de condutor (fraude tipo 5).
+  Se o proprietário/associado entregou o veículo a condutor sem CNH (menor,
+  suspenso, cassado), ambos cometem crime — e a Loma tem cobertura negada.
+  ANÁLISE: verificar se o "condutor habitual" e o "condutor no sinistro" são
+  diferentes e se o proprietário sabia da inabilitação.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OBRIGAÇÃO DE PRESTAR SOCORRO (Art. 304 — Crime de Omissão)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Deixar de prestar assistência imediata à vítima de acidente = crime
+• Pena: detenção 6 meses a 1 ano
+• Se a omissão resultar em morte ou lesão grave: pena aumentada de metade a 2/3
+→ Para a Loma: associado que fugiu sem prestar socorro e não buscou atendimento
+  médico às vítimas tem exclusão de cobertura (art. 4, infração grave) ALÉM de
+  responsabilidade criminal autônoma. Documentar no relatório de análise.
+`
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEÇÃO 17 — REGRAS DE APRENDIZADO CONTÍNUO
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const IANALISTA_APRENDIZADO = `
@@ -1662,6 +2142,7 @@ incorporar novos conhecimentos:
 //   IANALISTA_FURTO_ROUBO  ≈ 5.300 tokens  → só furto/roubo
 //   IANALISTA_FORENSE_IMAGENS ≈ 1.900 tokens → colisão/natureza/vidros
 //   IANALISTA_LINGUISTICA  ≈ 1.200 tokens  → eventos com áudio
+//   IANALISTA_CTB          ≈ 900  tokens   → colisão + furto/roubo
 //   LOMA_RASTREADOR        ≈ 275  tokens   → furto/roubo
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1687,6 +2168,7 @@ export function buildKnowledgeBase(tipoEvento: TipoEventoKB, temAudio = true): s
     LOMA_FRAUDES,
     temImagens ? IANALISTA_FORENSE_IMAGENS : "",
     tipoEvento === "colisao" ? IANALISTA_CINEMATICA_COLISAO : "",
+    tipoEvento === "colisao" || ehFurtoRoubo ? IANALISTA_CTB : "",
     temAudio ? IANALISTA_LINGUISTICA : "",
     IANALISTA_SCORE_RISCO,
     ehFurtoRoubo ? IANALISTA_TELEMETRIA : "",
@@ -1726,6 +2208,7 @@ export function buildKnowledgeBaseDocumental(tipoEvento: "roubo" | "furto"): str
     LOMA_FRAUDES,
     // IANALISTA_FORENSE_IMAGENS omitido — cruzamento forense de imagens ocorre na Chamada 2
     // IANALISTA_LINGUISTICA omitido — análise vocal ocorre na Chamada 2
+    IANALISTA_CTB,
     IANALISTA_SCORE_RISCO,
     IANALISTA_TELEMETRIA,
     IANALISTA_FRAUDE_IA,

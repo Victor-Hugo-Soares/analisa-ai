@@ -662,6 +662,8 @@ async function extractDocumentFromImage(
     nota_fiscal: "Extraia: itens cobrados, valores, total, CNPJ e nome do emitente, data de emissão.",
     cnh_terceiro: "Extraia todos os dados da CNH visíveis na imagem.",
     declaracao_segurado: "Extraia a narrativa completa, datas e dados do declarante.",
+    sindicancia: "Extraia o conteúdo completo da sindicância: empresa sindicante, número do processo, data da vistoria, nome do sindicante, veículo vistoriado (placa, chassi, modelo), danos encontrados, conclusão sobre causa e nexo causal, eventuais irregularidades apontadas e recomendação final.",
+    mapa_local: "Esta imagem é um print do Google Maps ou similar do local do evento. Extraia e descreva: (1) tipo de via (rua, avenida, rodovia, cruzamento, rotatória, curva, reta), (2) nome/número da via se visível, (3) sinalização visível (semáforo, placa de velocidade, faixa de pedestre, pare, preferencial), (4) características físicas (pista simples ou dupla, número de faixas, canteiro central, acostamento), (5) contexto do entorno (área urbana/rural, comércio, residencial, industrial), (6) condições da via (lombada, buraco, estreitamento) se visível. Estas informações são usadas para análise cinemática do evento.",
   }
 
   const instrucao = instrucaoPorTipo[tipoDoc ?? ""] ??
