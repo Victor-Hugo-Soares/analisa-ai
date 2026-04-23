@@ -49,7 +49,7 @@ CRITÉRIOS DE AVALIAÇÃO:
 - Veículo sem danos, avarias ou arranhados não declarados
 - Placa visível e legível nas fotos de frente e traseira — conferir se bate com dados cadastrais
 - Chassi com 17 dígitos legíveis na lataria (não plaqueta ou outro tipo de marcação)
-- KM coerente — KM = 0,00 é suspeito para veículo com ano de fabricação anterior ao cadastro
+- KM: leia SEMPRE a partir da foto do odômetro (leitura visual), não do campo de texto do laudo — o campo de texto frequentemente aparece como 0.00 quando o vistoriador não o preencheu manualmente; isso não é suspeito. Suspeito é odômetro visivelmente zerado na foto OU KM da foto incompatível com o ano do veículo (ex.: 0 km em veículo 2019+).
 - GPS das fotos deve ser consistente (todas no mesmo local, exceto foto extra do associado que pode variar)
 - Tipo de câmbio na foto deve bater com o declarado (manual x automático)
 - GNV: se declarado "NÃO", verificar se não há kit GNV no motor
@@ -73,7 +73,7 @@ Retorne APENAS JSON válido, sem texto, markdown ou código:
     "chassi": "chassi 17 dígitos",
     "modelo": "fabricante + modelo completo",
     "ano": "ano modelo",
-    "km": "km registrado",
+    "km": "km lido visualmente na foto do odômetro (ignorar campo de texto do laudo se 0.00)",
     "cambio": "Manual ou Automático",
     "gnv": false,
     "acessorios": ["acessório 1"]
