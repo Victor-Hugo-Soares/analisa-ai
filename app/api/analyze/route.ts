@@ -3,6 +3,14 @@ import { openai, buildSystemPrompt, buildSystemPromptDocumental, PROMPT_INTEGRAC
 import { createServerClient } from "@/lib/supabase"
 import type { TipoEvento, DadosSinistro, TipoDocumento } from "@/lib/types"
 import { TIPO_DOCUMENTO_LABEL } from "@/lib/types"
+
+// pdf-parse v2 requires DOMMatrix (browser API) — polyfill for Node.js
+if (typeof globalThis.DOMMatrix === "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(globalThis as any).DOMMatrix = class DOMMatrix {
+    constructor() { return new Proxy(this, { get: (_, p) => typeof p === "string" && p !== "then" ? 0 : undefined }) }
+  }
+}
 export const maxDuration = 800
 export const dynamic = "force-dynamic"
 
@@ -166,11 +174,13 @@ export async function POST(req: NextRequest) {
       if (doc.nome.toLowerCase().endsWith(".pdf")) {
         try {
           const raw = base64.includes(",") ? base64.split(",")[1] : base64
-          const buffer = Buffer.from(raw, "base64")
+          const uint8 = new Uint8Array(Buffer.from(raw, "base64"))
           // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>
-          const parsed = await pdfParse(buffer)
-          textoPdf = parsed.text?.trim() ?? null
+          const { PDFParse } = require("pdf-parse") as { PDFParse: new (opts: { data: Uint8Array }) => { getText: () => Promise<{ text: string }>; destroy: () => Promise<void> } }
+          const pdfParser = new PDFParse({ data: uint8 })
+          const parsedPdf = await pdfParser.getText()
+          await pdfParser.destroy()
+          textoPdf = parsedPdf.text?.trim() || null
           console.log(`[PDF] Texto extraído de ${doc.nome}: ${textoPdf?.length ?? 0} chars`)
         } catch (e) {
           console.error(`[PDF] Falha ao extrair texto de ${doc.nome}:`, e)

@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   ScanSearch,
   Users,
+  ClipboardCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { isMaster, canManageUsers } from "@/lib/storage"
@@ -20,6 +21,7 @@ import { useDarkMode } from "@/lib/useTheme"
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Eventos", href: "/sinistros", icon: FileText },
+  { label: "Vistoria", href: "/vistoria", icon: ClipboardCheck },
   { label: "Análise de Imagem", href: "/analise-imagem", icon: ScanSearch },
   { label: "Relatórios", href: "/relatorios", icon: BarChart3 },
   { label: "Configurações", href: "/configuracoes", icon: Settings },
