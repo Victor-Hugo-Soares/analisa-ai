@@ -170,11 +170,32 @@ export async function POST(req: NextRequest) {
           const rawData = base64.includes(",") ? base64.split(",")[1] : base64
           const uint8 = new Uint8Array(Buffer.from(rawData, "base64"))
           // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const { PDFParse } = require("pdf-parse") as { PDFParse: new (opts: { data: Uint8Array }) => { getText: () => Promise<{ text: string }>; destroy: () => Promise<void> } }
-          const parser = new PDFParse({ data: uint8 })
-          const parsed = await parser.getText()
-          await parser.destroy()
+          const { PDFParse } = require("pdf-parse") as {
+            PDFParse: new (opts: { data: Uint8Array }) => {
+              getText: () => Promise<{ text: string }>
+              getScreenshot: (opts: { scale: number }) => Promise<{ pages: Array<{ data: Buffer }> }>
+              destroy: () => Promise<void>
+            }
+          }
+
+          // 1. Extrai texto (metadados do associado, placa, chassi…)
+          const parserText = new PDFParse({ data: uint8 })
+          const parsed = await parserText.getText()
+          await parserText.destroy()
           textParts.push(`=== LAUDO DE VISTORIA (${arquivo.nome}) ===\n${parsed.text}`)
+
+          // 2. Renderiza cada página como imagem e adiciona como visão
+          // scale 1.5 → boa qualidade sem explodir o contexto
+          const parserImg = new PDFParse({ data: uint8 })
+          const screenshots = await parserImg.getScreenshot({ scale: 1.5 })
+          await parserImg.destroy()
+          for (const page of screenshots.pages) {
+            const pageB64 = page.data.toString("base64")
+            messageContent.push({
+              type: "image_url",
+              image_url: { url: `data:image/png;base64,${pageB64}` },
+            })
+          }
         } catch (pdfErr) {
           console.error("[Vistoria] pdf-parse falhou:", String(pdfErr))
           textParts.push(`[Erro ao processar PDF: ${arquivo.nome}]`)
