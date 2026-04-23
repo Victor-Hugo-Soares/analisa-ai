@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useDropzone } from "react-dropzone"
 import { useRouter } from "next/navigation"
 import {
   Upload, X, CheckCircle2, XCircle, AlertTriangle,
-  ClipboardCheck, Car, FileText, RefreshCw, ImageIcon,
+  ClipboardCheck, Car, FileText, RefreshCw, ImageIcon, Loader2,
 } from "lucide-react"
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
@@ -90,9 +90,11 @@ export default function VistoriaPage() {
   const [session, setSession] = useState<EmpresaSession | null>(null)
   const [arquivos, setArquivos] = useState<ArquivoLocal[]>([])
   const [analisando, setAnalisando] = useState(false)
+  const [processandoPdf, setProcessandoPdf] = useState(false)
   const [resultado, setResultado] = useState<VistoriaResult | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [historico, setHistorico] = useState<VistoriaRecord[]>([])
+  const pdfjsRef = useRef<typeof import("pdfjs-dist") | null>(null)
 
   useEffect(() => {
     const s = getSession()
@@ -113,24 +115,76 @@ export default function VistoriaPage() {
     } catch { /* silent */ }
   }
 
+  async function renderPdfToImages(file: File): Promise<ArquivoLocal[]> {
+    // Carrega pdfjs-dist dinamicamente (browser only)
+    if (!pdfjsRef.current) {
+      const pdfjs = await import("pdfjs-dist")
+      pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs"
+      pdfjsRef.current = pdfjs
+    }
+    const pdfjs = pdfjsRef.current
+
+    const arrayBuffer = await file.arrayBuffer()
+    const pdf = await pdfjs.getDocument({ data: arrayBuffer, verbosity: 0 }).promise
+    const pageFiles: ArquivoLocal[] = []
+
+    for (let pg = 1; pg <= pdf.numPages; pg++) {
+      const page = await pdf.getPage(pg)
+      const viewport = page.getViewport({ scale: 1.5 })
+      const canvas = document.createElement("canvas")
+      canvas.width = viewport.width
+      canvas.height = viewport.height
+      const ctx = canvas.getContext("2d")!
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await page.render({ canvasContext: ctx as any, canvas, viewport }).promise
+
+      const blob = await new Promise<Blob>((res) =>
+        canvas.toBlob((b) => res(b!), "image/jpeg", 0.88)
+      )
+      const imgFile = new File([blob], `${file.name}-pg${pg}.jpg`, { type: "image/jpeg" })
+      pageFiles.push({
+        id: `${Date.now()}-${pg}-${Math.random()}`,
+        nome: imgFile.name,
+        tipo: "imagem",
+        file: imgFile,
+        tamanho: imgFile.size,
+      })
+    }
+    return pageFiles
+  }
+
   const onDrop = useCallback(
-    (accepted: File[]) => {
-      accepted.forEach((file) => {
+    async (accepted: File[]) => {
+      setProcessandoPdf(false)
+      for (const file of accepted) {
         const isPdf =
           file.type === "application/pdf" ||
           file.name.toLowerCase().endsWith(".pdf")
-        setArquivos((prev) => [
-          ...prev,
-          {
-            id: `${Date.now()}-${Math.random()}`,
-            nome: file.name,
-            tipo: isPdf ? "documento" : "imagem",
-            file,
-            tamanho: file.size,
-          },
-        ])
-      })
+
+        if (isPdf) {
+          setProcessandoPdf(true)
+          try {
+            const pages = await renderPdfToImages(file)
+            setArquivos((prev) => [...prev, ...pages])
+          } catch (e) {
+            console.error("[PDF render]", e)
+            // Fallback: adiciona o PDF como documento
+            setArquivos((prev) => [
+              ...prev,
+              { id: `${Date.now()}-${Math.random()}`, nome: file.name, tipo: "documento", file, tamanho: file.size },
+            ])
+          } finally {
+            setProcessandoPdf(false)
+          }
+        } else {
+          setArquivos((prev) => [
+            ...prev,
+            { id: `${Date.now()}-${Math.random()}`, nome: file.name, tipo: "imagem", file, tamanho: file.size },
+          ])
+        }
+      }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 
@@ -298,10 +352,17 @@ export default function VistoriaPage() {
               </div>
             )}
 
+            {processandoPdf && (
+              <div className="mt-3 flex items-center gap-2 text-sm" style={{ color: "#0f766e" }}>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Convertendo PDF em imagens...
+              </div>
+            )}
+
             <div className="mt-4 flex gap-3">
               <button
                 onClick={analisar}
-                disabled={!arquivos.length || analisando}
+                disabled={!arquivos.length || analisando || processandoPdf}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white font-semibold text-sm transition-opacity disabled:opacity-50"
                 style={{ backgroundColor: "#0f766e" }}
               >
