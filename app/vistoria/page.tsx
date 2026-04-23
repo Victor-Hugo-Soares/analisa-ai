@@ -10,13 +10,14 @@ import {
 import Header from "@/components/layout/Header"
 import Sidebar from "@/components/layout/Sidebar"
 import { getSession, getAccessToken } from "@/lib/storage"
+import { createClient } from "@/lib/supabase"
 import type { EmpresaSession } from "@/lib/types"
 
 interface ArquivoLocal {
   id: string
   nome: string
   tipo: "documento" | "imagem"
-  base64: string
+  file: File
   tamanho: number
 }
 
@@ -115,24 +116,19 @@ export default function VistoriaPage() {
   const onDrop = useCallback(
     (accepted: File[]) => {
       accepted.forEach((file) => {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const base64 = e.target?.result as string
-          const isPdf =
-            file.type === "application/pdf" ||
-            file.name.toLowerCase().endsWith(".pdf")
-          setArquivos((prev) => [
-            ...prev,
-            {
-              id: `${Date.now()}-${Math.random()}`,
-              nome: file.name,
-              tipo: isPdf ? "documento" : "imagem",
-              base64,
-              tamanho: file.size,
-            },
-          ])
-        }
-        reader.readAsDataURL(file)
+        const isPdf =
+          file.type === "application/pdf" ||
+          file.name.toLowerCase().endsWith(".pdf")
+        setArquivos((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}-${Math.random()}`,
+            nome: file.name,
+            tipo: isPdf ? "documento" : "imagem",
+            file,
+            tamanho: file.size,
+          },
+        ])
       })
     },
     []
@@ -168,6 +164,41 @@ export default function VistoriaPage() {
 
     try {
       const token = getAccessToken()
+      const supabase = createClient()
+
+      // 1. Faz upload de cada arquivo para o Supabase Storage
+      const arquivosPayload = await Promise.all(
+        arquivos.map(async (a) => {
+          // Solicita signed upload URL ao servidor
+          const urlRes = await fetch("/api/vistoria/upload-url", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ fileName: a.nome, empresaId: session!.id }),
+          })
+
+          if (!urlRes.ok) {
+            throw new Error(`Falha ao obter URL de upload para ${a.nome}`)
+          }
+
+          const { signedUrl, token: uploadToken, path } = await urlRes.json()
+
+          // Faz upload direto para o Supabase Storage
+          const { error: uploadError } = await supabase.storage
+            .from("sinistros-arquivos")
+            .uploadToSignedUrl(path, uploadToken, a.file, { contentType: a.file.type })
+
+          if (uploadError) {
+            throw new Error(`Falha no upload de ${a.nome}: ${uploadError.message}`)
+          }
+
+          return { nome: a.nome, tipo: a.tipo, storagePath: path }
+        })
+      )
+
+      // 2. Chama a API com os storagePaths (sem base64 no body)
       const res = await fetch("/api/vistoria", {
         method: "POST",
         headers: {
@@ -175,11 +206,7 @@ export default function VistoriaPage() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          arquivos: arquivos.map((a) => ({
-            nome: a.nome,
-            tipo: a.tipo,
-            base64: a.base64,
-          })),
+          arquivos: arquivosPayload,
           empresaId: session.id,
         }),
       })
